@@ -1,5 +1,5 @@
 title: BEExANT
 logo: /assets/img/logo.png
 description: Make machines working like bee and ant.
-show_downloads: true
+show_downloads: false
 theme: jekyll-theme-minimal
