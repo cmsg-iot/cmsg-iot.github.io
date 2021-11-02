@@ -1,37 +1,33 @@
-## Welcome to GitHub Pages
+# BEExANT
 
-You can use the [editor on GitHub](https://github.com/cmsg-iot/cmsg-iot.github.io/edit/main/index.md) to maintain and preview the content for your website in Markdown files.
+**Make machines working like bee and ant.**
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+## Teaching Aids
 
-### Markdown
+- [Tutorials](https://hackmd.io/@BEExANT-ta/nttu-ta)
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+### web template
 
-```markdown
-Syntax highlighted code block
+- [JS-IoT](https://cmsg-iot.github.io/ta_work/js-iot)
+- [IoT-SmartCar](https://cmsg-iot.github.io/ta_work/iot-car)
+- [IoT-SmartGreenHouse(house)](https://cmsg-iot.github.io/ta_work/iot-greenhouse/house)
+- [IoT-SmartGreenHouse(pump)](https://cmsg-iot.github.io/ta_work/iot-greenhouse/pump)
 
-# Header 1
-## Header 2
-### Header 3
+## Smart Agricultural Solution
 
-- Bulleted
-- List
+### NTTU SmartGreenHouse
 
-1. Numbered
-2. List
+- [Video](https://youtu.be/zdFqs61nxcM)
 
-**Bold** and _Italic_ and `Code` text
+## IoT Solution
 
-[Link](url) and ![Image](src)
-```
+### NTTU Geothermal Generating Information System
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+- [WebSite](http://210.240.165.134/)
 
-### Jekyll Themes
+## Free Firmware
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/cmsg-iot/cmsg-iot.github.io/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+### ESP-Web-Console
+> Use only ESP-01S make everything become IoT Devices.
+- [Github](https://github.com/cmsg-iot/ESP-Web-Console)
+- [Demo](https://youtube.com/playlist?list=PLAWpxGgnnFdqH9iN2gf-UTTJ0RJ1B8IpH)
