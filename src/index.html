@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="manifest" id="manifest-placeholder" />
+    <link rel="icon" id="icon" href="data:," />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no"
+    />
+    <!-- <link rel="stylesheet" href="./style.css" /> -->
+    <title>BEExANT MCU Web</title>
+    <style>
+      * {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+      }
+
+      #loading {
+        text-align: center;
+        background-color: #333333;
+        position: fixed;
+        width: 100vw;
+        height: 100vh;
+        top: 0%;
+        left: 0%;
+        overflow: hidden;
+        z-index: 99;
+        transition: 1s;
+      }
+
+      #loading div {
+        font-size: 40px;
+        color: white;
+        position: relative;
+        top: 35%;
+        left: 0%;
+        text-align: center;
+      }
+      #config_panel {
+        resize: both;
+        overflow: auto;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 1;
+        width: 30vw;
+        height: auto;
+        border-radius: 15px;
+        background-color: #f1f1f1;
+        text-align: center;
+        border: 1px solid #d3d3d3;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          0 2px 4px -1px rgba(0, 0, 0, 0.06);
+         
+      }
+
+      #config_panel_drag {
+        display: flex;
+        padding: 10px;
+        border-radius: 15px;
+        cursor: move;
+        z-index: 10;
+        background-color: #2196f3;
+        color: #fff;
+      }
+    </style>
+    <style id="ui_css"></style>
+  </head>
+
+  <body id="body">
+    <div id="loading">
+      <div>Loading...</div>
+    </div>
+    <div id="ui_html"></div>
+    <div id="config_panel">
+      <div id="config_panel_drag">
+        <div style="width: 97%">Config Panel</div>
+        <div style="width: 5%">
+          <button id="config_panel_scale" style="font-weight: bold">一</button>
+        </div>
+      </div>
+      <div id="config_panel_container">
+        <div>UI HTML Editor</div>
+        <div>
+          <textarea
+            name=""
+            id="tx_ui_html"
+            cols="30"
+            rows="10"
+            style="height: 200px; font-size: 16px"
+          ></textarea>
+        </div>
+        <div>UI CSS Editor</div>
+        <div>
+          <div>
+            <textarea
+              name=""
+              id="tx_ui_css"
+              cols="30"
+              rows="10"
+              style="height: 200px; font-size: 16px"
+            ></textarea>
+        </div>
+        <div>Data Format Editor</div>
+        <div>
+          <textarea
+              name=""
+              id="tx_ui_data"
+              cols="30"
+              rows="10"
+              style="height: 200px; font-size: 16px"
+            ></textarea>
+        </div>
+        <div>Custom Command Editor</div>
+        <div>
+          <textarea
+              name=""
+              id="tx_ui_app"
+              cols="30"
+              rows="10"
+              style="height: 200px; font-size: 16px"
+            ></textarea>
+        </div>
+      </div>
+    </div>
+  </body>
+
+  <!-- <script src="./index.js"></script> -->
+  <!-- <script src="./app.js"></script> -->
+  <!-- <script src="./worker.js" type="javascript/worker"></script> -->
+  <!-- <script>
+  setTimeout("connect()", 1000);
+  </script> -->
+
+  <script>
+    // 版本與韌體資源
+    let version = "1.0.0";
+    let firmware = "af3e333";
+    window.cacheName = `${version}-${firmware}`;
+    window.sourceState = "";
+
+    // 需要緩存的靜態檔案
+    let cacheList = {
+      app: "app.f2e899ef.js",
+      src: "src.c3a199cd.js",
+      worker: "worker.fbe42dfa.js",
+      style: "style.31434ebe.css",
+      ui: "ui.html",
+      manifest: "manifest.json",
+    };
+
+    // 原始資源清單
+    var sourceJS = ["src.c3a199cd.js", "app.f2e899ef.js"];
+
+    window.w = undefined;
+
+    // worker 程式來源
+    window.worker_url = `./${cacheList.worker}`;
+
+    // 用戶端的緩存版本
+    window.local_cache_name = localStorage.getItem("local_cache_name");
+
+    // 用戶端的緩存檔案內容
+    window.code_html = localStorage.getItem(`${cacheName}_ui.html`);
+    window.code_app = localStorage.getItem(`${cacheName}_${cacheList.app}`);
+    window.code_src = localStorage.getItem(`${cacheName}_${cacheList.src}`);
+    window.code_worker = localStorage.getItem(
+      `${cacheName}_${cacheList.worker}`
+    );
+    window.code_style = localStorage.getItem(`${cacheName}_${cacheList.style}`);
+    window.code_manifest = localStorage.getItem(
+      `${cacheName}_${cacheList.manifest}`
+    );
+
+    // 設定主頁面的hash
+    window.location.hash = "#home";
+    localStorage.setItem("current_hash", location.hash);
+
+    // 建立worker與websocket連線
+    function connect() {
+      try {
+        if (typeof Worker === "undefined") {
+          console.log("not support Worker");
+          return;
+        }
+        if (typeof w === "undefined") {
+          w = new Worker(worker_url);
+          w.onmessage = wkMsg;
+        }
+        cmd = { URL: document.URL };
+        w.postMessage(cmd);
+      } catch (error) {
+        console.error(error);
+        alert(error);
+        reloadWeb();
+      }
+    }
+
+    // 顯示資源載入狀態
+    window.sourceLoading = (source) => {
+      if (document.getElementById("version")) {
+        document.getElementById("version").innerText = `${cacheName}-${source}`;
+        console.log(`Load ${source} source.`);
+      }
+    };
+
+    // 取得檔案並設定緩存與載入
+    window.getFileWithImport = (name, type) => {
+      sourceLoading(`cached ${name}`);
+      fetch(`http://${window.location.host}/${name}`)
+        .then((res) => {
+          res.text().then((data) => {
+            // 設定緩存
+            localStorage.setItem(`${cacheName}_${name}`, data);
+            // 載入檔案
+            switch (type) {
+              case "html":
+                addHTML(data);
+                break;
+              case "css":
+                addStyle(data);
+                break;
+              case "js":
+                addScript(data);
+                break;
+              case "worker":
+                addWorker(data);
+                setTimeout(() => {
+                  let blob = new Blob([data], { type: "text/javascript" });
+                  worker_url = window.URL.createObjectURL(blob);
+                  console.log(worker_url);
+                }, 300);
+                break;
+              case "manifest":
+                addManifest(data);
+                break;
+              default:
+                console.log("not vaild file type.");
+                break;
+            }
+          });
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    };
+
+    // 建立緩存
+    function createCache(cacheList) {
+      setTimeout(() => getFileWithImport(cacheList.style, "css"), 500);
+      setTimeout(() => getFileWithImport(cacheList.ui, "html"), 1000);
+      setTimeout(() => getFileWithImport(cacheList.src, "js"), 1500);
+      setTimeout(() => getFileWithImport(cacheList.worker, "worker"), 2000);
+      setTimeout(() => getFileWithImport(cacheList.app, "js"), 2500);
+      setTimeout(() => getFileWithImport(cacheList.manifest, "manifest"), 3000);
+      setTimeout(() => connect(), 3500);
+      setTimeout(() => sourceLoading("origin-done"), 3500);
+    }
+
+    // 使用緩存
+    function useCachedData() {
+      addHTML(code_html);
+      addScript(code_src);
+      addStyle(code_style);
+      addWorker(code_worker);
+      addManifest(code_manifest);
+      addIcon(code_manifest);
+
+      setTimeout(() => {
+        addScript(code_app);
+      }, 500);
+
+      // 建立worker
+      setTimeout(() => {
+        let blob = new Blob([document.getElementById("worker").textContent], {
+          type: "text/javascript",
+        });
+        worker_url = window.URL.createObjectURL(blob);
+        console.log(worker_url);
+      }, 300);
+      setTimeout(connect, 500);
+
+      setTimeout(() => sourceLoading("cache"), 1000);
+    }
+
+    // 重新建立緩存
+    function refreshData() {
+      localStorage.clear();
+      localStorage.setItem("local_cache_name", cacheName);
+      createCache(cacheList);
+    }
+
+    // 加入html
+    function addHTML(data) {
+      document.getElementById("ui_html").innerHTML += data;
+    }
+
+    // 加入js
+    function addScript(data) {
+      let script = document.createElement("script");
+      script.type = "text/javascript";
+      script.async = true;
+      script.textContent = data;
+      document.getElementsByTagName("head")[0].appendChild(script);
+    }
+
+    // 加入css
+    function addStyle(data) {
+      let style = document.createElement("style");
+      style.id = "style";
+      style.textContent = data;
+      document.head.append(style);
+    }
+
+    // 加入worker程式
+    function addWorker(data) {
+      let script = document.createElement("script");
+      script.id = "worker";
+      script.type = "javascript/worker";
+      script.textContent = data;
+      document.getElementsByTagName("head")[0].appendChild(script);
+    }
+
+    // 加入manifest定義檔
+    function addManifest(data) {
+      let manifest = data.replace(/(\r\n|\n|\r| )/gm, "");
+      manifest = "data:application/manifest+json," + manifest;
+      document
+        .querySelector("#manifest-placeholder")
+        .setAttribute("href", manifest);
+    }
+
+    // 加入favicon
+    function addIcon(data) {
+      let manifest = JSON.parse(data.replace(/(\r\n|\n|\r| )/gm, ""));
+      let ico = manifest.icons[0].src;
+      document.querySelector("#icon").setAttribute("href", ico);
+    }
+
+    // 檢查瀏覽器是否支援localStorage，無則向server要求網頁檔案
+    if (true) {
+      setTimeout(() => getFileWithImport("style.31434ebe.css", "css"), 500);
+      setTimeout(() => getFileWithImport("/src/custom.css", "css"), 600);
+      setTimeout(() => getFileWithImport("/src/ui.html", "html"), 1000);
+      setTimeout(() => getFileWithImport("/src/index.js", "js"), 1500);
+      setTimeout(() => getFileWithImport("/src/worker.js", "worker"), 2000);
+      setTimeout(() => getFileWithImport("/src/app.js", "js"), 2500);
+      setTimeout(
+        () => getFileWithImport("/src/manifest.json", "manifest"),
+        3000
+      );
+    } else if (!window.localStorage) {
+      console.warn("Browser not support localStorage.");
+      refreshData();
+    }
+    // 檢查檔案版本與用戶端版本是否一致
+    else if (
+      cacheName === local_cache_name &&
+      code_html &&
+      code_app &&
+      code_src &&
+      code_style &&
+      code_worker &&
+      code_manifest
+    ) {
+      console.log(`Find Cache: ${cacheName}, use cache file.`);
+      useCachedData();
+    } else {
+      console.log(`Can't find cache, fetch fresh data and create new one.`);
+      refreshData();
+    }
+
+    document.onreadystatechange = loading;
+
+    // 完成Loading
+    function loading() {
+      if (document.readyState == "complete") {
+        setTimeout(() => {
+          document.getElementById("loading").style.display = "none";
+        }, 1500);
+        console.log("load success");
+      }
+    }
+
+    //Make the DIV element draggagle:
+    dragElement(document.getElementById("config_panel"));
+
+    function dragElement(elmnt) {
+      var pos1 = 0,
+        pos2 = 0,
+        pos3 = 0,
+        pos4 = 0;
+      if (document.getElementById(elmnt.id + "_drag")) {
+        /* if present, the header is where you move the DIV from:*/
+        document.getElementById(elmnt.id + "_drag").onmousedown = dragMouseDown;
+      } else {
+        /* otherwise, move the DIV from anywhere inside the DIV:*/
+        elmnt.onmousedown = dragMouseDown;
+      }
+
+      function dragMouseDown(e) {
+        console.log(e);
+        e = e || window.event;
+        e.preventDefault();
+        // get the mouse cursor position at startup:
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        document.onmouseup = closeDragElement;
+        // call a function whenever the cursor moves:
+        document.onmousemove = elementDrag;
+      }
+
+      function elementDrag(e) {
+        e = e || window.event;
+        e.preventDefault();
+        // calculate the new cursor position:
+        pos1 = pos3 - e.clientX;
+        pos2 = pos4 - e.clientY;
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        // set the element's new position:
+        elmnt.style.top = elmnt.offsetTop - pos2 + "px";
+        elmnt.style.left = elmnt.offsetLeft - pos1 + "px";
+      }
+
+      function closeDragElement() {
+        /* stop moving when mouse button is released:*/
+        document.onmouseup = null;
+        document.onmousemove = null;
+      }
+    }
+    window.config_panel_scale = true;
+    document
+      .getElementById("config_panel_scale")
+      .addEventListener("click", () => {
+        if (window.config_panel_scale) {
+          window.config_panel_scale = false;
+          document.getElementById("config_panel_container").style.display =
+            "none";
+          document.getElementById("config_panel_scale").innerHTML = "&#10010;";
+        } else {
+          window.config_panel_scale = true;
+          document.getElementById("config_panel_container").style.display = "";
+          document.getElementById("config_panel_scale").innerHTML = "一";
+        }
+      });
+    document.getElementById("tx_ui_html").addEventListener("input", (e) => {
+      // console.log(e.target.value);
+      document.getElementById("main_ui").innerHTML = e.target.value;
+    });
+    document.getElementById("tx_ui_css").addEventListener("input", (e) => {
+      // console.log(e.target.value);
+      document.getElementById("ui_css").textContent = e.target.value;
+    });
+  </script>
+</html>

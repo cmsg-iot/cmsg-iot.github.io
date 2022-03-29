@@ -1,0 +1,22 @@
+
+.cache/
+coverage/
+dist/
+!dist/index.html
+node_modules/
+*.log
+/app.*.js
+/src.*.js
+/worker.*.js
+/style.*.css
+/*.html
+/manifest.json
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

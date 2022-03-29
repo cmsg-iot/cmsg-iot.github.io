@@ -1,0 +1,419 @@
+@tailwind base;
+
+@tailwind components;
+
+@tailwind utilities;
+
+* {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+  transition: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  scroll-behavior: smooth;
+  user-select: initial;
+  -moz-user-select: initial;
+  -webkit-user-select: initial;
+  -ms-user-select: initial;
+}
+
+textarea {
+  resize: none;
+  outline: none;
+  font-size: 20px;
+  width: 95%;
+  max-width: 1000px;
+  height: 35vh;
+}
+
+input,
+textarea,
+button,
+select,
+div,
+a {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+button {
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}
+
+label {
+  padding: 0;
+  cursor: pointer;
+}
+input[type="checkbox"] {
+  display: none;
+}
+input[type="checkbox"] + span {
+  display: inline-block;
+  background-color: #ffffff;
+  padding: 3px 8px;
+  user-select: none; /* 防止文字被滑鼠選取反白 */
+  border-radius: 34px;
+  /* transition-property: background-color, border-color, color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms; */
+}
+
+input[type="checkbox"]:checked + span {
+  color: #ffffff;
+  background-color: #18a0fb;
+  --tw-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
+    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+.hidden {
+  display: none !important;
+}
+
+.float-center {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.path {
+  animation: draw 1.5s ease-out infinite;
+  stroke: #58b2dc;
+  stroke-width: 1;
+  fill: #ffffff;
+  fill-opacity: 1;
+}
+
+@keyframes draw {
+  30% {
+    stroke: #58b2dc;
+    fill: #ffffff;
+    fill-opacity: 1;
+  }
+  70% {
+    stroke: #ffffff;
+    fill: #58b2dc;
+    fill-opacity: 1;
+  }
+}
+
+.FadeIn {
+  animation: fade 0.1s linear;
+}
+
+.FadeInSlow {
+  animation: fade 2s linear;
+}
+
+.noFade {
+  animation: none;
+}
+
+@keyframes fade {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Components */
+.btn-basic {
+  @apply text-xl font-bold rounded-3xl m-4  shadow-md transition-colors h-52;
+}
+
+.btn-setting {
+  @apply bg-menu-100 text-4xl text-shadow-md w-full rounded-tl-3xl p-3  active:bg-gray-300;
+}
+
+.default {
+  @apply w-32 h-12 bg-default text-dark  active:bg-gray-200;
+}
+
+.primary {
+  @apply w-32 h-12 bg-primary text-white  active:bg-blue-400;
+}
+
+.success {
+  @apply w-32 h-12 bg-success text-white  active:bg-green-300;
+}
+
+.warning {
+  @apply w-32 h-12 bg-warning text-dark  active:bg-yellow-300;
+}
+
+.danger {
+  @apply w-32 h-12 bg-danger text-white  active:bg-red-400;
+}
+
+.switch {
+  @apply w-36 h-16 m-2 text-2xl text-white rounded-full font-bold shadow-md transition-colors;
+}
+
+.on {
+  @apply bg-success   active:bg-green-300;
+}
+
+.off {
+  @apply bg-danger  active:bg-red-400;
+}
+
+.settingBtn {
+  @apply bg-linear-gray-100 cursor-pointer text-xl  w-11/12 max-w-xl h-14 rounded-2xl shadow-md flex justify-center m-auto mt-8;
+}
+
+.settingBtn:active {
+  @apply bg-linear-gray;
+}
+
+.settingBtn table {
+  @apply self-center text-center font-bold  w-11/12 break-all;
+}
+
+.settingBtn-title {
+  @apply w-1/3 text-white;
+}
+
+.settingBtn-val {
+  @apply text-dark relative left-2;
+}
+
+.schedule {
+  @apply bg-white   shadow-md  w-11/12 max-w-3xl rounded-2xl flex justify-center flex-wrap m-auto mt-8;
+}
+
+.schedule-week {
+  @apply text-dark text-lg font-bold self-start mt-1 w-11/12 table-auto text-center text-shadow-md;
+}
+.schedule-week tbody {
+  line-height: inherit;
+}
+
+.schedule-week-select {
+  @apply bg-white text-lg text-shadow-md shadow-md w-11/12 max-w-3xl h-14 rounded-2xl flex justify-center m-auto mt-8;
+}
+
+.schedule-week-select table {
+  @apply text-dark text-lg font-bold self-center w-11/12 table-auto text-center;
+}
+
+.schedule-container {
+  @apply text-dark text-xl font-bold w-full flex;
+}
+
+.schedule-time {
+  @apply bg-yellow-100 w-1/6 h-full text-center rounded-bl-2xl rounded-tr-sm;
+}
+
+.schedule-time span {
+  @apply text-center relative top-8;
+}
+
+.schedule-area {
+  @apply text-dark text-lg font-bold w-11/12 table-auto text-center m-auto border-separate border-spacing-sm;
+}
+
+.schedule-exec {
+  @apply bg-success text-white  shadow-md rounded-md;
+}
+
+.schedule-close {
+  @apply bg-default shadow-md rounded-md;
+}
+
+.schedule-btn-group {
+  @apply w-full h-24 mt-2;
+}
+
+.schedule-remove {
+  max-width: 80px;
+  @apply w-1/12 bg-danger shadow-md text-white rounded-2xl cursor-pointer hover:bg-red-300 active:bg-red-400;
+}
+
+.list {
+  @apply w-full max-w-xl h-64 block overflow-y-auto overflow-hidden m-auto mt-8;
+}
+
+.list li {
+  @apply bg-white text-lg text-center font-bold w-11/12 max-w-xl h-10 rounded-2xl shadow-md block m-auto mt-4 mb-4;
+}
+
+.list li input {
+  @apply bg-white w-full rounded-2xl h-10 text-lg hover:bg-gray-200 active:bg-gray-50;
+}
+
+.buttomMenu {
+  @apply flex justify-center m-auto fixed -bottom-4;
+}
+
+.buttomMenu-btn {
+  @apply bg-menu-100 text-center rounded-t-xl w-12 h-20 ml-1 mr-1  active:bg-gray-400 transition-colors transition-transform cursor-pointer;
+}
+
+.buttomMenu-selected {
+  @apply bg-default transform -translate-y-8;
+}
+
+.buttomMenu-btn div {
+  @apply w-full h-full text-2xl text-shadow-md relative top-2;
+}
+
+.option-auto {
+  @apply bg-success;
+}
+
+.loader {
+  border-top-color: #3498db;
+  -webkit-animation: spinner 1.5s linear infinite;
+  animation: spinner 1.5s linear infinite;
+}
+
+@-webkit-keyframes spinner {
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+@keyframes spinner {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* ------------------- */
+
+@layer utilities {
+  .text-shadow {
+    text-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  }
+
+  .text-shadow-md {
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08);
+  }
+
+  .text-shadow-lg {
+    text-shadow: 0 15px 30px rgba(0, 0, 0, 0.11), 0 5px 15px rgba(0, 0, 0, 0.08);
+  }
+
+  .text-shadow-none {
+    text-shadow: none;
+  }
+
+  .border-spacing-sm {
+    border-spacing: 4px 0.2rem;
+  }
+
+  .border-spacing-md {
+    border-spacing: 6px 0.5rem;
+  }
+
+  .border-spacing-lg {
+    border-spacing: 10px 1rem;
+  }
+
+  .bg-linear-gray {
+    background: linear-gradient(90deg, #c3c3c3 37.14%, #ffffff 37.14%);
+  }
+
+  .bg-linear-gray-100 {
+    background: linear-gradient(90deg, #a3a3a3 37.14%, #fdfdfd 37.14%);
+  }
+
+  .bg-linear-gray-200 {
+    background: linear-gradient(90deg, #838383 37.14%, #dddddd 37.14%);
+  }
+
+  .card-purple {
+    background: radial-gradient(
+      50% 50% at 50% 50%,
+      rgba(230, 215, 255, 0.35) 6.25%,
+      #e3d2ff 100%
+    );
+  }
+
+  .card-blue {
+    background: radial-gradient(
+      50% 50% at 50% 50%,
+      rgba(218, 228, 255, 0.35) 0%,
+      #c2d3fe 100%
+    );
+  }
+}
+
+@media only screen and (max-width: 300px) {
+  .schedule-time span {
+    font-size: 16px;
+    top: 3rem;
+  }
+  .schedule-week {
+    font-size: 14px;
+  }
+}
+
+/* Custom, iPhone Retina */
+@media only screen and (max-width: 350px) and (max-height: 1100px) {
+  .schedule-time span {
+    top: 3rem;
+  }
+  .control-block {
+    height: 150vh !important;
+    max-height: 800px !important;
+  }
+}
+
+/* Extra Small Devices, Phones */
+@media only screen and (min-width: 480px) {
+}
+
+/* Small Devices, Tablets */
+@media only screen and (min-width: 768px) {
+  .control-block {
+    margin-top: 2.5rem;
+  }
+}
+
+/* Medium Devices, Desktops */
+@media only screen and (min-width: 992px) {
+}
+
+/* Large Devices, Wide Screens */
+@media only screen and (min-width: 1200px) {
+  .default {
+    @apply hover:bg-gray-300 active:bg-gray-200;
+  }
+  .primary {
+    @apply hover:bg-blue-500 active:bg-blue-400;
+  }
+  .success {
+    @apply hover:bg-green-400 active:bg-green-300;
+  }
+  .warning {
+    @apply hover:bg-yellow-400 active:bg-yellow-300;
+  }
+  .danger {
+    @apply hover:bg-red-500 active:bg-red-400;
+  }
+  .on {
+    @apply hover:bg-green-400 active:bg-green-300;
+  }
+  .off {
+    @apply hover:bg-red-500 active:bg-red-400;
+  }
+  .btn-setting {
+    @apply hover:bg-menu-200 active:bg-gray-300;
+  }
+  .buttomMenu-btn {
+    @apply hover:bg-menu-200 active:bg-gray-400;
+  }
+  .settingBtn:hover {
+    @apply bg-linear-gray-200;
+  }
+}
