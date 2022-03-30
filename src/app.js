@@ -21,7 +21,7 @@ const CORE_CMD = {
   },
   sche_show: "schedule show",
   sche_add: (week, time, area_arr) => {
-    return `schedule add Week:${week} H:M=${time} ${area.join(" ")}`;
+    return `schedule add Week:${week} H:M=${time} ${area_arr.join(" ")}`;
   },
   sche_save: "schedule save",
   sche_remove: (index) => {

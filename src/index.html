@@ -9,8 +9,8 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, user-scalable=no"
     />
-    <!-- <link rel="stylesheet" href="./style.css" /> -->
-    <title>BEExANT MCU Web</title>
+    <link rel="stylesheet" href="./style.css" />
+    <title id="title">BEExANT MCU Web</title>
     <style>
       * {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
@@ -38,14 +38,16 @@
         left: 0%;
         text-align: center;
       }
-      #config_panel {
+      #webeditor {
         resize: both;
+        min-width: 300px;
+        min-height: 46px;
         overflow: auto;
         position: absolute;
         top: 0;
-        left: 0;
+        right: 0;
         z-index: 1;
-        width: 30vw;
+        width: 35vw;
         height: auto;
         border-radius: 15px;
         background-color: #f1f1f1;
@@ -53,11 +55,18 @@
         border: 1px solid #d3d3d3;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
           0 2px 4px -1px rgba(0, 0, 0, 0.06);
-         
+        /* opacity: 0.5; */
       }
 
-      #config_panel_drag {
+      #webeditor div textarea {
+        height: 30vh;
+        font-size: 16px;
+      }
+
+      #webeditor_drag {
         display: flex;
+        position: sticky;
+        top: 0;
         padding: 10px;
         border-radius: 15px;
         cursor: move;
@@ -73,386 +82,880 @@
     <div id="loading">
       <div>Loading...</div>
     </div>
-    <div id="ui_html"></div>
-    <div id="config_panel">
-      <div id="config_panel_drag">
-        <div style="width: 97%">Config Panel</div>
-        <div style="width: 5%">
-          <button id="config_panel_scale" style="font-weight: bold">一</button>
+    <div id="ui_html">
+      <div id="container" class="bg-dark w-screen min-h-screen pb-20">
+        <!-- MainPage -->
+        <div style="padding-top: 30px">
+          <!-- SystemStatus -->
+          <div>
+            <div
+              class="text-shadow-md w-screen max-w-3xl h-24 m-auto flex justify-center items-center"
+            >
+              <div class="m-4 w-40 relative left-6">
+                <table
+                  class="text-white text-xl text-center font-bold self-center table-auto"
+                >
+                  <tr>
+                    <td>&#128246; 訊號</td>
+                  </tr>
+                  <tr>
+                    <td id="RSSI" class="text-lg h-14 w-32">-</td>
+                  </tr>
+                </table>
+              </div>
+              <div class="m-4 w-40">
+                <table
+                  class="text-white text-xl text-center font-bold self-center table-auto"
+                >
+                  <tr>
+                    <td>&#8987; 啟動時間</td>
+                  </tr>
+                  <tr>
+                    <td id="LT" class="text-lg h-14 w-32">-</td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- MainUI -->
+          <div id="main_ui"></div>
+        </div>
+
+        <!-- Title & Setting -->
+        <div>
+          <div class="bg-dark w-full h-16 fixed bottom-0">
+            <div class="flex h-full justify-center">
+              <div
+                class="w-9/12 text-dark text-xl font-bold text-center self-center flex justify-center items-center"
+                style="color: white"
+              >
+                <div id="bottom_title">BEExANT MCU Web</div>
+              </div>
+              <div class="w-3/12 self-center">
+                <button id="open-menu" class="btn-setting">&#9881;</button>
+              </div>
+            </div>
+          </div>
+          <div
+            id="version"
+            class="text-white"
+            style="position: fixed; left: 0px; bottom: 0px; font-size: 12px"
+          ></div>
+        </div>
+
+        <!-- SettingMenu -->
+        <div>
+          <!-- Mask -->
+          <div>
+            <div
+              class="fixed hidden top-0 w-full h-full bg-black-8 FadeIn"
+              id="mask"
+            >
+              <!-- Name & RSSI -->
+              <div
+                class="text-shadow-md w-screen max-w-3xl h-24 m-auto mt-8 flex justify-center items-center"
+              >
+                <div class="m-4 w-40 relative left-6">
+                  <table
+                    class="text-white text-xl text-center font-bold self-center table-auto"
+                  >
+                    <tr>
+                      <td>&#128241; 裝置名稱</td>
+                    </tr>
+                    <tr>
+                      <td id="device" class="text-lg h-14 w-32">-</td>
+                    </tr>
+                  </table>
+                </div>
+                <div class="m-4 w-40">
+                  <table
+                    class="text-white text-xl text-center font-bold self-center table-auto"
+                  >
+                    <tr>
+                      <td>&#128339; 時間</td>
+                    </tr>
+                    <tr>
+                      <td id="time" class="text-lg h-14 w-32">-</td>
+                    </tr>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Menu -->
+          <div>
+            <div
+              class="w-full hidden text-center text-3xl font-bold fixed float-center FadeIn"
+              id="menu"
+            >
+              <div
+                id="open-sche"
+                class="p-7 bg-black-5 text-white font-bold hover:bg-menu-300 active:bg-menu-200 transition-colors cursor-pointer"
+              >
+                &#128197; 排程設定
+              </div>
+              <div
+                id="open-custom"
+                class="p-7 bg-black-5 text-white font-bold hover:bg-menu-300 active:bg-menu-200 transition-colors cursor-pointer"
+              >
+                &#128221; 其他設定
+              </div>
+              <div
+                id="open-network"
+                class="p-7 bg-black-5 text-white font-bold hover:bg-menu-300 active:bg-menu-200 transition-colors cursor-pointer"
+              >
+                &#127760; 網路設定
+              </div>
+              <div
+                id="open-system"
+                class="p-7 bg-black-5 text-white font-bold hover:bg-menu-300 active:bg-menu-200 transition-colors cursor-pointer"
+              >
+                &#128295; 系統設定
+              </div>
+              <div
+                id="open-terminal"
+                class="p-7 bg-black-5 text-white font-bold hover:bg-menu-300 active:bg-menu-200 transition-colors cursor-pointer"
+              >
+                &#128187; 終端機
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SettingMask -->
+        <div
+          id="mask_setting"
+          class="bg-dark fixed top-0 w-screen h-screen hidden"
+        >
+          <div class="bg-menu-200 text-white top-0 w-screen h-24"></div>
+        </div>
+
+        <!-- SchedulePage -->
+        <div
+          id="sche_page"
+          class="fixed top-0 w-screen h-screen hidden pb-20 FadeIn"
+        >
+          <div
+            class="text-white text-shadow-md top-0 w-screen h-24 text-3xl font-bold text-center"
+          >
+            <span class="relative top-7">&#128197; 排程設定</span>
+          </div>
+          <!-- Show Schedule -->
+          <div
+            id="sche_list"
+            class="h-1/2 overflow-y-auto overscroll-y-auto"
+          ></div>
+
+          <div id="sche_btn_group" class="schedule-btn-group">
+            <div class="text-center relative top-2">
+              <button id="sche_btn_update" class="btn-basic btn-md default">
+                更新
+              </button>
+              <button id="sche_btn_add" class="btn-basic btn-md primary">
+                新增
+              </button>
+            </div>
+          </div>
+
+          <!-- Add Schedule -->
+          <div class="h-5/6 pb-10 overflow-y-auto overscroll-y-auto">
+            <div id="sche_editor" class="h-screen hidden">
+              <!-- Edit -->
+              <div class="schedule-week-select">
+                <table>
+                  <tbody>
+                    <td>週</td>
+                    <td>
+                      <label>
+                        <input type="checkbox" name="w1" id="sche_add_w1" />
+                        <span class="transition-colors">一</span>
+                      </label>
+                    </td>
+                    <td>
+                      <label>
+                        <input type="checkbox" name="w2" id="sche_add_w2" />
+                        <span class="transition-colors">二</span>
+                      </label>
+                    </td>
+                    <td>
+                      <label>
+                        <input type="checkbox" name="w3" id="sche_add_w3" />
+                        <span class="transition-colors">三</span>
+                      </label>
+                    </td>
+                    <td>
+                      <label>
+                        <input type="checkbox" name="w4" id="sche_add_w4" />
+                        <span class="transition-colors">四</span>
+                      </label>
+                    </td>
+                    <td>
+                      <label>
+                        <input type="checkbox" name="w5" id="sche_add_w5" />
+                        <span class="transition-colors">五</span>
+                      </label>
+                    </td>
+                    <td>
+                      <label>
+                        <input type="checkbox" name="w6" id="sche_add_w6" />
+                        <span class="transition-colors">六</span>
+                      </label>
+                    </td>
+                    <td>
+                      <label>
+                        <input type="checkbox" name="w7" id="sche_add_w7" />
+                        <span class="transition-colors">日</span>
+                      </label>
+                    </td>
+                  </tbody>
+                </table>
+              </div>
+
+              <div
+                class="bg-white text-shadow-md shadow-md w-11/12 max-w-3xl h-14 rounded-2xl flex justify-center m-auto mt-3"
+              >
+                <table
+                  class="text-dark text-xl font-bold self-center w-11/12 table-auto text-center"
+                >
+                  <tbody>
+                    <td>時間</td>
+                    <td><input type="time" name="" id="sche_add_time" /></td>
+                  </tbody>
+                </table>
+              </div>
+
+              <div
+                class="bg-white text-shadow-md shadow-md w-11/12 max-w-3xl h-40 rounded-2xl flex justify-center m-auto mt-3"
+              >
+                <table
+                  class="text-dark text-xl font-bold self-center w-11/12 table-auto text-center border-separate border-spacing-sm"
+                >
+                  <tbody>
+                    <tr>
+                      <td id="area_title_1" class="hidden">1區</td>
+                      <td id="area_title_2" class="hidden">2區</td>
+                      <td id="area_title_3" class="hidden">3區</td>
+                      <td id="area_title_4" class="hidden">4區</td>
+                    </tr>
+                    <tr>
+                      <td id="area_input_1" class="hidden">
+                        <select
+                          id="sche_add_area_1"
+                          class="w-12 border-dark border-2 rounded-r-sm ml-l"
+                        ></select>
+                      </td>
+                      <td id="area_input_2" class="hidden">
+                        <select
+                          id="sche_add_area_2"
+                          class="w-12 border-dark border-2 rounded-r-sm ml-l"
+                        ></select>
+                      </td>
+                      <td id="area_input_3" class="hidden">
+                        <select
+                          id="sche_add_area_3"
+                          class="w-12 border-dark border-2 rounded-r-sm ml-l"
+                        ></select>
+                      </td>
+                      <td id="area_input_4" class="hidden">
+                        <select
+                          id="sche_add_area_4"
+                          class="w-12 border-dark border-2 rounded-r-sm ml-l"
+                        ></select>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td id="area_title_5" class="hidden">5區</td>
+                      <td id="area_title_6" class="hidden">6區</td>
+                      <td id="area_title_7" class="hidden">7區</td>
+                      <td id="area_title_8" class="hidden">8區</td>
+                    </tr>
+                    <tr>
+                      <td id="area_input_5" class="hidden">
+                        <select
+                          id="sche_add_area_5"
+                          class="w-12 border-dark border-2 rounded-r-sm ml-l"
+                        ></select>
+                      </td>
+                      <td id="area_input_6" class="hidden">
+                        <select
+                          id="sche_add_area_6"
+                          class="w-12 border-dark border-2 rounded-r-sm ml-l"
+                        ></select>
+                      </td>
+                      <td id="area_input_7" class="hidden">
+                        <select
+                          id="sche_add_area_7"
+                          class="w-12 border-dark border-2 rounded-r-sm ml-l"
+                        ></select>
+                      </td>
+                      <td id="area_input_8" class="hidden">
+                        <select
+                          id="sche_add_area_8"
+                          class="w-12 border-dark border-2 rounded-r-sm ml-l"
+                        ></select>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="schedule-btn-group">
+                <div class="text-center relative top-2">
+                  <button id="sche_btn_cancel" class="btn-basic btn-md danger">
+                    取消
+                  </button>
+                  <button
+                    id="sche_btn_confirm"
+                    class="btn-basic btn-md primary"
+                  >
+                    確認
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CustomPage -->
+        <div
+          id="custom_page"
+          class="fixed top-0 w-screen h-screen hidden FadeIn"
+        >
+          <div
+            class="text-white text-shadow-md top-0 w-screen h-24 text-3xl font-bold text-center"
+          >
+            <span class="relative top-7">&#128221; 其他設定</span>
+          </div>
+          <!-- SettingList -->
+          <div id="custom_list" class="h-2/3 overflow-y-auto overscroll-y-auto">
+            <div class="h-10 text-center mt-4">
+              <span class="relative top-4 text-3xl text-white font-bold">
+                群組標題
+              </span>
+            </div>
+            <div class="settingBtn">
+              <table>
+                <td class="settingBtn-title">設定</td>
+                <td class="settingBtn-val">-</td>
+              </table>
+            </div>
+
+            <div class="h-10 text-center mt-4">
+              <span class="relative top-4 text-3xl text-white font-bold">
+                群組標題
+              </span>
+            </div>
+            <div class="settingBtn">
+              <table>
+                <td class="settingBtn-title">設定</td>
+                <td class="settingBtn-val">-</td>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
-      <div id="config_panel_container">
-        <div>UI HTML Editor</div>
-        <div>
-          <textarea
-            name=""
-            id="tx_ui_html"
-            cols="30"
-            rows="10"
-            style="height: 200px; font-size: 16px"
-          ></textarea>
+
+      <!--NetworkPage -->
+      <div
+        id="network_page"
+        class="fixed top-0 w-screen h-screen hidden FadeIn"
+      >
+        <div
+          class="text-white text-shadow-md top-0 w-screen h-24 text-3xl font-bold text-center"
+        >
+          <span class="relative top-7">&#127760; 網路設定</span>
         </div>
-        <div>UI CSS Editor</div>
-        <div>
-          <div>
+        <!-- SettingList -->
+        <div class="h-5/6 pb-20 overflow-y-auto overscroll-y-auto">
+          <div class="settingBtn">
+            <table>
+              <td class="settingBtn-title">目前WiFi</td>
+              <td id="wifi" class="settingBtn-val">-</td>
+            </table>
+          </div>
+          <div class="settingBtn hidden">
+            <table>
+              <td class="settingBtn-title">Socket IP</td>
+              <td id="socket" class="settingBtn-val">-</td>
+            </table>
+          </div>
+          <div class="h-10 text-center mt-4">
+            <span class="relative top-4 text-3xl text-white font-bold">
+              WiFI搜尋清單
+            </span>
+          </div>
+
+          <ul id="wifi-result" class="list"></ul>
+          <div class="w-full h-24 mt-10 mb-20">
+            <div class="text-center">
+              <button
+                id="network_btn_reconnect"
+                class="btn-basic btn-md warning"
+              >
+                重新連上
+              </button>
+              <button id="network_btn_scan" class="btn-basic btn-md primary">
+                搜尋
+              </button>
+              <button
+                id="network_btn_set_socket"
+                class="btn-basic btn-md success hidden"
+              >
+                Socket設定
+              </button>
+              <button
+                id="network_btn_get_socket"
+                class="btn-basic btn-md default hidden"
+              >
+                取得Socket
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SystemPage -->
+      <div id="system_page" class="fixed top-0 w-screen h-screen hidden FadeIn">
+        <div
+          class="text-white text-shadow-md top-0 w-screen h-24 text-3xl font-bold text-center"
+        >
+          <span class="relative top-7">&#128295; 系統設定</span>
+        </div>
+        <!-- SettingList -->
+        <div id="system_list" class="h-2/3 overflow-y-auto overscroll-y-auto">
+          <div id="system_set_device" class="settingBtn">
+            <table>
+              <td class="settingBtn-title">裝置名稱</td>
+              <td id="system_device" class="settingBtn-val">-</td>
+            </table>
+          </div>
+          <div id="system_set_time" class="settingBtn">
+            <table>
+              <td class="settingBtn-title">系統時間</td>
+              <td class="settingBtn-val">點擊設定</td>
+            </table>
+          </div>
+          <div id="system_set_ssid" class="settingBtn">
+            <table>
+              <td class="settingBtn-title">SSID 設定</td>
+              <td class="settingBtn-val">點擊設定</td>
+            </table>
+          </div>
+          <div id="system_set_bps" class="settingBtn">
+            <table>
+              <td class="settingBtn-title">UART 設定</td>
+              <td id="bps" class="settingBtn-val">-</td>
+            </table>
+          </div>
+          <div id="system_set_SSbps" class="settingBtn">
+            <table>
+              <td class="settingBtn-title">SS bps 設定</td>
+              <td id="SSbps" class="settingBtn-val">-</td>
+            </table>
+          </div>
+          <div id="system_reload" class="settingBtn mb-20">
+            <table>
+              <td class="settingBtn-title">重新整理</td>
+              <td class="settingBtn-val">點擊重整</td>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TerminalPage -->
+      <div
+        id="terminal_page"
+        class="fixed top-0 w-screen h-screen hidden FadeIn"
+      >
+        <div
+          class="text-white text-shadow-md top-0 w-screen h-24 text-3xl font-bold text-center"
+        >
+          <span class="relative top-7">&#128187; 終端機</span>
+        </div>
+        <div class="h-2/3 overflow-y-auto overscroll-y-auto">
+          <div class="text-center h-2/5 mt-8">
             <textarea
               name=""
-              id="tx_ui_css"
+              id="tx"
               cols="30"
               rows="10"
-              style="height: 200px; font-size: 16px"
+              class="bg-black text-terminal shadow-md px-4 py-2 w-11/12 max-w-3xl h-full rounded-xl m-auto border-4 border-gray-300 whitespace-pre"
+              disabled
             ></textarea>
+          </div>
+          <input
+            class="appearance-none block w-11/12 max-w-xl bg-gray-200 text-gray-700 border border-gray-200 rounded-lg py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500 mt-10 m-auto"
+            id="cmd_input"
+            type="text"
+            name="float-input"
+            placeholder="輸入命令..."
+          />
+          <div class="w-full h-24 mt-4 mb-20">
+            <div class="text-center">
+              <button id="terminal_clear" class="btn-basic btn-md warning">
+                清除
+              </button>
+              <button id="terminal_send" class="btn-basic btn-md primary">
+                發送
+              </button>
+              <button id="terminal_scroll" class="btn-basic btn-md success">
+                捲動: ON
+              </button>
+              <button id="terminal_log" class="btn-basic btn-md success">
+                Log: ON
+              </button>
+            </div>
+          </div>
         </div>
-        <div>Data Format Editor</div>
-        <div>
-          <textarea
-              name=""
-              id="tx_ui_data"
-              cols="30"
-              rows="10"
-              style="height: 200px; font-size: 16px"
-            ></textarea>
+      </div>
+
+      <!-- BottomMenu -->
+      <div id="menu_bottom" class="hidden">
+        <div class="w-screen flex justify-center m-auto fixed -bottom-8">
+          <div class="buttomMenu-btn">
+            <div id="btmMenu_sche">&#128197;</div>
+          </div>
+          <div id="btmMenu_custom_btn" class="buttomMenu-btn">
+            <div id="btmMenu_custom">&#128221;</div>
+          </div>
+          <div class="buttomMenu-btn">
+            <div id="btmMenu_network">&#127760;</div>
+          </div>
+          <div class="buttomMenu-btn">
+            <div id="btmMenu_system">&#128295;</div>
+          </div>
+          <div class="buttomMenu-btn">
+            <div id="btmMenu_terminal">&#128187;</div>
+          </div>
+          <div id="btmMenu_close" class="w-1/4 ml-2 transform -translate-y-4">
+            <button
+              class="bg-danger text-white text-3xl font-bold w-full h-4/5 rounded-t-xl hover:bg-red-500 active:bg-red-400"
+            >
+              &#9747;
+            </button>
+          </div>
         </div>
-        <div>Custom Command Editor</div>
+      </div>
+
+      <!-- Spin Animation -->
+      <div
+        id="spin"
+        class="bg-black-5 fixed w-screen h-screen top-0 flex justify-center items-center hidden"
+      >
+        <div class="ml-4">
+          <svg
+            id="LOGO"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 205.67 296.82"
+            class="w-24 mr-2"
+          >
+            <title>BEExANT_SVG</title>
+            <g id="Group" stroke="#FFFFFF" stroke-width="3" fill="#ffffff">
+              <path
+                class="path"
+                d="M151.54,137.47a3.45,3.45,0,1,1-3.45-3.44A3.46,3.46,0,0,1,151.54,137.47Z"
+                transform="translate(-85.87 -50.81)"
+              />
+              <path
+                class="path"
+                d="M151.54,147.14a3.45,3.45,0,1,1-3.45-3.45A3.45,3.45,0,0,1,151.54,147.14Z"
+                transform="translate(-85.87 -50.81)"
+              />
+              <path
+                class="path"
+                d="M289.76,245.23,212.59,152a4.43,4.43,0,0,0,.26-1.45v-16.2a4.44,4.44,0,0,0-2.19-3.78l-14.91-9.06,10.89-14c.06-.07.09-.16.15-.24a4.31,4.31,0,0,0-.35-5.55L191.16,85.48a5,5,0,0,0-6.72-.37,4.33,4.33,0,0,0-.39,6.35L196.78,105l-10.42,13.44h-8.07V82.56l27-24.89a3.85,3.85,0,0,0,.08-5.66,4.42,4.42,0,0,0-6-.07L171.64,77.52a3.93,3.93,0,0,0-.51.58,3.85,3.85,0,0,0-1.3,2.87v37.45H167.6a4.2,4.2,0,0,0-.62.06,4.34,4.34,0,0,0-.63-.06h-1.9V83a4,4,0,0,0-2.06-3.42c-.09-.06-.17-.14-.27-.2l-12.54-7.6,11.47-11.16a3.84,3.84,0,0,0-.08-5.65,4.41,4.41,0,0,0-6,.08L140.7,68.91c-.11.11-.2.24-.3.36a4.15,4.15,0,0,0-1.05,1,3.88,3.88,0,0,0,1.28,5.53L156,85.14v33.28h-9L136.58,105l12.73-13.52a4.32,4.32,0,0,0-.39-6.35,5,5,0,0,0-6.72.37L126.93,101.7a4.29,4.29,0,0,0-.35,5.55,1.94,1.94,0,0,0,.15.24l11.08,14.28-14.52,8.82a4.44,4.44,0,0,0-2.19,3.78v16.2a4.47,4.47,0,0,0,2.19,3.79L137,162.68l-50.5,75.09c0,.06-.06.13-.1.19s-.14.25-.2.38-.1.24-.14.36-.08.24-.11.37,0,.26-.06.39a2.31,2.31,0,0,0,0,.37c0,.13,0,.26,0,.39s0,.26.05.38L86,241c0,.11.08.23.13.35a2.93,2.93,0,0,0,.19.4c0,.06,0,.12.09.19l63.74,103.7a4.29,4.29,0,0,0,3.67,2,4.37,4.37,0,0,0,2.12-.54l.21-.14.2-.14.39-.3c.12-.11.23-.23.34-.35l.15-.18a3.82,3.82,0,0,0,.86-2.39V220a4,4,0,0,0-4.09-5h-16.3a8.54,8.54,0,0,0-7.32-4,8,8,0,1,0,0,16,8.56,8.56,0,0,0,7.32-4h11.93v30.16H137.72a8.54,8.54,0,0,0-7.32-4,8,8,0,1,0,0,16,8.54,8.54,0,0,0,7.32-4h11.93v67.7L95,240l49.42-73.5.27,0h18.75V271.47a4,4,0,0,0,.1.85,4.13,4.13,0,0,0,4.19,3.62h23.48a8.54,8.54,0,0,0,7.32,4,8,8,0,1,0,0-16,8.54,8.54,0,0,0-7.32,4H172v-31.3h13a8.54,8.54,0,0,0,7.32,4,8,8,0,1,0,0-16,8.54,8.54,0,0,0-7.32,4H172V199.16a4.24,4.24,0,0,0,.88.09h6.43a8.54,8.54,0,0,0,7.32,4,8,8,0,1,0,0-16,8.54,8.54,0,0,0-7.32,4h-6.43a4.24,4.24,0,0,0-.88.09V166.53h17.27a4.94,4.94,0,0,0,2.58-.72l5.58-3.39L224,277.32a4.51,4.51,0,0,0-1.33.63l-51.18,36.67c-.08.05-.13.12-.2.17a2.28,2.28,0,0,0-.33.29,2.55,2.55,0,0,0-.26.3l-.24.31c-.07.11-.13.23-.19.34s-.12.23-.17.35a2.78,2.78,0,0,0-.12.38c0,.12-.07.24-.1.37s0,.28,0,.43a2,2,0,0,0,0,.24v25.67a4.24,4.24,0,0,0,8.46,0V319.79l49.51-35.46a4,4,0,0,0,.75-.72l49.36,12.72a4.35,4.35,0,0,0,5-2.25,3.85,3.85,0,0,0,.47-1.25l8.11-43.67A3.89,3.89,0,0,0,289.76,245.23ZM130.25,222.61a3.81,3.81,0,1,1,4-3.81A3.92,3.92,0,0,1,130.25,222.61Zm0,38.11a3.81,3.81,0,1,1,4-3.8A3.91,3.91,0,0,1,130.25,260.72ZM198.89,268a3.81,3.81,0,1,1-4,3.8A3.92,3.92,0,0,1,198.89,268Zm-6.64-39.17a3.81,3.81,0,1,1-4,3.81A3.93,3.93,0,0,1,192.25,228.83Zm-5.58-37.39a3.81,3.81,0,1,1-4,3.81A3.92,3.92,0,0,1,186.67,191.44Zm16.66-43.33-15.5,9.42H167.6a4.2,4.2,0,0,0-.62.06,4.34,4.34,0,0,0-.63-.06H146.13l-15.51-9.42V136.83l15.51-9.41h20.22c.22,0,.42,0,.63-.06a6.2,6.2,0,0,0,.62.06h20.23l15.5,9.41Zm72.43,139.38-43.31-11.17L205,157.81l1.11-.67,76.69,92.63Z"
+                transform="translate(-85.87 -50.81)"
+              />
+              <path
+                class="path"
+                d="M228.58,343.77l-2.26,3.85a59.9,59.9,0,0,1-7.11-5.09,16.08,16.08,0,0,1-11.83,5q-7.37,0-10.7-4.47a10.09,10.09,0,0,1-1.85-6.07q0-5.14,5.6-9.32c.76-.55,1.63-1.13,2.63-1.75q-3.3-4.79-3.3-9c0-3.57,1.31-6.2,3.91-7.88a9.77,9.77,0,0,1,5.25-1.44q5.06,0,7.21,3.6a8.27,8.27,0,0,1,1.13,4.28q0,4.83-5.35,8.95c-.86.65-1.92,1.39-3.19,2.21A100.55,100.55,0,0,0,219,336.51a24.19,24.19,0,0,0,4.27-10.34h4.42A34.71,34.71,0,0,1,222,339.08,54.56,54.56,0,0,0,228.58,343.77Zm-29.33-6.95a6.21,6.21,0,0,0,4,6.07,11.3,11.3,0,0,0,4.53.88q4.38-.06,8.34-4a106.17,106.17,0,0,1-10.91-10.9c-3.09,2.05-5,4-5.61,5.86A6.21,6.21,0,0,0,199.25,336.82Zm4.53-20.12c0,2.06,1,4.44,2.83,7.15q4.72-2.93,6-5.3a6.17,6.17,0,0,0,.77-2.93,4.31,4.31,0,0,0-2.21-4.07A4.59,4.59,0,0,0,209,311a4.64,4.64,0,0,0-4.79,3.09A7,7,0,0,0,203.78,316.7Z"
+                transform="translate(-85.87 -50.81)"
+              />
+              <g stroke="#FFFFFF" stroke-width="2" fill="#ffffff">
+                <path
+                  class="path"
+                  d="M223.6,319.16V295.83h7.73q8.4.06,8.44,5.75a5.44,5.44,0,0,1-1.67,4.1,4.45,4.45,0,0,1-1.51.92v.19a5.16,5.16,0,0,1,4.13,3.66,6.89,6.89,0,0,1,.25,1.85,6,6,0,0,1-4.19,6,12.79,12.79,0,0,1-4.83.83Zm4.68-13.85H231c2.69-.19,4.11-1.2,4.25-3.05,0-1.54-.86-2.45-2.59-2.74a9.57,9.57,0,0,0-1.6-.12h-2.77Zm0,10.25h3.24q4.89,0,4.92-3.54-.06-3.19-4.92-3.23h-3.24Z"
+                  transform="translate(-85.87 -50.81)"
+                />
+                <path
+                  class="path"
+                  d="M252.36,319.59a8.28,8.28,0,0,1-6.62-2.86,9.45,9.45,0,0,1-2.16-6.37,9.36,9.36,0,0,1,3-7.24,7.69,7.69,0,0,1,5.26-2.06,6.58,6.58,0,0,1,6.31,3.6,10.38,10.38,0,0,1,1.08,4.87,7.83,7.83,0,0,1-.21,2.09h-10.9a4.56,4.56,0,0,0,3.08,4.16,5.82,5.82,0,0,0,1.81.27,7.72,7.72,0,0,0,4-1.23l1.56,2.83A10.51,10.51,0,0,1,252.36,319.59Zm-4.34-11h7.2q0-3.42-2.65-3.85a4,4,0,0,0-.7-.06,3.54,3.54,0,0,0-3.24,1.94A5.76,5.76,0,0,0,248,308.57Z"
+                  transform="translate(-85.87 -50.81)"
+                />
+                <path
+                  class="path"
+                  d="M270.64,319.59a8.26,8.26,0,0,1-6.61-2.86,9.45,9.45,0,0,1-2.16-6.37,9.36,9.36,0,0,1,3-7.24,7.69,7.69,0,0,1,5.26-2.06,6.58,6.58,0,0,1,6.31,3.6,10.38,10.38,0,0,1,1.08,4.87,7.36,7.36,0,0,1-.22,2.09H266.37a4.56,4.56,0,0,0,3.07,4.16,5.89,5.89,0,0,0,1.82.27,7.66,7.66,0,0,0,4-1.23l1.57,2.83A10.54,10.54,0,0,1,270.64,319.59Zm-4.34-11h7.21q0-3.42-2.65-3.85a4.08,4.08,0,0,0-.71-.06,3.53,3.53,0,0,0-3.23,1.94A6,6,0,0,0,266.3,308.57Z"
+                  transform="translate(-85.87 -50.81)"
+                />
+              </g>
+              <g stroke="#FFFFFF" stroke-width="2" fill="#ffffff">
+                <path
+                  class="path"
+                  d="M251.83,347.19l-1.63-6h-7.57l-1.63,6h-4.74l7.48-23.33h5.48l7.48,23.33Zm-8.19-9.6h5.54l-.7-2.56c-.06-.2-.63-2.33-1.7-6.37q-.18-.71-.33-1.26h-.13q-.82,3.57-2,7.63Z"
+                  transform="translate(-85.87 -50.81)"
+                />
+                <path
+                  class="path"
+                  d="M259.07,347.19V329.55h3.78l.31,2.31h.12a8.57,8.57,0,0,1,5.73-2.77q5.44.06,5.48,7.11v11h-4.65V336.76c0-2-.51-3.22-1.54-3.57a3.16,3.16,0,0,0-.95-.13,4.61,4.61,0,0,0-3,1.39l-.68.61v12.13Z"
+                  transform="translate(-85.87 -50.81)"
+                />
+                <path
+                  class="path"
+                  d="M285.73,347.62q-5.79-.06-5.82-6.61v-7.82h-2.46v-3.42l2.71-.22.52-4.74h3.88v4.74h4.34v3.64h-4.34V341c0,2,.84,3,2.4,3a4.59,4.59,0,0,0,1.72-.4l.77,3.39A12.32,12.32,0,0,1,285.73,347.62Z"
+                  transform="translate(-85.87 -50.81)"
+                />
+              </g>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div id="webeditor">
+      <div id="webeditor_drag">
+        <div id="webeditor_top" class="w-1/12 font-bold cursor-pointer">
+          &#9737;
+        </div>
+        <div class="w-10/12 text-xl font-bold">BEExANT 網頁編輯器</div>
+        <div id="webeditor_scale" class="w-1/12 font-bold cursor-pointer">
+          &#8210;
+        </div>
+      </div>
+      <div id="webeditor_container">
         <div>
-          <textarea
-              name=""
-              id="tx_ui_app"
-              cols="30"
-              rows="10"
-              style="height: 200px; font-size: 16px"
-            ></textarea>
+          <select
+            id="file_select"
+            class="bg-yellow-200 rounded-lg w-64 h-12 mt-2"
+          >
+            <option selected disabled>選擇檔案</option>
+            <option value="">1: 富野飯店-水池水位控制</option>
+            <option value="">新增檔案</option>
+            <option value="">刪除檔案</option>
+          </select>
+        </div>
+        <div class="flex justify-center">
+          <button id="webeditor_ui_btn" class="btn-basic btn-sm primary">
+            UI
+          </button>
+          <button id="webeditor_data_btn" class="btn-basic btn-sm warning">
+            DATA
+          </button>
+          <button id="webeditor_cmd_btn" class="btn-basic btn-sm success">
+            CMD
+          </button>
+          <button id="webeditor_config_btn" class="btn-basic btn-sm default">
+            &#9881;
+          </button>
+        </div>
+        <div id="webeditor_ui">
+          <div
+            class="text-center text-lg w-36 bg-primary text-white rounded-md m-auto mt-2 mb-2"
+          >
+            主頁區塊HTML
+          </div>
+          <div>
+            <textarea name="" id="tx_ui_html" cols="30" rows="10"></textarea>
+          </div>
+          <div
+            class="text-center text-lg w-36 bg-primary text-white rounded-md m-auto mt-2 mb-2"
+          >
+            主頁區塊CSS
+          </div>
+          <div>
+            <div>
+              <textarea name="" id="tx_ui_css" cols="30" rows="10"></textarea>
+            </div>
+          </div>
+        </div>
+        <div id="webeditor_data" class="hidden">
+          <div
+            class="text-center text-lg w-48 bg-warning text-dark rounded-md m-auto mt-2 mb-2"
+          >
+            資料處理區塊
+          </div>
+
+          <div>
+            <textarea name="" id="tx_data" cols="30" rows="10"></textarea>
+          </div>
+          <div>
+            <button id="script_data_run" class="btn-basic btn-sm success">
+              Run
+            </button>
+            <button id="script_data_stop" class="btn-basic btn-sm danger">
+              Stop
+            </button>
+          </div>
+        </div>
+        <div id="webeditor_cmd" class="hidden">
+          <div
+            class="text-center text-lg w-56 bg-success text-white rounded-md m-auto mt-2 mb-2"
+          >
+            自定義按鈕程式區塊
+          </div>
+          <div>
+            <textarea name="" id="tx_app" cols="30" rows="10"></textarea>
+          </div>
+          <div>
+            <button id="script_app_run" class="btn-basic btn-sm success">
+              Run
+            </button>
+            <button id="script_app_stop" class="btn-basic btn-sm danger">
+              Stop
+            </button>
+          </div>
+        </div>
+        <div id="webeditor_config" class="hidden">
+          <div class="inline-block justify-center">
+            <div
+              class="text-center text-xl w-64 bg-white text-dark rounded-md m-auto mt-2 mb-2"
+            >
+              編輯器UI屬性
+            </div>
+            <div>
+              <div>透明度</div>
+              <div>
+                <input
+                  type="range"
+                  name=""
+                  id="webeditor_opacity"
+                  min="5"
+                  value="100"
+                />
+              </div>
+            </div>
+            <div
+              class="text-center text-xl w-64 bg-white text-dark rounded-md m-auto mt-2 mb-2"
+            >
+              網頁功能
+            </div>
+
+            <div>
+              <div
+                class="text-center text-lg w-36 bg-warning text-dark rounded-md m-auto mt-2 mb-2"
+              >
+                參數設定
+              </div>
+              <div>
+                <label for="option_title">
+                  網頁標題
+                  <input
+                    class="appearance-none block w-11/12 max-w-sm bg-gray-200 text-gray-700 border border-gray-200 rounded-lg py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500 mt-2 m-auto"
+                    id="option_title"
+                    type="text"
+                    name="float-input"
+                    placeholder="title..."
+                    maxlength="50"
+                  />
+                </label>
+              </div>
+              <div
+                class="text-center text-lg w-36 bg-warning text-dark rounded-md m-auto mt-2 mb-2"
+              >
+                功能啟用
+              </div>
+              <div>
+                <label>
+                  <input type="checkbox" name="" id="option_schedule" checked />
+                  <span class="transition-colors m-2">排程設定</span>
+                </label>
+                <label>
+                  <input type="checkbox" name="" id="option_custom" checked />
+                  <span class="transition-colors m-2">自訂義設定</span>
+                </label>
+                <label>
+                  <input type="checkbox" name="" id="option_network" checked />
+                  <span class="transition-colors m-2">網路設定</span>
+                </label>
+                <label>
+                  <input type="checkbox" name="" id="option_system" checked />
+                  <span class="transition-colors m-2">系統設定</span>
+                </label>
+                <label>
+                  <input type="checkbox" name="" id="option_terminal" checked />
+                  <span class="transition-colors m-2">終端機</span>
+                </label>
+              </div>
+              <div
+                class="text-center text-lg w-36 bg-warning text-dark rounded-md m-auto mt-2 mb-2"
+              >
+                網頁匯出
+              </div>
+              <div>
+                <div>
+                  <label>
+                    <input type="checkbox" name="" id="option_zip" checked />
+                    <span class="transition-colors m-2">壓縮檔案?</span>
+                  </label>
+                </div>
+                <div>
+                  <button id="export_web" class="btn-basic btn-md success">
+                    匯出
+                  </button>
+                </div>
+              </div>
+              <div
+                class="text-center text-lg w-36 bg-warning text-dark rounded-md m-auto mt-2 mb-2"
+              >
+                網頁匯入
+              </div>
+              <div class="flex flex-wrap justify-center">
+                <div class="btn-import">
+                  <label for="import_html">
+                    HTML 匯入
+                    <input type="file" accept=".html" id="import_html" />
+                  </label>
+                </div>
+                <div class="btn-import">
+                  <label for="import_css">
+                    CSS 匯入
+                    <input type="file" accept=".css" id="import_css" />
+                  </label>
+                </div>
+                <div class="btn-import">
+                  <label for="import_data">
+                    DATA 匯入
+                    <input type="file" accept=".js" id="import_data" />
+                  </label>
+                </div>
+                <div class="btn-import">
+                  <label for="import_cmd">
+                    CMD 匯入
+                    <input type="file" accept=".js" id="import_cmd" />
+                  </label>
+                </div>
+              </div>
+              <div
+                class="text-center text-lg w-36 bg-warning text-dark rounded-md m-auto mt-2 mb-2"
+              >
+                存檔管理
+              </div>
+              <div class="flex justify-center flex-wrap items-center">
+                <button id="export_file" class="btn-basic btn-md success">
+                  匯出
+                </button>
+                <div class="btn-import">
+                  <label for="import_file">
+                    匯入
+                    <input type="file" accept=".json" id="import_file" />
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </body>
-
-  <!-- <script src="./index.js"></script> -->
-  <!-- <script src="./app.js"></script> -->
+  <script src="./index_load.js"></script>
+  <script src="./webeditor.js"></script>
+  <script src="./index.js"></script>
+  <script src="./app.js"></script>
+  <script id="script_data"></script>
+  <script id="script_app"></script>
   <!-- <script src="./worker.js" type="javascript/worker"></script> -->
-  <!-- <script>
-  setTimeout("connect()", 1000);
-  </script> -->
-
   <script>
-    // 版本與韌體資源
-    let version = "1.0.0";
-    let firmware = "af3e333";
-    window.cacheName = `${version}-${firmware}`;
-    window.sourceState = "";
-
-    // 需要緩存的靜態檔案
-    let cacheList = {
-      app: "app.f2e899ef.js",
-      src: "src.c3a199cd.js",
-      worker: "worker.fbe42dfa.js",
-      style: "style.31434ebe.css",
-      ui: "ui.html",
-      manifest: "manifest.json",
-    };
-
-    // 原始資源清單
-    var sourceJS = ["src.c3a199cd.js", "app.f2e899ef.js"];
-
-    window.w = undefined;
-
-    // worker 程式來源
-    window.worker_url = `./${cacheList.worker}`;
-
-    // 用戶端的緩存版本
-    window.local_cache_name = localStorage.getItem("local_cache_name");
-
-    // 用戶端的緩存檔案內容
-    window.code_html = localStorage.getItem(`${cacheName}_ui.html`);
-    window.code_app = localStorage.getItem(`${cacheName}_${cacheList.app}`);
-    window.code_src = localStorage.getItem(`${cacheName}_${cacheList.src}`);
-    window.code_worker = localStorage.getItem(
-      `${cacheName}_${cacheList.worker}`
-    );
-    window.code_style = localStorage.getItem(`${cacheName}_${cacheList.style}`);
-    window.code_manifest = localStorage.getItem(
-      `${cacheName}_${cacheList.manifest}`
-    );
-
-    // 設定主頁面的hash
-    window.location.hash = "#home";
-    localStorage.setItem("current_hash", location.hash);
-
-    // 建立worker與websocket連線
-    function connect() {
-      try {
-        if (typeof Worker === "undefined") {
-          console.log("not support Worker");
-          return;
-        }
-        if (typeof w === "undefined") {
-          w = new Worker(worker_url);
-          w.onmessage = wkMsg;
-        }
-        cmd = { URL: document.URL };
-        w.postMessage(cmd);
-      } catch (error) {
-        console.error(error);
-        alert(error);
-        reloadWeb();
-      }
-    }
-
-    // 顯示資源載入狀態
-    window.sourceLoading = (source) => {
-      if (document.getElementById("version")) {
-        document.getElementById("version").innerText = `${cacheName}-${source}`;
-        console.log(`Load ${source} source.`);
-      }
-    };
-
-    // 取得檔案並設定緩存與載入
-    window.getFileWithImport = (name, type) => {
-      sourceLoading(`cached ${name}`);
-      fetch(`http://${window.location.host}/${name}`)
-        .then((res) => {
-          res.text().then((data) => {
-            // 設定緩存
-            localStorage.setItem(`${cacheName}_${name}`, data);
-            // 載入檔案
-            switch (type) {
-              case "html":
-                addHTML(data);
-                break;
-              case "css":
-                addStyle(data);
-                break;
-              case "js":
-                addScript(data);
-                break;
-              case "worker":
-                addWorker(data);
-                setTimeout(() => {
-                  let blob = new Blob([data], { type: "text/javascript" });
-                  worker_url = window.URL.createObjectURL(blob);
-                  console.log(worker_url);
-                }, 300);
-                break;
-              case "manifest":
-                addManifest(data);
-                break;
-              default:
-                console.log("not vaild file type.");
-                break;
-            }
-          });
-        })
-        .catch((err) => {
-          console.error(err);
-        });
-    };
-
-    // 建立緩存
-    function createCache(cacheList) {
-      setTimeout(() => getFileWithImport(cacheList.style, "css"), 500);
-      setTimeout(() => getFileWithImport(cacheList.ui, "html"), 1000);
-      setTimeout(() => getFileWithImport(cacheList.src, "js"), 1500);
-      setTimeout(() => getFileWithImport(cacheList.worker, "worker"), 2000);
-      setTimeout(() => getFileWithImport(cacheList.app, "js"), 2500);
-      setTimeout(() => getFileWithImport(cacheList.manifest, "manifest"), 3000);
-      setTimeout(() => connect(), 3500);
-      setTimeout(() => sourceLoading("origin-done"), 3500);
-    }
-
-    // 使用緩存
-    function useCachedData() {
-      addHTML(code_html);
-      addScript(code_src);
-      addStyle(code_style);
-      addWorker(code_worker);
-      addManifest(code_manifest);
-      addIcon(code_manifest);
-
-      setTimeout(() => {
-        addScript(code_app);
-      }, 500);
-
-      // 建立worker
-      setTimeout(() => {
-        let blob = new Blob([document.getElementById("worker").textContent], {
-          type: "text/javascript",
-        });
-        worker_url = window.URL.createObjectURL(blob);
-        console.log(worker_url);
-      }, 300);
-      setTimeout(connect, 500);
-
-      setTimeout(() => sourceLoading("cache"), 1000);
-    }
-
-    // 重新建立緩存
-    function refreshData() {
-      localStorage.clear();
-      localStorage.setItem("local_cache_name", cacheName);
-      createCache(cacheList);
-    }
-
-    // 加入html
-    function addHTML(data) {
-      document.getElementById("ui_html").innerHTML += data;
-    }
-
-    // 加入js
-    function addScript(data) {
-      let script = document.createElement("script");
-      script.type = "text/javascript";
-      script.async = true;
-      script.textContent = data;
-      document.getElementsByTagName("head")[0].appendChild(script);
-    }
-
-    // 加入css
-    function addStyle(data) {
-      let style = document.createElement("style");
-      style.id = "style";
-      style.textContent = data;
-      document.head.append(style);
-    }
-
-    // 加入worker程式
-    function addWorker(data) {
-      let script = document.createElement("script");
-      script.id = "worker";
-      script.type = "javascript/worker";
-      script.textContent = data;
-      document.getElementsByTagName("head")[0].appendChild(script);
-    }
-
-    // 加入manifest定義檔
-    function addManifest(data) {
-      let manifest = data.replace(/(\r\n|\n|\r| )/gm, "");
-      manifest = "data:application/manifest+json," + manifest;
-      document
-        .querySelector("#manifest-placeholder")
-        .setAttribute("href", manifest);
-    }
-
-    // 加入favicon
-    function addIcon(data) {
-      let manifest = JSON.parse(data.replace(/(\r\n|\n|\r| )/gm, ""));
-      let ico = manifest.icons[0].src;
-      document.querySelector("#icon").setAttribute("href", ico);
-    }
-
-    // 檢查瀏覽器是否支援localStorage，無則向server要求網頁檔案
-    if (true) {
-      setTimeout(() => getFileWithImport("style.31434ebe.css", "css"), 500);
-      setTimeout(() => getFileWithImport("/src/custom.css", "css"), 600);
-      setTimeout(() => getFileWithImport("/src/ui.html", "html"), 1000);
-      setTimeout(() => getFileWithImport("/src/index.js", "js"), 1500);
-      setTimeout(() => getFileWithImport("/src/worker.js", "worker"), 2000);
-      setTimeout(() => getFileWithImport("/src/app.js", "js"), 2500);
-      setTimeout(
-        () => getFileWithImport("/src/manifest.json", "manifest"),
-        3000
-      );
-    } else if (!window.localStorage) {
-      console.warn("Browser not support localStorage.");
-      refreshData();
-    }
-    // 檢查檔案版本與用戶端版本是否一致
-    else if (
-      cacheName === local_cache_name &&
-      code_html &&
-      code_app &&
-      code_src &&
-      code_style &&
-      code_worker &&
-      code_manifest
-    ) {
-      console.log(`Find Cache: ${cacheName}, use cache file.`);
-      useCachedData();
-    } else {
-      console.log(`Can't find cache, fetch fresh data and create new one.`);
-      refreshData();
-    }
-
-    document.onreadystatechange = loading;
-
-    // 完成Loading
-    function loading() {
-      if (document.readyState == "complete") {
-        setTimeout(() => {
-          document.getElementById("loading").style.display = "none";
-        }, 1500);
-        console.log("load success");
-      }
-    }
-
-    //Make the DIV element draggagle:
-    dragElement(document.getElementById("config_panel"));
-
-    function dragElement(elmnt) {
-      var pos1 = 0,
-        pos2 = 0,
-        pos3 = 0,
-        pos4 = 0;
-      if (document.getElementById(elmnt.id + "_drag")) {
-        /* if present, the header is where you move the DIV from:*/
-        document.getElementById(elmnt.id + "_drag").onmousedown = dragMouseDown;
-      } else {
-        /* otherwise, move the DIV from anywhere inside the DIV:*/
-        elmnt.onmousedown = dragMouseDown;
-      }
-
-      function dragMouseDown(e) {
-        console.log(e);
-        e = e || window.event;
-        e.preventDefault();
-        // get the mouse cursor position at startup:
-        pos3 = e.clientX;
-        pos4 = e.clientY;
-        document.onmouseup = closeDragElement;
-        // call a function whenever the cursor moves:
-        document.onmousemove = elementDrag;
-      }
-
-      function elementDrag(e) {
-        e = e || window.event;
-        e.preventDefault();
-        // calculate the new cursor position:
-        pos1 = pos3 - e.clientX;
-        pos2 = pos4 - e.clientY;
-        pos3 = e.clientX;
-        pos4 = e.clientY;
-        // set the element's new position:
-        elmnt.style.top = elmnt.offsetTop - pos2 + "px";
-        elmnt.style.left = elmnt.offsetLeft - pos1 + "px";
-      }
-
-      function closeDragElement() {
-        /* stop moving when mouse button is released:*/
-        document.onmouseup = null;
-        document.onmousemove = null;
-      }
-    }
-    window.config_panel_scale = true;
-    document
-      .getElementById("config_panel_scale")
-      .addEventListener("click", () => {
-        if (window.config_panel_scale) {
-          window.config_panel_scale = false;
-          document.getElementById("config_panel_container").style.display =
-            "none";
-          document.getElementById("config_panel_scale").innerHTML = "&#10010;";
-        } else {
-          window.config_panel_scale = true;
-          document.getElementById("config_panel_container").style.display = "";
-          document.getElementById("config_panel_scale").innerHTML = "一";
-        }
-      });
-    document.getElementById("tx_ui_html").addEventListener("input", (e) => {
-      // console.log(e.target.value);
-      document.getElementById("main_ui").innerHTML = e.target.value;
-    });
-    document.getElementById("tx_ui_css").addEventListener("input", (e) => {
-      // console.log(e.target.value);
-      document.getElementById("ui_css").textContent = e.target.value;
-    });
+    setTimeout("connect()", 3000);
   </script>
 </html>

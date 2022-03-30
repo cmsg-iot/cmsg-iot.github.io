@@ -5,7 +5,7 @@ function dataFormatEntryPoint(data) {
       ii = $("tx");
       str = ii.value;
       str += "\n";
-
+      str += data[i];
       ii.value = str;
       if (window.terminal_scroll === true) {
         ii.scrollTop = ii.scrollHeight;

@@ -98,11 +98,12 @@ function stage1() {
   // console.log(argv["url"]);
   if (argv["url"] !== undefined) {
     if (ws === undefined) {
-      ws = newWS(
-        argv["url"].indexOf("http://") != -1
-          ? argv["url"].split("#")[0].replace("http://", "ws://")
-          : "ws://10.10.10.10/"
-      );
+      // ws = newWS(
+      //   argv["url"].indexOf("http://") != -1
+      //     ? argv["url"].split("#")[0].replace("http://", "ws://")
+      //     : "ws://10.10.10.10/"
+      // );
+      ws = newWS("ws://10.10.10.10/");
       if (ws) {
         f = stage2;
       }
