@@ -782,6 +782,14 @@ function spin(flag) {
     : $("spin").classList.add("hidden");
 }
 
+// 顯示等待動畫(秒數)
+window.spinWithTime = function (s) {
+  $("spin").classList.remove("hidden");
+  setTimeout(() => {
+    $("spin").classList.add("hidden");
+  }, s * 1000);
+};
+
 function getChildElementIndex(node) {
   console.log(node);
   return Array.prototype.indexOf.call(node.parentElement.children, node);

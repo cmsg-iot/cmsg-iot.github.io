@@ -93,6 +93,7 @@
             >
               <div class="m-4 w-40 relative left-6">
                 <table
+                  id="system_status_1"
                   class="text-white text-xl text-center font-bold self-center table-auto"
                 >
                   <tr>
@@ -105,6 +106,7 @@
               </div>
               <div class="m-4 w-40">
                 <table
+                  id="system_status_2"
                   class="text-white text-xl text-center font-bold self-center table-auto"
                 >
                   <tr>
@@ -124,7 +126,7 @@
 
         <!-- Title & Setting -->
         <div>
-          <div class="bg-dark w-full h-16 fixed bottom-0">
+          <div id="footer" class="bg-dark w-full h-16 fixed bottom-0">
             <div class="flex h-full justify-center">
               <div
                 class="w-9/12 text-dark text-xl font-bold text-center self-center flex justify-center items-center"
@@ -727,13 +729,8 @@
         <div>
           <select
             id="file_select"
-            class="bg-yellow-200 rounded-lg w-64 h-12 mt-2"
-          >
-            <option selected disabled>選擇檔案</option>
-            <option value="">1: 富野飯店-水池水位控制</option>
-            <option value="">新增檔案</option>
-            <option value="">刪除檔案</option>
-          </select>
+            class="bg-yellow-200 rounded-lg w-64 h-12 mt-2 border-none"
+          ></select>
         </div>
         <div class="flex justify-center">
           <button id="webeditor_ui_btn" class="btn-basic btn-sm primary">
@@ -747,6 +744,9 @@
           </button>
           <button id="webeditor_config_btn" class="btn-basic btn-sm default">
             &#9881;
+          </button>
+          <button id="webeditor_file_btn" class="btn-basic btn-sm default">
+            &#128221;
           </button>
         </div>
         <div id="webeditor_ui">
@@ -783,8 +783,8 @@
             <button id="script_data_run" class="btn-basic btn-sm success">
               Run
             </button>
-            <button id="script_data_stop" class="btn-basic btn-sm danger">
-              Stop
+            <button id="script_data_reset" class="btn-basic btn-sm danger">
+              Reset
             </button>
           </div>
         </div>
@@ -801,8 +801,8 @@
             <button id="script_app_run" class="btn-basic btn-sm success">
               Run
             </button>
-            <button id="script_app_stop" class="btn-basic btn-sm danger">
-              Stop
+            <button id="script_app_reset" class="btn-basic btn-sm danger">
+              Reset
             </button>
           </div>
         </div>
@@ -849,6 +849,18 @@
                     maxlength="50"
                   />
                 </label>
+                <label
+                  for="option_home_color"
+                  class="flex justify-center items-center mt-2 mb-2"
+                  >主頁文字顏色
+                  <input type="color" name="" id="option_home_color" />
+                </label>
+                <label
+                  for="option_home_background"
+                  class="flex justify-center items-center mt-2 mb-2"
+                  >主頁背景顏色
+                  <input type="color" name="" id="option_home_background" />
+                </label>
               </div>
               <div
                 class="text-center text-lg w-36 bg-warning text-dark rounded-md m-auto mt-2 mb-2"
@@ -877,70 +889,82 @@
                   <span class="transition-colors m-2">終端機</span>
                 </label>
               </div>
-              <div
-                class="text-center text-lg w-36 bg-warning text-dark rounded-md m-auto mt-2 mb-2"
-              >
-                網頁匯出
+            </div>
+          </div>
+        </div>
+        <div id="webeditor_file" class="hidden">
+          <div class="inline-block justify-center">
+            <div
+              class="text-center text-xl w-64 bg-white text-dark rounded-md m-auto mt-2 mb-2"
+            >
+              檔案管理
+            </div>
+            <div
+              class="text-center text-lg w-36 bg-warning text-dark rounded-md m-auto mt-2 mb-2"
+            >
+              網頁匯出
+            </div>
+            <div>
+              <div>
+                <label>
+                  <input type="checkbox" name="" id="option_zip" checked />
+                  <span class="transition-colors m-2">壓縮檔案?</span>
+                </label>
               </div>
               <div>
-                <div>
-                  <label>
-                    <input type="checkbox" name="" id="option_zip" checked />
-                    <span class="transition-colors m-2">壓縮檔案?</span>
-                  </label>
-                </div>
-                <div>
-                  <button id="export_web" class="btn-basic btn-md success">
-                    匯出
-                  </button>
-                </div>
-              </div>
-              <div
-                class="text-center text-lg w-36 bg-warning text-dark rounded-md m-auto mt-2 mb-2"
-              >
-                網頁匯入
-              </div>
-              <div class="flex flex-wrap justify-center">
-                <div class="btn-import">
-                  <label for="import_html">
-                    HTML 匯入
-                    <input type="file" accept=".html" id="import_html" />
-                  </label>
-                </div>
-                <div class="btn-import">
-                  <label for="import_css">
-                    CSS 匯入
-                    <input type="file" accept=".css" id="import_css" />
-                  </label>
-                </div>
-                <div class="btn-import">
-                  <label for="import_data">
-                    DATA 匯入
-                    <input type="file" accept=".js" id="import_data" />
-                  </label>
-                </div>
-                <div class="btn-import">
-                  <label for="import_cmd">
-                    CMD 匯入
-                    <input type="file" accept=".js" id="import_cmd" />
-                  </label>
-                </div>
-              </div>
-              <div
-                class="text-center text-lg w-36 bg-warning text-dark rounded-md m-auto mt-2 mb-2"
-              >
-                存檔管理
-              </div>
-              <div class="flex justify-center flex-wrap items-center">
-                <button id="export_file" class="btn-basic btn-md success">
+                <button id="export_web" class="btn-basic btn-md success">
                   匯出
                 </button>
-                <div class="btn-import">
-                  <label for="import_file">
-                    匯入
-                    <input type="file" accept=".json" id="import_file" />
-                  </label>
-                </div>
+              </div>
+            </div>
+            <div
+              class="text-center text-lg w-36 bg-warning text-dark rounded-md m-auto mt-2 mb-2"
+            >
+              網頁匯入
+            </div>
+            <div class="flex flex-wrap justify-center">
+              <div class="btn-import">
+                <label for="import_html">
+                  HTML 匯入
+                  <input type="file" accept=".html" id="import_html" />
+                </label>
+              </div>
+              <div class="btn-import">
+                <label for="import_css">
+                  CSS 匯入
+                  <input type="file" accept=".css" id="import_css" />
+                </label>
+              </div>
+              <div class="btn-import">
+                <label for="import_data">
+                  DATA 匯入
+                  <input type="file" accept=".js" id="import_data" />
+                </label>
+              </div>
+              <div class="btn-import">
+                <label for="import_cmd">
+                  CMD 匯入
+                  <input type="file" accept=".js" id="import_cmd" />
+                </label>
+              </div>
+            </div>
+            <div
+              class="text-center text-lg w-36 bg-warning text-dark rounded-md m-auto mt-2 mb-2"
+            >
+              存檔管理
+            </div>
+            <div class="flex justify-center flex-wrap items-center">
+              <div>
+                <a id="export_file"></a>
+                <button id="export_file_btn" class="btn-basic btn-md success">
+                  匯出
+                </button>
+              </div>
+              <div class="btn-import">
+                <label for="import_file">
+                  匯入
+                  <input type="file" accept=".json" id="import_file" />
+                </label>
               </div>
             </div>
           </div>
