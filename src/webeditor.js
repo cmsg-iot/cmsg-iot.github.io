@@ -153,32 +153,39 @@ $("webeditor_file_btn").addEventListener("click", () => {
 /*-----------------變數區塊----------------*/
 /*---------------------------------------*/
 
+window.env = "dev";
+
 // 定義初始內容資料
 const start_data = {
   tx_ui_html: "",
   tx_ui_css: "",
   tx_data:
     "/*data will be e.data from websocket*/\nfunction dataFormatEntryPoint(data) {\n    \n};",
-  tx_ui_app: "",
+  tx_ui_app:
+    "# 群組標題一\ntitle: 命令改變框中內容 , val: 預設顯示內容, val_id: val_1, btn_id: btn_1\ntitle: 僅框中內容改變 , val: 等待改變..., val_id: val_2\n\n# 群組標題二\ntitle: 僅觸發按鈕事件 , val: 點擊設定 , btn_id: btn_2",
   tx_app:
-    '/*Create events with id*/\n$("id").addEventListener("click",()=>{\n    \n});',
+    '/*Create events with id*/\n$("btn_1").addEventListener("click",()=>{\n    alert("可觸發按鈕事件，按鈕中框的值綁定id能夠改變數值");\n    $("val_1").innerText = "觸發按鈕改變內容";\n});\n\n$("btn_2").addEventListener("click",()=>{\n    let v = prompt("可發送命令或數值改變, 輸入值改變第二個按鈕:");\n    $("val_2").innerText = v;\n});',
   option_title: "BEExANT MCU Web",
   option_home_color: "#ffffff",
   option_home_background: "#3f3f3f",
+  option_version: "0.0.1",
 };
 
 // 定義初始化用資料
 let web_file_data = {
   tx_ui_html: "",
   tx_ui_css: "",
-  tx_ui_app: "",
+
   tx_data:
     "/*data will be e.data from websocket*/\nfunction dataFormatEntryPoint(data) {\n    \n};",
+  tx_ui_app:
+    "# 群組標題一\ntitle: 命令改變框中內容 , val: 預設顯示內容, val_id: val_1, btn_id: btn_1\ntitle: 僅框中內容改變 , val: 等待改變..., val_id: val_2\n\n# 群組標題二\ntitle: 僅觸發按鈕事件 , val: 點擊設定 , btn_id: btn_2",
   tx_app:
-    '/*Create events with id*/\n$("id").addEventListener("click",()=>{\n    \n});',
+    '/*Create events with id*/\n$("btn_1").addEventListener("click",()=>{\n    alert("可觸發按鈕事件，按鈕中框的值綁定id能夠改變數值");\n    $("val_1").innerText = "觸發按鈕改變內容";\n});\n\n$("btn_2").addEventListener("click",()=>{\n    let v = prompt("可發送命令或數值改變, 輸入值改變第二個按鈕:");\n    $("val_2").innerText = v;\n});',
   option_title: "BEExANT MCU Web",
   option_home_color: "#ffffff",
   option_home_background: "#3f3f3f",
+  option_version: "0.0.1",
 };
 
 // 全域變數暫存編輯內容
@@ -387,7 +394,7 @@ function initialData() {
   if (!$("ui_css")) $("ui_css").textContent = "";
 
   $("tx_ui_app").value = start_data.tx_ui_app;
-  $("custom_list").innerHTML = "";
+  parseCmdBtn();
 
   $("tx_data").value = start_data.tx_data;
   if ($("script_data")) $("script_data").remove();
@@ -398,8 +405,8 @@ function initialData() {
   $("title").innerText = start_data.option_title;
   $("bottom_title").innerText = start_data.option_title;
 
-  // $("option_home_color").value = start_data.option_home_color;
-  // $("option_home_background").value = start_data.option_home_background;
+  $("option_version").value = start_data.option_version;
+  $("version").innerText = start_data.option_version;
 
   setHomeColor(start_data.option_home_color);
   setHomeBackground(start_data.option_home_background);
@@ -425,6 +432,9 @@ function importData(data) {
   $("option_title").value = data["option_title"];
   $("title").innerText = data["option_title"];
   $("bottom_title").innerText = data["option_title"];
+
+  $("option_version").value = data["option_version"];
+  $("version").innerText = data["option_version"];
 
   setHomeColor(data["option_home_color"]);
   setHomeBackground(data["option_home_background"]);
@@ -550,10 +560,105 @@ window.onload = function () {
 // 網頁匯出
 $("export_web").addEventListener("click", () => {
   let name = prompt("請輸入檔案名稱：");
+  // codeArray = [{name:'', code:'', ext:''},{name:'', code:'', ext:''},...]
   let props = {
     outputFileName: name,
     codeArray: [],
   };
+
+  // 建立原始html的clone, 對此document操作不影響原始html, fileName: index.html
+  let clone_html = $("html").cloneNode(true);
+  let clone_load = $("loading").cloneNode(true);
+  let clone_ui = $("ui_html").cloneNode(true);
+  let clone_version = $("version").cloneNode(true);
+  let clone_buildCheck = $("build_check").cloneNode(true);
+  clone_ui.innerHTML = "";
+  let html_head = clone_html.getElementsByTagName("head")[0];
+  let html_body = clone_html.getElementsByTagName("body")[0];
+  let head_link = html_head.getElementsByTagName("link");
+  let head_style = html_head.getElementsByTagName("style");
+  let head_script = html_head.getElementsByTagName("script");
+
+  // 移除嵌入的css id:build_style
+  html_head.removeChild(head_link[2]);
+  // 移除嵌入的css id:ui_css
+  html_head.removeChild(head_style[1]);
+  // 移除嵌入的js
+  if (head_script[0]) html_head.removeChild(head_script[0]);
+
+  // 清空body內容
+  html_body.innerHTML = "";
+  // 加入暫存的內容
+  html_body.appendChild(clone_load);
+  html_body.appendChild(clone_ui);
+  html_body.appendChild(clone_version);
+  clone_buildCheck.innerText = "build";
+  html_body.appendChild(clone_buildCheck);
+
+  // 建立初始載入檔案與暫存程式(掛在index.html下), fileName: index.html
+  let clone_index = $("index_load").innerHTML;
+  let script = document.createElement("script");
+  script.textContent = clone_index;
+  clone_html.appendChild(script);
+  props.codeArray.push({
+    name: "index",
+    code: `<html>${clone_html.innerHTML}</html>`,
+    ext: "html",
+  });
+
+  // 建立UI介面的html, fileName: ui.html
+  let ui = $("ui_html").innerHTML;
+  props.codeArray.push({ name: "ui", code: `${ui}`, ext: "html" });
+
+  // 建立原始頁面包含自定義CSS程式, fileName: style.css
+  let clone_css = $("build_style").cloneNode(true);
+  let css_name = clone_css.href.split("/")[3];
+  fetch(`${window.location.protocol}//${window.location.host}/${css_name}`)
+    .then((res) => {
+      res.text().then((data) => {
+        console.log(data);
+        props.codeArray.push({
+          name: "style",
+          code: `${data}\n${window.web_file["tx_ui_css"]}`,
+          ext: "css",
+        });
+      });
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+
+  // 建立資料處理程式(原始index.js與自定義data format程式,處理ws資料), fileName: index.js
+  let clone_src = $("index_src").innerHTML;
+  props.codeArray.push({
+    name: "index",
+    code: `${clone_src}\n${window.web_file["tx_data"]}`,
+    ext: "js",
+  });
+
+  // 建立介面與按鈕觸發事件程式(原始app.js與自定義custom command 程式), fileName: app.js
+  let clone_app = $("index_app").innerHTML;
+  props.codeArray.push({
+    name: "app",
+    code: `${clone_app}\n${window.web_file["tx_app"]}`,
+    ext: "js",
+  });
+
+  // 建立處理與ws通訊的worker程式, fileName: worker.js
+  let clone_worker = $("index_worker").innerHTML;
+  props.codeArray.push({
+    name: "worker",
+    code: `${clone_worker}`,
+    ext: "js",
+  });
+
+  // 建立將網頁轉換為app的描述檔, fileName: manifest.json
+  let clone_manifest = $("index_manifest").innerHTML;
+  props.codeArray.push({
+    name: "manifest",
+    code: `${clone_manifest}`,
+    ext: "json",
+  });
 
   jsZip(props);
 });
@@ -725,6 +830,14 @@ $("option_title").addEventListener("input", (e) => {
   $("title").innerText = title;
   $("bottom_title").innerText = title;
   window.web_file["option_title"] = title;
+  syncDataLocalStorage();
+});
+
+// 網頁版本設定
+$("option_version").addEventListener("input", (e) => {
+  let version = e.target.value;
+  $("version").innerText = version;
+  window.web_file["option_version"] = version;
   syncDataLocalStorage();
 });
 

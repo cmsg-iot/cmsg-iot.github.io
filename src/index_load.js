@@ -1,21 +1,20 @@
+function $(id) {
+  return document.getElementById(id);
+}
+
 // 版本與韌體資源
-let version = "1.0.0";
-let firmware = "af3e333";
-window.cacheName = `${version}-${firmware}`;
+window.cacheName = $("version").innerText;
 window.sourceState = "";
 
 // 需要緩存的靜態檔案
 let cacheList = {
-  app: "app.f2e899ef.js",
-  src: "src.c3a199cd.js",
-  worker: "worker.fbe42dfa.js",
-  style: "style.31434ebe.css",
+  app: "app.js",
+  src: "index.js",
+  worker: "worker.js",
+  style: "style.css",
   ui: "ui.html",
   manifest: "manifest.json",
 };
-
-// 原始資源清單
-var sourceJS = ["src.c3a199cd.js", "app.f2e899ef.js"];
 
 window.w = undefined;
 
@@ -38,10 +37,6 @@ window.code_manifest = localStorage.getItem(
 // 設定主頁面的hash
 window.location.hash = "#home";
 localStorage.setItem("current_hash", location.hash);
-
-function $(id) {
-  return document.getElementById(id);
-}
 
 // 建立worker與websocket連線
 function connect() {
@@ -74,7 +69,7 @@ window.sourceLoading = (source) => {
 // 取得檔案並設定緩存與載入
 window.getFileWithImport = (name, type) => {
   sourceLoading(`cached ${name}`);
-  fetch(`http://${window.location.host}/${name}`)
+  fetch(`${window.location.protocol}//${window.location.host}/${name}`)
     .then((res) => {
       res.text().then((data) => {
         // 設定緩存
@@ -205,7 +200,7 @@ function addIcon(data) {
 }
 
 // 檢查瀏覽器是否支援localStorage，無則向server要求網頁檔案
-if (process.env.ENV === "local") {
+if (process.env.ENV !== "build") {
   console.log("local developing...");
 } else if (!window.localStorage) {
   console.warn("Browser not support localStorage.");

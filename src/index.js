@@ -50,26 +50,6 @@ function $(id) {
   return document.getElementById(id);
 }
 
-// 建立worker與websocket連線
-window.connect = function () {
-  try {
-    if (typeof Worker === "undefined") {
-      console.log("not support Worker");
-      return;
-    }
-    if (typeof w === "undefined") {
-      w = new Worker("./worker.js");
-      w.onmessage = wkMsg;
-    }
-    cmd = { URL: document.URL };
-    w.postMessage(cmd);
-  } catch (error) {
-    console.error(error);
-    alert(error);
-    window.reloadWeb();
-  }
-};
-
 window.wkMsg = function wkMsg(e) {
   try {
     if (e.data instanceof Uint8Array) {
@@ -78,7 +58,6 @@ window.wkMsg = function wkMsg(e) {
         : e.data[0] === 0x01
         ? showEEPROM(e.data)
         : 0;
-      return;
     }
     window.dataFormatEntryPoint(e.data);
   } catch (error) {
