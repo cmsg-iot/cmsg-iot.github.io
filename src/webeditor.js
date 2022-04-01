@@ -278,6 +278,8 @@ $("tx_app").addEventListener("input", (e) => {
 // 嵌入 Custom Command 程式編輯區塊內容至script中
 $("script_app_run").addEventListener("click", () => {
   clearAllInterval();
+  $("custom_list").innerHTML = "";
+  window.parseCmdBtn();
   if ($("script_app")) {
     $("script_app").remove();
   }
@@ -287,6 +289,7 @@ $("script_app_run").addEventListener("click", () => {
 
   $("script_app").textContent = "";
   $("script_app").textContent = $("tx_app").value;
+
   window.spinWithTime(1);
 });
 
@@ -294,8 +297,7 @@ $("script_app_run").addEventListener("click", () => {
 $("script_app_reset").addEventListener("click", () => {
   clearAllInterval();
   $("script_app").remove();
-  let el = document.getElementById(id);
-  el.remove();
+  $("custom_list").innerHTML = "";
   window.parseCmdBtn();
   window.spinWithTime(1);
 });
@@ -339,14 +341,6 @@ window.parseCmdBtn = function () {
       $("custom_list").appendChild(div);
     }
   });
-};
-
-window.addListener = function (id, event, callback) {
-  let el = document.getElementById(id);
-  el.remove();
-  window.parseCmdBtn();
-  el = document.getElementById(id);
-  el.addEventListener(event, callback, false);
 };
 
 /*-----------------------------------------------*/
