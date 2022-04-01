@@ -622,45 +622,45 @@ $("export_web").addEventListener("click", () => {
           code: `${data}\n${window.web_file["tx_ui_css"]}`,
           ext: "css",
         });
+
+        // 建立資料處理程式(原始index.js與自定義data format程式,處理ws資料), fileName: index.js
+        let clone_src = $("index_src").innerHTML;
+        props.codeArray.push({
+          name: "index",
+          code: `${clone_src}\n${window.web_file["tx_data"]}`,
+          ext: "js",
+        });
+
+        // 建立介面與按鈕觸發事件程式(原始app.js與自定義custom command 程式), fileName: app.js
+        let clone_app = $("index_app").innerHTML;
+        props.codeArray.push({
+          name: "app",
+          code: `${clone_app}\n${window.web_file["tx_app"]}`,
+          ext: "js",
+        });
+
+        // 建立處理與ws通訊的worker程式, fileName: worker.js
+        let clone_worker = $("index_worker").innerHTML;
+        props.codeArray.push({
+          name: "worker",
+          code: `${clone_worker}`,
+          ext: "js",
+        });
+
+        // 建立將網頁轉換為app的描述檔, fileName: manifest.json
+        let clone_manifest = $("index_manifest").innerHTML;
+        props.codeArray.push({
+          name: "manifest",
+          code: `${clone_manifest}`,
+          ext: "json",
+        });
+
+        jsZip(props);
       });
     })
     .catch((err) => {
       console.error(err);
     });
-
-  // 建立資料處理程式(原始index.js與自定義data format程式,處理ws資料), fileName: index.js
-  let clone_src = $("index_src").innerHTML;
-  props.codeArray.push({
-    name: "index",
-    code: `${clone_src}\n${window.web_file["tx_data"]}`,
-    ext: "js",
-  });
-
-  // 建立介面與按鈕觸發事件程式(原始app.js與自定義custom command 程式), fileName: app.js
-  let clone_app = $("index_app").innerHTML;
-  props.codeArray.push({
-    name: "app",
-    code: `${clone_app}\n${window.web_file["tx_app"]}`,
-    ext: "js",
-  });
-
-  // 建立處理與ws通訊的worker程式, fileName: worker.js
-  let clone_worker = $("index_worker").innerHTML;
-  props.codeArray.push({
-    name: "worker",
-    code: `${clone_worker}`,
-    ext: "js",
-  });
-
-  // 建立將網頁轉換為app的描述檔, fileName: manifest.json
-  let clone_manifest = $("index_manifest").innerHTML;
-  props.codeArray.push({
-    name: "manifest",
-    code: `${clone_manifest}`,
-    ext: "json",
-  });
-
-  jsZip(props);
 });
 
 // 網頁匯入 - HTML

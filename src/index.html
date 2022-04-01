@@ -995,18 +995,17 @@
     window.connect = function () {
       try {
         console.log("create worker...");
-        let w;
         if (typeof Worker === "undefined") {
           console.log("not support Worker");
           return;
         }
-        if (typeof w === "undefined") {
-          w = new Worker(worker_url);
-          console.log(w);
-          w.onmessage = wkMsg;
+        if (typeof window.w === "undefined") {
+          window.w = new Worker(worker_url);
+          console.log(window.w);
+          window.w.onmessage = wkMsg;
         }
         cmd = { URL: document.URL };
-        w.postMessage(cmd);
+        window.w.postMessage(cmd);
       } catch (error) {
         console.error(error);
         alert(error);
@@ -1229,12 +1228,12 @@
       if (str === "") return;
       let jsonCmd = { SENDCMD: str };
       console.log(jsonCmd);
-      if (!w) {
+      if (!window.w) {
         console.log("websocket not ready...");
         return;
       }
       try {
-        w.postMessage(jsonCmd);
+        window.w.postMessage(jsonCmd);
       } catch (error) {
         console.log(error);
       }
