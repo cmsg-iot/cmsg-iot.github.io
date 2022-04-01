@@ -198,6 +198,14 @@ input[type="checkbox"]:checked + span {
   @apply bg-danger  active:bg-red-400;
 }
 
+.settingTitle {
+  @apply h-10 text-center mt-4;
+}
+
+.settingTitle span {
+  @apply relative top-4 text-3xl text-white font-bold;
+}
+
 .settingBtn {
   @apply bg-linear-gray-100 cursor-pointer text-xl  w-11/12 max-w-xl h-14 rounded-2xl shadow-md flex justify-center m-auto mt-8;
 }
@@ -324,6 +332,43 @@ input[type="checkbox"]:checked + span {
   100% {
     transform: rotate(360deg);
   }
+}
+
+#webeditor {
+  resize: both;
+  min-width: 300px;
+  min-height: 46px;
+  overflow: auto;
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 1;
+  width: 35vw;
+  height: auto;
+  border-radius: 15px;
+  background-color: #f1f1f1;
+  text-align: center;
+  border: 1px solid #d3d3d3;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  /* opacity: 0.5; */
+}
+
+#webeditor div textarea {
+  height: 30vh;
+  font-size: 16px;
+}
+
+#webeditor_drag {
+  display: flex;
+  position: sticky;
+  top: 0;
+  padding: 10px;
+  border-radius: 15px;
+  cursor: move;
+  z-index: 10;
+  background-color: #2196f3;
+  color: #fff;
 }
 
 /* ------------------- */

@@ -12,11 +12,6 @@
     <link rel="stylesheet" href="./style.css" />
     <title id="title">BEExANT MCU Web</title>
     <style>
-      * {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-      }
-
       #loading {
         text-align: center;
         background-color: #333333;
@@ -38,44 +33,7 @@
         left: 0%;
         text-align: center;
       }
-      #webeditor {
-        resize: both;
-        min-width: 300px;
-        min-height: 46px;
-        overflow: auto;
-        position: absolute;
-        top: 0;
-        right: 0;
-        z-index: 1;
-        width: 35vw;
-        height: auto;
-        border-radius: 15px;
-        background-color: #f1f1f1;
-        text-align: center;
-        border: 1px solid #d3d3d3;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-          0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        /* opacity: 0.5; */
-      }
-
-      #webeditor div textarea {
-        height: 30vh;
-        font-size: 16px;
-      }
-
-      #webeditor_drag {
-        display: flex;
-        position: sticky;
-        top: 0;
-        padding: 10px;
-        border-radius: 15px;
-        cursor: move;
-        z-index: 10;
-        background-color: #2196f3;
-        color: #fff;
-      }
     </style>
-    <style id="ui_css"></style>
   </head>
 
   <body id="body">
@@ -202,7 +160,7 @@
                 id="open-custom"
                 class="p-7 bg-black-5 text-white font-bold hover:bg-menu-300 active:bg-menu-200 transition-colors cursor-pointer"
               >
-                &#128221; 其他設定
+                &#128221; 自定義設定
               </div>
               <div
                 id="open-network"
@@ -428,14 +386,12 @@
           <div
             class="text-white text-shadow-md top-0 w-screen h-24 text-3xl font-bold text-center"
           >
-            <span class="relative top-7">&#128221; 其他設定</span>
+            <span class="relative top-7">&#128221; 自定義設定</span>
           </div>
           <!-- SettingList -->
           <div id="custom_list" class="h-2/3 overflow-y-auto overscroll-y-auto">
-            <div class="h-10 text-center mt-4">
-              <span class="relative top-4 text-3xl text-white font-bold">
-                群組標題
-              </span>
+            <div class="settingTitle">
+              <span> 群組標題 </span>
             </div>
             <div class="settingBtn">
               <table>
@@ -444,10 +400,8 @@
               </table>
             </div>
 
-            <div class="h-10 text-center mt-4">
-              <span class="relative top-4 text-3xl text-white font-bold">
-                群組標題
-              </span>
+            <div class="settingTitle">
+              <span> 群組標題 </span>
             </div>
             <div class="settingBtn">
               <table>
@@ -792,6 +746,14 @@
           <div
             class="text-center text-lg w-56 bg-success text-white rounded-md m-auto mt-2 mb-2"
           >
+            自定義按鈕UI區塊
+          </div>
+          <div>
+            <textarea name="" id="tx_ui_app" cols="30" rows="10"></textarea>
+          </div>
+          <div
+            class="text-center text-lg w-56 bg-success text-white rounded-md m-auto mt-2 mb-2"
+          >
             自定義按鈕程式區塊
           </div>
           <div>
@@ -972,7 +934,7 @@
       </div>
     </div>
   </body>
-  <script src="./index_load.js"></script>
+  <!-- <script src="./index_load.js"></script> -->
   <script src="./webeditor.js"></script>
   <script src="./index.js"></script>
   <script src="./app.js"></script>
@@ -980,6 +942,17 @@
   <script id="script_app"></script>
   <!-- <script src="./worker.js" type="javascript/worker"></script> -->
   <script>
-    setTimeout("connect()", 3000);
+    // setTimeout("connect()", 3000);
+    document.onreadystatechange = loading;
+
+    // 完成Loading
+    function loading() {
+      if (document.readyState == "complete") {
+        setTimeout(() => {
+          $("loading").style.display = "none";
+        }, 1500);
+        console.log("load success");
+      }
+    }
   </script>
 </html>

@@ -9,7 +9,7 @@
   "scripts": {
     "clean": "rm dist/bundle.js",
     "start": "rimraf -rf ./dist ./.cache && parcel src/index.html",
-    "build-prod": "rimraf -rf ./dist ./.cache && NODE_ENV=production parcel build src/index.html",
+    "build-prod": "rimraf -rf ./dist ./.cache && NODE_ENV=production parcel build --public-url /dist src/index.html",
     "build-dev": "rimraf -rf ./dist ./.cache && parcel build --public-url /dist src/index.html",
     "build:css": "NODE_ENV=production tailwindcss -i ./src/style.css -o ./dist/style.css --minify"
   },
@@ -24,5 +24,10 @@
     "postcss-modules": "^4.2.2",
     "rimraf": "^3.0.2",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.2.17"
+  },
+  "dependencies": {
+    "file-saver": "^2.0.5",
+    "jszip": "^3.8.0",
+    "jszip-utils": "^0.1.0"
   }
 }

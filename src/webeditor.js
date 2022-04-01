@@ -1,3 +1,5 @@
+import jsZip from "./jsZip";
+
 //Make the DIV element draggagle:
 window.$ = function (id) {
   return document.getElementById(id);
@@ -151,11 +153,13 @@ $("webeditor_file_btn").addEventListener("click", () => {
 /*-----------------變數區塊----------------*/
 /*---------------------------------------*/
 
+// 定義初始內容資料
 const start_data = {
   tx_ui_html: "",
   tx_ui_css: "",
   tx_data:
     "/*data will be e.data from websocket*/\nfunction dataFormatEntryPoint(data) {\n    \n};",
+  tx_ui_app: "",
   tx_app:
     '/*Create events with id*/\n$("id").addEventListener("click",()=>{\n    \n});',
   option_title: "BEExANT MCU Web",
@@ -163,9 +167,11 @@ const start_data = {
   option_home_background: "#3f3f3f",
 };
 
+// 定義初始化用資料
 let web_file_data = {
   tx_ui_html: "",
   tx_ui_css: "",
+  tx_ui_app: "",
   tx_data:
     "/*data will be e.data from websocket*/\nfunction dataFormatEntryPoint(data) {\n    \n};",
   tx_app:
@@ -175,18 +181,23 @@ let web_file_data = {
   option_home_background: "#3f3f3f",
 };
 
+// 全域變數暫存編輯內容
 window.web_file = web_file_data;
 
+// 檔案選擇編號
 var file_selectIndex = 0;
+
+// 儲存檔案陣列
 var file_arr = [];
 
 /*----------------------------------------*/
 /*---------------UI 編輯區塊---------------*/
 /*---------------------------------------*/
 
+// 初始化 HTML區塊
 $("tx_ui_html").value = start_data.tx_ui_html;
 
-// HTML 程式編輯區塊
+// 同步HTML區塊中程式至localstorage與畫面
 $("tx_ui_html").addEventListener("input", (e) => {
   // console.log(e.target.value);
   $("main_ui").innerHTML = e.target.value;
@@ -194,9 +205,10 @@ $("tx_ui_html").addEventListener("input", (e) => {
   syncDataLocalStorage();
 });
 
+// 初始化 CSS區塊
 $("tx_ui_css").value = start_data.tx_ui_css;
 
-// CSS 程式編輯區塊
+// 同步CSS區塊中程式至localstorage與畫面
 $("tx_ui_css").addEventListener("input", (e) => {
   // console.log(e.target.value);
   $("ui_css").textContent = e.target.value;
@@ -208,8 +220,10 @@ $("tx_ui_css").addEventListener("input", (e) => {
 /*---------------DATA Format 編輯區塊---------------*/
 /*------------------------------------------------*/
 
+// 初始化 資料處理區塊
 $("tx_data").value = start_data.tx_data;
 
+// 同步區塊中程式至localstorage
 $("tx_data").addEventListener("input", (e) => {
   window.web_file["tx_data"] = e.target.value;
   syncDataLocalStorage();
@@ -240,8 +254,20 @@ $("script_data_reset").addEventListener("click", () => {
 /*---------------Custom Command 編輯區塊---------------*/
 /*---------------------------------------------------*/
 
+// 初始化 自定義按鈕UI區塊
+$("tx_ui_app").value = start_data.tx_ui_app;
+
+// 同步區塊中程式至localstorage與畫面
+$("tx_ui_app").addEventListener("input", (e) => {
+  window.web_file["tx_ui_app"] = e.target.value;
+  parseCmdBtn();
+  syncDataLocalStorage();
+});
+
+// 初始化 自定義按鈕程式區塊
 $("tx_app").value = start_data.tx_app;
 
+// 同步區塊中程式至localstorage
 $("tx_app").addEventListener("input", (e) => {
   window.web_file["tx_app"] = e.target.value;
   syncDataLocalStorage();
@@ -266,6 +292,47 @@ $("script_app_reset").addEventListener("click", () => {
   clearAllInterval();
   $("script_app").remove();
 });
+
+// 解析內容產生按鈕
+function parseCmdBtn() {
+  $("custom_list").innerHTML = "";
+  let str = $("tx_ui_app").value;
+  let str_arr = str.split("\n");
+  str_arr.map((x) => {
+    if (x.indexOf("#") !== -1) {
+      let div = document.createElement("div");
+      let span = document.createElement("span");
+      div.className = "settingTitle";
+      span.innerText = x.substr(1);
+      div.appendChild(span);
+      $("custom_list").appendChild(div);
+    } else if (x.indexOf("title:") !== -1) {
+      let arr = x.split(",");
+      let div = document.createElement("div");
+      let table = document.createElement("table");
+      let td_title = document.createElement("td");
+      let td_val = document.createElement("td");
+      div.className = "settingBtn";
+      td_title.className = "settingBtn-title";
+      td_val.className = "settingBtn-val";
+      arr.map((y) => {
+        if (y.indexOf("title:") !== -1) {
+          td_title.innerText = y.split(":")[1];
+        } else if (y.indexOf("val:") !== -1) {
+          td_val.innerText = y.split(":")[1];
+        } else if (y.indexOf("val_id:") !== -1) {
+          td_val.id = y.split(":")[1].replace(/\s/g, "");
+        } else if (y.indexOf("btn_id:") !== -1) {
+          div.id = y.split(":")[1].replace(/\s/g, "");
+        }
+      });
+      table.appendChild(td_title);
+      table.appendChild(td_val);
+      div.appendChild(table);
+      $("custom_list").appendChild(div);
+    }
+  });
+}
 
 /*-----------------------------------------------*/
 /*---------------網頁編輯器設定與檔案---------------*/
@@ -302,8 +369,13 @@ function initialData() {
   $("tx_ui_html").value = start_data.tx_ui_html;
   $("main_ui").innerHTML = "";
 
+  let style = document.createElement("style");
+  style.id = "ui_css";
+
+  if (!$("ui_css")) document.getElementsByTagName("head")[0].appendChild(style);
+
   $("tx_ui_css").value = start_data.tx_ui_css;
-  $("ui_css").textContent = "";
+  if (!$("ui_css")) $("ui_css").textContent = "";
 
   $("tx_data").value = start_data.tx_data;
   if ($("script_data")) $("script_data").remove();
@@ -461,6 +533,15 @@ window.onload = function () {
 };
 
 // 網頁匯出
+$("export_web").addEventListener("click", () => {
+  let name = prompt("請輸入檔案名稱：");
+  let props = {
+    outputFileName: name,
+    codeArray: [],
+  };
+
+  jsZip(props);
+});
 
 // 網頁匯入 - HTML
 $("import_html").addEventListener("change", () => {
