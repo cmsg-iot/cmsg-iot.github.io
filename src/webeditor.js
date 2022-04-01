@@ -241,6 +241,7 @@ $("script_data_run").addEventListener("click", () => {
 
   $("script_data").textContent = "";
   $("script_data").textContent = $("tx_data").value;
+  window.spinWithTime(1);
 });
 
 // 停止並清除嵌入的程式碼
@@ -248,6 +249,7 @@ $("script_data_reset").addEventListener("click", () => {
   clearAllInterval();
   $("script_data").remove();
   window.dataFormatEntryPoint = undefined;
+  window.spinWithTime(1);
 });
 
 /*----------------------------------------------------*/
@@ -285,16 +287,21 @@ $("script_app_run").addEventListener("click", () => {
 
   $("script_app").textContent = "";
   $("script_app").textContent = $("tx_app").value;
+  window.spinWithTime(1);
 });
 
 // 停止並清除嵌入的程式碼
 $("script_app_reset").addEventListener("click", () => {
   clearAllInterval();
   $("script_app").remove();
+  let el = document.getElementById(id);
+  el.remove();
+  window.parseCmdBtn();
+  window.spinWithTime(1);
 });
 
 // 解析內容產生按鈕
-function parseCmdBtn() {
+window.parseCmdBtn = function () {
   $("custom_list").innerHTML = "";
   let str = $("tx_ui_app").value;
   let str_arr = str.split("\n");
@@ -332,7 +339,15 @@ function parseCmdBtn() {
       $("custom_list").appendChild(div);
     }
   });
-}
+};
+
+window.addListener = function (id, event, callback) {
+  let el = document.getElementById(id);
+  el.remove();
+  window.parseCmdBtn();
+  el = document.getElementById(id);
+  el.addEventListener(event, callback, false);
+};
 
 /*-----------------------------------------------*/
 /*---------------網頁編輯器設定與檔案---------------*/
@@ -377,6 +392,9 @@ function initialData() {
   $("tx_ui_css").value = start_data.tx_ui_css;
   if (!$("ui_css")) $("ui_css").textContent = "";
 
+  $("tx_ui_app").value = start_data.tx_ui_app;
+  $("custom_list").innerHTML = "";
+
   $("tx_data").value = start_data.tx_data;
   if ($("script_data")) $("script_data").remove();
   $("tx_app").value = start_data.tx_app;
@@ -401,6 +419,9 @@ function importData(data) {
 
   $("tx_ui_css").value = data["tx_ui_css"];
   $("ui_css").textContent = data["tx_ui_css"];
+
+  $("tx_ui_app").value = data["tx_ui_app"];
+  parseCmdBtn();
 
   $("tx_data").value = data["tx_data"];
   if ($("script_data")) $("script_data").textContent = "";
