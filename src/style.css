@@ -207,7 +207,7 @@ input[type="checkbox"]:checked + span {
 }
 
 .settingBtn {
-  @apply bg-linear-gray-100 cursor-pointer text-xl  w-11/12 max-w-xl h-14 rounded-2xl shadow-md flex justify-center m-auto mt-8;
+  @apply bg-linear-gray-100 cursor-pointer w-11/12 max-w-xl h-14 rounded-2xl shadow-md flex justify-center m-auto mt-8;
 }
 
 .settingBtn:active {
@@ -215,7 +215,7 @@ input[type="checkbox"]:checked + span {
 }
 
 .settingBtn table {
-  @apply self-center text-center font-bold  w-11/12 break-all;
+  @apply self-center text-center font-bold  w-11/12 break-all text-xl;
 }
 
 .settingBtn-title {
