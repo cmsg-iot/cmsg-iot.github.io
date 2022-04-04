@@ -612,7 +612,10 @@ $("export_web").addEventListener("click", () => {
 
   // 建立原始頁面包含自定義CSS程式, fileName: style.css
   let clone_css = $("build_style").cloneNode(true);
-  let css_name = clone_css.href.split("/")[3];
+  let css_name = clone_css.href.split(window.location.origin)[1];
+  console.log(
+    `${window.location.protocol}//${window.location.host}/${css_name}`
+  );
   fetch(`${window.location.protocol}//${window.location.host}/${css_name}`)
     .then((res) => {
       res.text().then((data) => {

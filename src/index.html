@@ -967,7 +967,7 @@
       manifest: "manifest.json",
     };
 
-    window.w = undefined;
+    window.worker = undefined;
 
     // worker 程式來源
     window.worker_url = `./${cacheList.worker}`;
@@ -995,21 +995,22 @@
     window.connect = function () {
       try {
         console.log("create worker...");
+        console.log(window.worker);
         if (typeof Worker === "undefined") {
           console.log("not support Worker");
           return;
         }
-        if (typeof window.w === "undefined") {
-          window.w = new Worker(worker_url);
-          console.log(window.w);
-          window.w.onmessage = wkMsg;
+        if (typeof window.worker === "undefined") {
+          window.worker = new Worker(worker_url);
+          console.log(window.worker);
+          window.worker.onmessage = wkMsg;
         }
         cmd = { URL: document.URL };
-        window.w.postMessage(cmd);
+        window.worker.postMessage(cmd);
       } catch (error) {
         console.error(error);
-        alert(error);
-        reloadWeb();
+        // alert(error);
+        // reloadWeb();
       }
     };
 
@@ -1077,6 +1078,7 @@
     // 使用緩存
     function useCachedData() {
       addHTML(code_html);
+
       addScript(code_src);
       addStyle(code_style);
       addWorker(code_worker);
@@ -1097,7 +1099,11 @@
       }, 300);
       setTimeout(connect, 1000);
 
-      setTimeout(() => sourceLoading("cache"), 1000);
+      setTimeout(() => sourceLoading("cache"), 1500);
+      setTimeout(() => {
+        console.log("clear spin");
+        document.getElementById("spin").classList.add("hidden");
+      }, 2000);
     }
 
     // 重新建立緩存
@@ -1228,12 +1234,12 @@
       if (str === "") return;
       let jsonCmd = { SENDCMD: str };
       console.log(jsonCmd);
-      if (!window.w) {
+      if (!window.worker) {
         console.log("websocket not ready...");
         return;
       }
       try {
-        window.w.postMessage(jsonCmd);
+        window.worker.postMessage(jsonCmd);
       } catch (error) {
         console.log(error);
       }

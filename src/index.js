@@ -35,12 +35,12 @@ window.postCmd = function postCmd(str) {
   if (str === "") return;
   let jsonCmd = { SENDCMD: str };
   console.log(jsonCmd);
-  if (!w) {
+  if (!window.worker) {
     console.log("websocket not ready...");
     return;
   }
   try {
-    w.postMessage(jsonCmd);
+    window.worker.postMessage(jsonCmd);
   } catch (error) {
     console.log(error);
   }
