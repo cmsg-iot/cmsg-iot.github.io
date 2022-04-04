@@ -35,9 +35,11 @@
   </head>
 
   <body id="body">
+    <!-- Loading畫面 -->
     <div id="loading">
       <div>Loading...</div>
     </div>
+    <!-- 主頁面UI -->
     <div id="ui_html">
       <div id="container" class="bg-dark w-screen min-h-screen pb-20">
         <!-- MainPage -->
@@ -644,13 +646,15 @@
         </div>
       </div>
     </div>
+    <!-- 網頁版本 -->
     <div
       id="version"
       class="text-white"
       style="position: fixed; left: 0px; bottom: 0px; font-size: 12px"
     ></div>
+    <!-- 作為開發與生產環境的判斷變數 -->
     <div id="build_check" style="display: none">dev</div>
-
+    <!-- 網頁編輯器 -->
     <div id="webeditor">
       <div id="webeditor_drag">
         <div id="webeditor_top" class="w-1/12 font-bold cursor-pointer">
@@ -716,6 +720,9 @@
             <textarea name="" id="tx_data" cols="30" rows="10"></textarea>
           </div>
           <div>
+            <button id="script_data_ws" class="btn-basic btn-md warning">
+              Create WS
+            </button>
             <button id="script_data_run" class="btn-basic btn-sm success">
               Run
             </button>
@@ -933,7 +940,7 @@
   <script id="dev_app" src="./app.js"></script>
   <script id="script_data"></script>
   <script id="script_app"></script>
-  <!-- <script src="./worker.js" type="javascript/worker"></script> -->
+  <script id="dev_worker" src="./worker.js"></script>
   <script id="dev_script">
     // setTimeout("connect()", 3000);
 
@@ -1071,14 +1078,17 @@
       setTimeout(() => getFileWithImport(cacheList.worker, "worker"), 2000);
       setTimeout(() => getFileWithImport(cacheList.app, "js"), 2500);
       setTimeout(() => getFileWithImport(cacheList.manifest, "manifest"), 3000);
-      setTimeout(() => connect(), 4000);
-      setTimeout(() => sourceLoading("origin-done"), 3500);
+      setTimeout(() => connect(), 3500);
+      setTimeout(() => sourceLoading("origin-done"), 4000);
+      setTimeout(() => {
+        console.log("clear spin");
+        document.getElementById("spin").classList.add("hidden");
+      }, 4500);
     }
 
     // 使用緩存
     function useCachedData() {
       addHTML(code_html);
-
       addScript(code_src);
       addStyle(code_style);
       addWorker(code_worker);
@@ -1099,11 +1109,11 @@
       }, 300);
       setTimeout(connect, 1000);
 
-      setTimeout(() => sourceLoading("cache"), 1500);
+      setTimeout(() => sourceLoading("cache"), 2000);
       setTimeout(() => {
         console.log("clear spin");
         document.getElementById("spin").classList.add("hidden");
-      }, 2000);
+      }, 1500);
     }
 
     // 重新建立緩存
@@ -1114,51 +1124,50 @@
     }
 
     // 加入html
-    function addHTML(data) {
+    window.addHTML = function (data) {
       document.getElementById("ui_html").innerHTML += data;
-    }
+    };
 
     // 加入js
-    function addScript(data) {
+    window.addScript = function (data) {
       let script = document.createElement("script");
       script.type = "text/javascript";
-      script.async = true;
       script.textContent = data;
       document.getElementsByTagName("head")[0].appendChild(script);
-    }
+    };
 
     // 加入css
-    function addStyle(data) {
+    window.addStyle = function (data) {
       let style = document.createElement("style");
       style.id = "style";
       style.textContent = data;
       document.head.append(style);
-    }
+    };
 
     // 加入worker程式
-    function addWorker(data) {
+    window.addWorker = function (data) {
       let script = document.createElement("script");
       script.id = "worker";
       script.type = "javascript/worker";
       script.textContent = data;
       document.getElementsByTagName("head")[0].appendChild(script);
-    }
+    };
 
     // 加入manifest定義檔
-    function addManifest(data) {
+    window.addManifest = function (data) {
       let manifest = data.replace(/(\r\n|\n|\r| )/gm, "");
       manifest = "data:application/manifest+json," + manifest;
       document
-        .querySelector("#manifest-placeholder")
+        .getElementById("manifest-placeholder")
         .setAttribute("href", manifest);
-    }
+    };
 
     // 加入favicon
-    function addIcon(data) {
+    window.addIcon = function (data) {
       let manifest = JSON.parse(data.replace(/(\r\n|\n|\r| )/gm, ""));
       let ico = manifest.icons[0].src;
       document.querySelector("#icon").setAttribute("href", ico);
-    }
+    };
 
     // 檢查瀏覽器是否支援localStorage，無則向server要求網頁檔案
     if (document.getElementById("build_check").innerText === "dev") {
@@ -1258,7 +1267,9 @@
             ? showEEPROM(e.data)
             : 0;
         }
-        window.dataFormatEntryPoint(e.data);
+        if (window.dataFormatEntryPoint !== undefined) {
+          window.dataFormatEntryPoint(e.data);
+        }
       } catch (error) {
         console.log(error);
       }

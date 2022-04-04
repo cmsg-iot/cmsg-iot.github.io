@@ -259,6 +259,34 @@ $("script_data_reset").addEventListener("click", () => {
   window.spinWithTime(1);
 });
 
+// 建立 websocket 連線
+$("script_data_ws").addEventListener("click", () => {
+  try {
+    let IP = prompt("請輸入 websocket server ip位址");
+    if (!IP) {
+      return;
+    }
+
+    if (typeof Worker === "undefined") {
+      console.log("not support Worker");
+      return;
+    }
+
+    if (typeof window.worker !== "undefined") {
+      window.worker.terminate();
+    }
+    window.worker = undefined;
+    let url = $("dev_worker").src.split(window.location.origin)[1];
+    window.worker = new Worker(url);
+    console.log(window.worker);
+    window.worker.onmessage = wkMsg;
+    let cmd = { URL: `http://${IP}` };
+    window.worker.postMessage(cmd);
+  } catch (error) {
+    console.error(error);
+  }
+});
+
 /*----------------------------------------------------*/
 /*---------------Custom Command 編輯區塊---------------*/
 /*---------------------------------------------------*/
