@@ -17,14 +17,35 @@
 @tailwind utilities;
 
 * {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+  /* font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif; */
   transition: cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  scroll-behavior: smooth;
+  /* scroll-behavior: smooth; */
   user-select: initial;
   -moz-user-select: initial;
   -webkit-user-select: initial;
   -ms-user-select: initial;
+}
+
+::-webkit-scrollbar {
+  width: 0.5em;
+}
+
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(100, 100, 100, 0.8);
+}
+
+::-webkit-scrollbar-corner,
+::-webkit-scrollbar-thumb:window-inactive {
+  background: rgba(100, 100, 100, 0.4);
+}
+
+.ace_scroller {
+  font-size: 18px;
 }
 
 textarea {
@@ -143,6 +164,32 @@ input[type="checkbox"]:checked + span {
 
 .btn-import input {
   display: none;
+}
+
+.title-panel {
+  position: absolute;
+  top: 10px;
+  right: 50px;
+  z-index: 5;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+.title-panel label {
+  color: lightseagreen;
+  background-color: #ffffff;
+  padding: 5px;
+  border-radius: 5px;
+  box-shadow: 0px 0px 5px #ccc;
+  margin-right: 2px;
+}
+
+.title-panel button {
+  color: #333;
+  border-radius: 5px;
+  padding: 3px;
+  box-shadow: 0px 0px 5px #ccc;
+  background-color: #ffffff;
+  margin-right: 2px;
 }
 
 /* Components */

@@ -49,9 +49,9 @@ const CUSTOM_CMD = {
   modbus_show: "show station",
 };
 
-function $(id) {
+window.$ = function (id) {
   return document.getElementById(id);
-}
+};
 
 /*------------Interface Action------------*/
 

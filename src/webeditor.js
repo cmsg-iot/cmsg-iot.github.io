@@ -1,4 +1,91 @@
 import jsZip from "./jsZip";
+import ace from "./lib/ace-builds/src-noconflict/ace";
+import ext from "./lib/ace-builds/src-noconflict/ext-language_tools";
+import bt from "./lib/ace-builds/src-noconflict/ext-beautify";
+
+ace.config.set("basePath", "lib/ace-builds/src-noconflict");
+ace.config.set("basePath", "lib/ace-builds/src-noconflict");
+ace.config.set("modePath", "lib/ace-builds/src-noconflict");
+ace.config.set("themePath", "lib/ace-builds/src-noconflict");
+ace.config.set("workerPath", "lib/ace-builds/src-noconflict");
+
+ace.require(ext);
+ace.require(bt);
+window.beautify = ace.require("ace/ext/beautify");
+window.editor_html = ace.edit("tx_ui_html");
+window.editor_css = ace.edit("tx_ui_css");
+window.editor_data = ace.edit("tx_data");
+window.editor_app = ace.edit("tx_app");
+window.editor_html_full = ace.edit("tx_ui_html_full");
+window.editor_css_full = ace.edit("tx_ui_css_full");
+window.editor_data_full = ace.edit("tx_data_full");
+window.editor_app_full = ace.edit("tx_app_full");
+
+editor_html.setTheme("ace/theme/tomorrow_night");
+editor_css.setTheme("ace/theme/tomorrow_night");
+editor_data.setTheme("ace/theme/tomorrow_night");
+editor_app.setTheme("ace/theme/tomorrow_night");
+editor_html_full.setTheme("ace/theme/tomorrow_night");
+editor_css_full.setTheme("ace/theme/tomorrow_night");
+editor_data_full.setTheme("ace/theme/tomorrow_night");
+editor_app_full.setTheme("ace/theme/tomorrow_night");
+
+editor_html.session.setMode("ace/mode/html");
+editor_css.session.setMode("ace/mode/css");
+editor_data.session.setMode("ace/mode/javascript");
+editor_app.session.setMode("ace/mode/javascript");
+editor_html_full.session.setMode("ace/mode/html");
+editor_css_full.session.setMode("ace/mode/css");
+editor_data_full.session.setMode("ace/mode/javascript");
+editor_app_full.session.setMode("ace/mode/javascript");
+
+editor_html.setOptions({
+  enableBasicAutocompletion: true,
+  enableSnippets: true,
+  enableLiveAutocompletion: true,
+});
+
+editor_css.setOptions({
+  enableBasicAutocompletion: true,
+  enableSnippets: true,
+  enableLiveAutocompletion: true,
+});
+
+editor_data.setOptions({
+  enableBasicAutocompletion: true,
+  enableSnippets: true,
+  enableLiveAutocompletion: true,
+});
+
+editor_app.setOptions({
+  enableBasicAutocompletion: true,
+  enableSnippets: true,
+  enableLiveAutocompletion: true,
+});
+
+editor_html_full.setOptions({
+  enableBasicAutocompletion: true,
+  enableSnippets: true,
+  enableLiveAutocompletion: true,
+});
+
+editor_css_full.setOptions({
+  enableBasicAutocompletion: true,
+  enableSnippets: true,
+  enableLiveAutocompletion: true,
+});
+
+editor_data_full.setOptions({
+  enableBasicAutocompletion: true,
+  enableSnippets: true,
+  enableLiveAutocompletion: true,
+});
+
+editor_app_full.setOptions({
+  enableBasicAutocompletion: true,
+  enableSnippets: true,
+  enableLiveAutocompletion: true,
+});
 
 //Make the DIV element draggagle:
 window.$ = function (id) {
@@ -74,34 +161,48 @@ var clearAllInterval = createClearAllInterval();
 /*---------------網頁編輯器介面---------------*/
 /*-----------------------------------------*/
 
-window.webeditor_scale = true;
+window.webeditor_expand = true;
+window.webeditor_scale = false;
 
 // 縮小/展開 網頁編輯器
-$("webeditor_scale").addEventListener("click", () => {
-  if (window.webeditor_scale) {
-    window.webeditor_scale = false;
+$("webeditor_expand").addEventListener("click", () => {
+  if (window.webeditor_expand) {
+    window.webeditor_expand = false;
     $("webeditor_container").style.display = "none";
-    $("webeditor_scale").innerHTML = "&#10010;";
+    $("webeditor_expand").innerHTML = "&#10010;";
     $("webeditor").style.height = "";
   } else {
-    window.webeditor_scale = true;
+    window.webeditor_expand = true;
     $("webeditor_container").style.display = "";
-    $("webeditor_scale").innerHTML = "&#8210;";
+    $("webeditor_expand").innerHTML = "&#8210;";
     $("webeditor").style.height = "";
   }
 });
 
-// 重置網頁編輯器位置
-$("webeditor_top").addEventListener("click", () => {
-  $("webeditor").style.width = "";
+// 一般/最大化 網頁編輯器
+$("webeditor_scale").addEventListener("click", () => {
+  if (window.webeditor_scale) {
+    window.webeditor_scale = false;
+    $("webeditor_scale").innerHTML = "&#10231;";
+    $("webeditor").style.width = "";
+    $("webeditor").style.height = "";
+    $("webeditor").style.top = "0px";
+    $("webeditor").style.left = `${
+      window.innerWidth - $("webeditor").offsetWidth
+    }px`;
+  } else {
+    window.webeditor_scale = true;
+    $("webeditor_scale").innerHTML = "&#8703;";
+    $("webeditor").style.top = "0px";
+    $("webeditor").style.left = "0px";
+    $("webeditor").style.width = "100vw";
+    $("webeditor").style.height = "93vh";
+  }
+
+  window.webeditor_expand = true;
+  $("webeditor_container").style.display = "";
+  $("webeditor_expand").innerHTML = "&#8210;";
   $("webeditor").style.height = "";
-  $("webeditor").style.top = "0px";
-  //   $("webeditor").style.left = `${
-  //     window.innerWidth / 2 - $("webeditor").offsetWidth / 2
-  //   }px`;
-  $("webeditor").style.left = `${
-    window.innerWidth - $("webeditor").offsetWidth
-  }px`;
 });
 
 // 切換 UI 編輯
@@ -160,7 +261,7 @@ const start_data = {
   tx_ui_html: "",
   tx_ui_css: "",
   tx_data:
-    "/*data will be e.data from websocket*/\nfunction dataFormatEntryPoint(data) {\n    \n};",
+    "/*data will be e.data from websocket*/\nfunction dataFormatEntryPoint(data) {\n    \n}",
   tx_ui_app:
     "# 群組標題一\ntitle: 命令改變框中內容 , val: 預設顯示內容, val_id: val_1, btn_id: btn_1\ntitle: 僅框中內容改變 , val: 等待改變..., val_id: val_2\n\n# 群組標題二\ntitle: 僅觸發按鈕事件 , val: 點擊設定 , btn_id: btn_2",
   tx_app:
@@ -177,7 +278,7 @@ let web_file_data = {
   tx_ui_css: "",
 
   tx_data:
-    "/*data will be e.data from websocket*/\nfunction dataFormatEntryPoint(data) {\n    \n};",
+    "/*data will be e.data from websocket*/\nfunction dataFormatEntryPoint(data) {\n    \n}",
   tx_ui_app:
     "# 群組標題一\ntitle: 命令改變框中內容 , val: 預設顯示內容, val_id: val_1, btn_id: btn_1\ntitle: 僅框中內容改變 , val: 等待改變..., val_id: val_2\n\n# 群組標題二\ntitle: 僅觸發按鈕事件 , val: 點擊設定 , btn_id: btn_2",
   tx_app:
@@ -201,26 +302,64 @@ var file_arr = [];
 /*---------------UI 編輯區塊---------------*/
 /*---------------------------------------*/
 
+// 整理程式區塊
+function beautifyEditor(editor) {
+  window.beautify.beautify(editor.session);
+}
+
+window.switch_fullscreen = false;
+
+// 切換全螢幕
+function switchFullScreen(id) {
+  if (window.switch_fullscreen) {
+    $(id).classList.add("hidden");
+  } else {
+    $(id).classList.remove("hidden");
+  }
+}
+
 // 初始化 HTML區塊
-$("tx_ui_html").value = start_data.tx_ui_html;
+editor_html.setValue(start_data.tx_ui_html);
 
 // 同步HTML區塊中程式至localstorage與畫面
-$("tx_ui_html").addEventListener("input", (e) => {
-  // console.log(e.target.value);
-  $("main_ui").innerHTML = e.target.value;
-  window.web_file["tx_ui_html"] = e.target.value;
-  syncDataLocalStorage();
+$("tx_ui_html").addEventListener("click", (e) => {
+  clearAllInterval();
+  setInterval(() => {
+    $("main_ui").innerHTML = editor_html.getValue();
+    window.web_file["tx_ui_html"] = editor_html.getValue();
+    syncDataLocalStorage();
+  }, 100);
 });
 
+// 整理 HTML區塊
+$("beautify_html").addEventListener("click", (e) => {
+  beautifyEditor(editor_html);
+});
+
+// 整理 HTML區塊(fullscreen)
+$("beautify_html_full").addEventListener("click", (e) => {
+  beautifyEditor(editor_html_full);
+});
+
+// HTML 全螢幕
+$("full_html").addEventListener("click", () => {
+  switchFullScreen();
+});
+
+// HTML 結束全螢幕
+$("full_exit_html").addEventListener("click", () => {});
+
 // 初始化 CSS區塊
-$("tx_ui_css").value = start_data.tx_ui_css;
+editor_css.setValue(start_data.tx_ui_css);
 
 // 同步CSS區塊中程式至localstorage與畫面
-$("tx_ui_css").addEventListener("input", (e) => {
-  // console.log(e.target.value);
-  $("ui_css").textContent = e.target.value;
-  window.web_file["tx_ui_css"] = e.target.value;
-  syncDataLocalStorage();
+$("tx_ui_css").addEventListener("click", (e) => {
+  clearAllInterval();
+  setInterval(() => {
+    $("ui_css").textContent = editor_css.getValue();
+    window.web_file["tx_ui_css"] = editor_css.getValue();
+    syncDataLocalStorage();
+  }, 100);
 });
 
 /*-------------------------------------------------*/
@@ -228,12 +367,15 @@ $("tx_ui_css").addEventListener("input", (e) => {
 /*------------------------------------------------*/
 
 // 初始化 資料處理區塊
-$("tx_data").value = start_data.tx_data;
+editor_app.setValue(start_data.tx_data);
 
 // 同步區塊中程式至localstorage
-$("tx_data").addEventListener("input", (e) => {
-  window.web_file["tx_data"] = e.target.value;
-  syncDataLocalStorage();
+$("tx_data").addEventListener("click", (e) => {
+  clearAllInterval();
+  setInterval(() => {
+    window.web_file["tx_data"] = editor_data.getValue();
+    syncDataLocalStorage();
+  }, 100);
 });
 
 // 嵌入 DATA 程式編輯區塊內容至script中
@@ -247,7 +389,7 @@ $("script_data_run").addEventListener("click", () => {
   document.getElementsByTagName("html")[0].appendChild(script);
 
   $("script_data").textContent = "";
-  $("script_data").textContent = $("tx_data").value;
+  $("script_data").textContent = editor_data.getValue();
   window.spinWithTime(1);
 });
 
@@ -282,8 +424,20 @@ $("script_data_ws").addEventListener("click", () => {
     window.worker.onmessage = wkMsg;
     let cmd = { URL: `http://${IP}` };
     window.worker.postMessage(cmd);
+    window.spinWithTime(1);
   } catch (error) {
     console.error(error);
+  }
+});
+
+// 移除 websocket 連線
+$("script_data_removeWS").addEventListener("click", () => {
+  if (typeof window.worker !== "undefined") {
+    window.worker.terminate();
+    window.worker = undefined;
+    window.spinWithTime(1);
+  } else {
+    alert("not found websocket connection.");
   }
 });
 
@@ -302,12 +456,15 @@ $("tx_ui_app").addEventListener("input", (e) => {
 });
 
 // 初始化 自定義按鈕程式區塊
-$("tx_app").value = start_data.tx_app;
+editor_app.value = start_data.tx_app;
 
 // 同步區塊中程式至localstorage
-$("tx_app").addEventListener("input", (e) => {
-  window.web_file["tx_app"] = e.target.value;
-  syncDataLocalStorage();
+$("tx_app").addEventListener("click", (e) => {
+  clearAllInterval();
+  setInterval(() => {
+    window.web_file["tx_app"] = editor_app.getValue();
+    syncDataLocalStorage();
+  }, 100);
 });
 
 // 嵌入 Custom Command 程式編輯區塊內容至script中
@@ -323,7 +480,7 @@ $("script_app_run").addEventListener("click", () => {
   document.getElementsByTagName("html")[0].appendChild(script);
 
   $("script_app").textContent = "";
-  $("script_app").textContent = $("tx_app").value;
+  $("script_app").textContent = editor_app.getValue();
 
   window.spinWithTime(1);
 });
@@ -410,7 +567,8 @@ function syncDataLocalStorage() {
 // 初始化網頁
 function initialData() {
   window.web_file = web_file_data;
-  $("tx_ui_html").value = start_data.tx_ui_html;
+  // $("tx_ui_html").value = start_data.tx_ui_html;
+  editor_html.setValue(start_data.tx_ui_html);
   $("main_ui").innerHTML = "";
 
   let style = document.createElement("style");
@@ -418,15 +576,18 @@ function initialData() {
 
   if (!$("ui_css")) document.getElementsByTagName("head")[0].appendChild(style);
 
-  $("tx_ui_css").value = start_data.tx_ui_css;
+  // $("tx_ui_css").value = start_data.tx_ui_css;
+  editor_css.setValue(start_data.tx_ui_css);
   if (!$("ui_css")) $("ui_css").textContent = "";
 
   $("tx_ui_app").value = start_data.tx_ui_app;
   parseCmdBtn();
 
-  $("tx_data").value = start_data.tx_data;
+  // $("tx_data").value = start_data.tx_data;
+  editor_data.setValue(start_data.tx_data);
   if ($("script_data")) $("script_data").remove();
-  $("tx_app").value = start_data.tx_app;
+  // $("tx_app").value = start_data.tx_app;
+  editor_app.setValue(start_data.tx_app);
   if ($("script_app")) $("script_app").remove();
 
   $("option_title").value = start_data.option_title;
@@ -443,18 +604,22 @@ function initialData() {
 // 插入資料
 function importData(data) {
   window.web_file = data;
-  $("tx_ui_html").value = data["tx_ui_html"];
+  // $("tx_ui_html").value = data["tx_ui_html"];
+  editor_html.setValue(data["tx_ui_html"]);
   $("main_ui").innerHTML = data["tx_ui_html"];
 
-  $("tx_ui_css").value = data["tx_ui_css"];
+  // $("tx_ui_css").value = data["tx_ui_css"];
+  editor_css.setValue(data["tx_ui_css"]);
   $("ui_css").textContent = data["tx_ui_css"];
 
   $("tx_ui_app").value = data["tx_ui_app"];
   parseCmdBtn();
 
-  $("tx_data").value = data["tx_data"];
+  // $("tx_data").value = data["tx_data"];
+  editor_data.setValue(data["tx_data"]);
   if ($("script_data")) $("script_data").textContent = "";
-  $("tx_app").value = data["tx_app"];
+  // $("tx_app").value = data["tx_app"];
+  editor_app.setValue(data["tx_app"]);
   if ($("script_app")) $("script_app").textContent = "";
 
   $("option_title").value = data["option_title"];
@@ -704,7 +869,8 @@ $("import_html").addEventListener("change", () => {
     str = evt.target.result;
     console.log(`import: ${f.name}`);
     window.web_file["tx_ui_html"] = str;
-    $("tx_ui_html").value = str;
+    // $("tx_ui_html").value = str;
+    editor_html.setValue(str);
     $("main_ui").innerHTML = str;
     syncDataLocalStorage();
     $("import_html").value = "";

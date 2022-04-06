@@ -657,11 +657,11 @@
     <!-- 網頁編輯器 -->
     <div id="webeditor">
       <div id="webeditor_drag">
-        <div id="webeditor_top" class="w-1/12 font-bold cursor-pointer">
-          &#9737;
+        <div id="webeditor_scale" class="w-1/12 font-bold cursor-pointer">
+          &#10231;
         </div>
         <div class="w-10/12 text-xl font-bold">BEExANT 網頁編輯器</div>
-        <div id="webeditor_scale" class="w-1/12 font-bold cursor-pointer">
+        <div id="webeditor_expand" class="w-1/12 font-bold cursor-pointer">
           &#8210;
         </div>
       </div>
@@ -690,23 +690,41 @@
           </button>
         </div>
         <div id="webeditor_ui">
-          <div
-            class="text-center text-lg w-36 bg-primary text-white rounded-md m-auto mt-2 mb-2"
-          >
-            主頁區塊HTML
+          <div class="flex justify-center items-center">
+            <div
+              class="text-center text-lg w-36 bg-primary text-white rounded-md m-2"
+            >
+              主頁區塊HTML
+            </div>
           </div>
-          <div>
-            <textarea name="" id="tx_ui_html" cols="30" rows="10"></textarea>
+          <div class="relative">
+            <div class="title-panel">
+              <label>html</label>
+              <button id="beautify_html">整理</button>
+              <button id="full_html">全螢幕</button>
+            </div>
+            <div
+              id="tx_ui_html"
+              class="w-11/12 m-auto mt-2 mb-2 shadow-lg text-lg rounded-md"
+              style="height: 30vh; max-width: 1000px"
+            ></div>
           </div>
           <div
             class="text-center text-lg w-36 bg-primary text-white rounded-md m-auto mt-2 mb-2"
           >
             主頁區塊CSS
           </div>
-          <div>
-            <div>
-              <textarea name="" id="tx_ui_css" cols="30" rows="10"></textarea>
+          <div class="relative">
+            <div class="title-panel">
+              <label>css</label>
+              <button id="beautify_css">整理</button>
+              <button id="full_css">全螢幕</button>
             </div>
+            <div
+              id="tx_ui_css"
+              class="w-11/12 m-auto mt-2 mb-2 shadow-lg text-lg rounded-md"
+              style="height: 30vh; max-width: 1000px"
+            ></div>
           </div>
         </div>
         <div id="webeditor_data" class="hidden">
@@ -716,12 +734,24 @@
             資料處理區塊
           </div>
 
-          <div>
-            <textarea name="" id="tx_data" cols="30" rows="10"></textarea>
+          <div class="relative">
+            <div class="title-panel">
+              <label>js_data</label>
+              <button id="beautify_data">整理</button>
+              <button id="full_data">全螢幕</button>
+            </div>
+            <div
+              id="tx_data"
+              class="w-11/12 m-auto mt-2 mb-2 shadow-lg text-lg rounded-md"
+              style="height: 60vh; max-width: 1000px"
+            ></div>
           </div>
           <div>
             <button id="script_data_ws" class="btn-basic btn-md warning">
               Create WS
+            </button>
+            <button id="script_data_removeWS" class="btn-basic btn-md danger">
+              Remove WS
             </button>
             <button id="script_data_run" class="btn-basic btn-sm success">
               Run
@@ -738,15 +768,31 @@
             自定義按鈕UI區塊
           </div>
           <div>
-            <textarea name="" id="tx_ui_app" cols="30" rows="10"></textarea>
+            <textarea
+              name=""
+              id="tx_ui_app"
+              cols="30"
+              rows="10"
+              class="w-11/12 m-auto shadow-lg text-lg rounded-md"
+              style="height: 28vh; background-color: #1d1f21; color: #c5c8c6"
+            ></textarea>
           </div>
           <div
             class="text-center text-lg w-56 bg-success text-white rounded-md m-auto mt-2 mb-2"
           >
             自定義按鈕程式區塊
           </div>
-          <div>
-            <textarea name="" id="tx_app" cols="30" rows="10"></textarea>
+          <div class="relative">
+            <div class="title-panel">
+              <label>js_cmd</label>
+              <button id="beautify_app">整理</button>
+              <button id="full_app">全螢幕</button>
+            </div>
+            <pre
+              id="tx_app"
+              class="w-11/12 m-auto mt-2 mb-2 shadow-lg text-lg rounded-md"
+              style="height: 28vh; max-width: 1000px"
+            ></pre>
           </div>
           <div>
             <button id="script_app_run" class="btn-basic btn-sm success">
@@ -932,6 +978,56 @@
           </div>
         </div>
       </div>
+    </div>
+    <!-- UI_html 全螢幕 -->
+    <div class=" absolute top-0 left-0 z-50 hidden">
+      <div class="title-panel">
+        <label>html</label>
+        <button id="beautify_html_full">整理</button>
+        <button id="full_exit_html">結束全螢幕</button>
+      </div>
+      <div
+        id="tx_ui_html_full"
+        class="w-screen h-screen text-lg"
+      ></div>
+    </div>
+    <!-- UI_css 全螢幕 -->
+    <div class=" absolute top-0 left-0 z-50 hidden">
+      <div class="title-panel">
+        <label>css</label>
+        <button id="beautify_css_full">整理</button>
+        <button id="full_exit_css">結束全螢幕</button>
+      </div>
+      <div
+        id="tx_ui_css_full"
+        class="w-screen h-screen text-lg "
+      ></div>
+    </div>
+    <!-- js_data 全螢幕 -->
+    <div class=" absolute top-0 left-0 z-50 hidden">
+      <div class="title-panel">
+        <label>js_data</label>
+        <button id="beautify_data_full">整理</button>
+        <button id="full_exit_data">全螢幕</button>
+      </div>
+      <div
+        id="tx_data_full"
+        class="w-screen h-screen text-lg "
+      ></div>
+    </div>
+    <!-- js_cmd 全螢幕 -->
+    <div class=" absolute top-0 left-0 z-50 hidden">
+      <div class="title-panel">
+        <label>js_cmd</label>
+        <button id="beautify_app_full">整理</button>
+        <button id="full_exit_app">全螢幕</button>
+      </div>
+      <div
+        id="tx_app_full"
+        class="w-screen h-screen text-lg "
+      ></div>
+    </div>
+
     </div>
   </body>
   <!-- <script src="./index_load.js"></script> -->
@@ -1388,9 +1484,9 @@
       modbus_show: "show station",
     };
 
-    function $(id) {
+    window.$ = function (id) {
       return document.getElementById(id);
-    }
+    };
 
     /*------------Interface Action------------*/
 
