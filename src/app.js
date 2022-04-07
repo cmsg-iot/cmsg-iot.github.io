@@ -485,7 +485,7 @@ function addSchedule() {
     return;
   }
 
-  postCmd(CORE_CMD.sche_add(week, time, area));
+  postCmd(window.CORE_CMD.sche_add(week, time, area));
 
   clearScheduleAdd();
   spin(1);
@@ -496,7 +496,7 @@ function addSchedule() {
     hide_page("home");
     show_page("sche");
     updateSchedulePage();
-    postCmd(CORE_CMD.sche_save);
+    postCmd(window.CORE_CMD.sche_save);
     alert("新增排程完成，若需要自動控制，請回到首頁將模式切換回自動。");
   }, 2000);
 }
@@ -508,17 +508,17 @@ $("sche_btn_confirm").addEventListener("click", () => {
 // remove schedule
 function removeSchedule(index) {
   spin(1);
-  postCmd(CORE_CMD.sche_remove(index));
+  postCmd(window.CORE_CMD.sche_remove(index));
   setTimeout(() => {
     spin(0);
     updateSchedulePage();
-    postCmd(CORE_CMD.sche_save);
+    postCmd(window.CORE_CMD.sche_save);
   }, 2000);
 }
 
 // update schedule
 $("sche_btn_update").addEventListener("click", () => {
-  postCmd(CORE_CMD.sche_show);
+  postCmd(window.CORE_CMD.sche_show);
   $("sche_list").innerHTML = "";
   spin(1);
   setTimeout(() => {
@@ -571,7 +571,7 @@ function scanWifi() {
   var wf = $("network_btn_scan");
   res_wifi = "";
   wr.innerHTML = "";
-  postCmd(CORE_CMD.wifi_scan);
+  postCmd(window.CORE_CMD.wifi_scan);
   wf.disabled = true;
   var div = document.createElement("div");
   wr.appendChild(div);
@@ -613,12 +613,12 @@ function inputWifiPWD(e) {
   if (pwd === null) {
     return;
   }
-  postCmd(CORE_CMD.wifi_connect(e, pwd));
+  postCmd(window.CORE_CMD.wifi_connect(e, pwd));
 }
 
 // reconnect the last connected wifi
 $("network_btn_reconnect").addEventListener("click", () => {
-  postCmd(CORE_CMD.wifi_reconnect);
+  postCmd(window.CORE_CMD.wifi_reconnect);
   spin(1);
   setTimeout(() => {
     spin(0);
@@ -629,10 +629,10 @@ $("network_btn_reconnect").addEventListener("click", () => {
 $("network_btn_set_socket").addEventListener("click", () => {
   let v = prompt("請輸入Socket Server位址：");
   if (!v) return;
-  postCmd(CUSTOM_CMD.wifi_set_addr(v));
+  postCmd(window.CUSTOM_CMD.wifi_set_addr(v));
   spin(1);
   setTimeout(() => {
-    postCmd(CUSTOM_CMD.wifi_get_addr);
+    postCmd(window.CUSTOM_CMD.wifi_get_addr);
   }, 500);
   setTimeout(() => {
     spin(0);
@@ -641,7 +641,7 @@ $("network_btn_set_socket").addEventListener("click", () => {
 
 // get recv socket address
 $("network_btn_get_socket").addEventListener("click", () => {
-  postCmd(CUSTOM_CMD.wifi_get_addr);
+  postCmd(window.CUSTOM_CMD.wifi_get_addr);
   spin(1);
   setTimeout(() => {
     spin(0);
@@ -657,7 +657,7 @@ $("system_set_device").addEventListener("click", () => {
     alert("請輸入至少一個字");
     return;
   }
-  postCmd(CORE_CMD.device_set_name(name));
+  postCmd(window.CORE_CMD.device_set_name(name));
 });
 
 // set SSID
@@ -674,7 +674,7 @@ $("system_set_ssid").addEventListener("click", () => {
   }
   let result = confirm(`確定更改為 wifi名稱: ${ssid}, 密碼: ${pwd} ?`);
   if (result) {
-    postCmd(CORE_CMD.device_set_ssid(ssid, pwd));
+    postCmd(window.CORE_CMD.device_set_ssid(ssid, pwd));
   }
 });
 
@@ -684,7 +684,7 @@ $("system_set_bps").addEventListener("click", () => {
   if (!baud) {
     return;
   }
-  postCmd(CORE_CMD.device_set_bps(baud));
+  postCmd(window.CORE_CMD.device_set_bps(baud));
   spin(1);
   setTimeout(() => {
     spin(0);
@@ -697,7 +697,7 @@ $("system_set_SSbps").addEventListener("click", () => {
   if (!baud) {
     return;
   }
-  postCmd(CORE_CMD.device_set_SSbps(baud));
+  postCmd(window.CORE_CMD.device_set_SSbps(baud));
   spin(1);
   setTimeout(() => {
     spin(0);
@@ -770,7 +770,7 @@ function callSystemSetting(cmd) {
   spin(1);
   postCmd(cmd);
   setTimeout(() => {
-    postCmd(CUSTOM_CMD.system_setting);
+    postCmd(window.CUSTOM_CMD.system_setting);
     spin(0);
   }, 1000);
 }
@@ -817,7 +817,7 @@ window.addEventListener("hashchange", () => {
     case "#sche":
       switch_page($("btmMenu_sche"));
       $("sche_list").innerHTML = "";
-      postCmd(CORE_CMD.sche_show);
+      postCmd(window.CORE_CMD.sche_show);
       spin(1);
       setTimeout(() => {
         spin(0);
@@ -840,7 +840,7 @@ window.addEventListener("hashchange", () => {
       switch_page($("btmMenu_network"));
       btmMenu_previous = "btmMenu_network";
       hide_page("home");
-      postCmd(CORE_CMD.ws_ping);
+      postCmd(window.CORE_CMD.ws_ping);
       break;
     case "#system":
       switch_page($("btmMenu_system"));

@@ -322,13 +322,10 @@ function switchFullScreen(tag, editor) {
 editor_html.setValue(start_data.tx_html);
 
 // 同步 HTML 區塊中程式至 localstorage 與畫面
-$("tx_html").addEventListener("click", (e) => {
-  clearAllInterval();
-  setInterval(() => {
-    $("main_ui").innerHTML = editor_html.getValue();
-    window.web_file["tx_html"] = editor_html.getValue();
-    syncDataLocalStorage();
-  }, 100);
+editor_html.on("change", (e) => {
+  $("main_ui").innerHTML = editor_html.getValue();
+  window.web_file["tx_html"] = editor_html.getValue();
+  syncDataLocalStorage();
 });
 
 // 整理 HTML 區塊
@@ -345,13 +342,10 @@ $("full_html").addEventListener("click", (e) => {
 editor_css.setValue(start_data.tx_css);
 
 // 同步 CSS 區塊中程式至 localstorage 與畫面
-$("tx_css").addEventListener("click", (e) => {
-  clearAllInterval();
-  setInterval(() => {
-    $("ui_css").textContent = editor_css.getValue();
-    window.web_file["tx_css"] = editor_css.getValue();
-    syncDataLocalStorage();
-  }, 100);
+editor_css.on("change", (e) => {
+  $("ui_css").textContent = editor_css.getValue();
+  window.web_file["tx_css"] = editor_css.getValue();
+  syncDataLocalStorage();
 });
 
 // 整理 CSS 區塊
@@ -372,12 +366,9 @@ $("full_css").addEventListener("click", (e) => {
 editor_app.setValue(start_data.tx_data);
 
 // 同步區塊中程式至 localstorage
-$("tx_data").addEventListener("click", (e) => {
-  clearAllInterval();
-  setInterval(() => {
-    window.web_file["tx_data"] = editor_data.getValue();
-    syncDataLocalStorage();
-  }, 100);
+editor_data.on("change", (e) => {
+  window.web_file["tx_data"] = editor_data.getValue();
+  syncDataLocalStorage();
 });
 
 // 嵌入 DATA 程式編輯區塊內容至 script 中
@@ -471,12 +462,9 @@ $("tx_ui_app").addEventListener("input", (e) => {
 editor_app.value = start_data.tx_app;
 
 // 同步區塊中程式至 localstorage
-$("tx_app").addEventListener("click", (e) => {
-  clearAllInterval();
-  setInterval(() => {
-    window.web_file["tx_app"] = editor_app.getValue();
-    syncDataLocalStorage();
-  }, 100);
+editor_app.on("change", (e) => {
+  window.web_file["tx_app"] = editor_app.getValue();
+  syncDataLocalStorage();
 });
 
 // 嵌入 Custom Command 程式編輯區塊內容至 script 中
@@ -767,6 +755,10 @@ window.onload = function () {
 // 網頁匯出
 $("export_web").addEventListener("click", () => {
   let name = prompt("請輸入檔案名稱：");
+  if (name === null) {
+    return;
+  }
+  window.spinWithTime(1);
   // 定義傳入壓縮檔案中的物件結構
   // codeArray = [{name:'', code:'', ext:''},{name:'', code:'', ext:''},...]
   let props = {
@@ -798,9 +790,38 @@ $("export_web").addEventListener("click", () => {
   let clone_ui = $("ui_html").cloneNode(true);
   let clone_version = $("version").cloneNode(true);
   let clone_buildCheck = $("build_check").cloneNode(true);
-  clone_ui.innerHTML = "";
+
+  // 將ui_html中的參數初始化
+  clone_ui.querySelector("#RSSI").innerText = "-";
+  clone_ui.querySelector("#device").innerText = "-";
+  clone_ui.querySelector("#time").innerText = "-";
+  clone_ui.querySelector("#LT").innerText = "-";
+  clone_ui.querySelector("#tx").innerText = "";
+  clone_ui.querySelector("#cmd_input").innerText = "";
+  clone_ui.querySelector("#system_device").innerText = "-";
+  clone_ui.querySelector("#bps").innerText = "-";
+  clone_ui.querySelector("#SSbps").innerText = "-";
+  clone_ui.querySelector("#wifi").innerText = "-";
+  clone_ui.querySelector("#wifi-result").innerHTML = "";
+  clone_ui.querySelector("#sche_list").innerHTML = "";
+  clone_ui.querySelector("#menu_bottom").classList.add("hidden");
+  clone_ui.querySelector("#mask_setting").classList.add("hidden");
+  clone_ui.querySelector("#sche_page").classList.add("hidden");
+  clone_ui.querySelector("#custom_page").classList.add("hidden");
+  clone_ui.querySelector("#network_page").classList.add("hidden");
+  clone_ui.querySelector("#system_page").classList.add("hidden");
+  clone_ui.querySelector("#terminal_page").classList.add("hidden");
+  clone_ui.querySelector("#mask").classList.add("hidden");
+
+  // 建立UI介面的html, fileName: ui.html
+  props.codeArray.push({
+    name: "ui",
+    code: `${clone_ui.innerHTML}`,
+    ext: "html",
+  });
 
   // 清空body內容再加入先前clone的元素
+  clone_ui.innerHTML = "";
   html_body.innerHTML = "";
   html_body.appendChild(clone_load);
   html_body.appendChild(clone_ui);
@@ -818,10 +839,6 @@ $("export_web").addEventListener("click", () => {
     code: `<html>${clone_html.innerHTML}</html>`,
     ext: "html",
   });
-
-  // 建立UI介面的html, fileName: ui.html
-  let ui = $("ui_html").innerHTML;
-  props.codeArray.push({ name: "ui", code: `${ui}`, ext: "html" });
 
   // 建立原始頁面包含自定義CSS程式, fileName: style.css
   let clone_css = $("build_style").cloneNode(true);
