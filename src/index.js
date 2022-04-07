@@ -59,7 +59,9 @@ window.wkMsg = function wkMsg(e) {
         ? showEEPROM(e.data)
         : 0;
     }
-    window.dataFormatEntryPoint(e.data);
+    if (window.dataFormatEntryPoint !== undefined) {
+      window.dataFormatEntryPoint(e.data);
+    }
   } catch (error) {
     console.log(error);
   }
@@ -118,8 +120,8 @@ function showEEPROM(data) {
 }
 
 // 顯示等待動畫
-function spin(flag) {
+window.spin = function (flag) {
   flag
     ? $("spin").classList.remove("hidden")
     : $("spin").classList.add("hidden");
-}
+};

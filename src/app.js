@@ -56,7 +56,7 @@ window.$ = function (id) {
 /*------------Interface Action------------*/
 
 // bottom menu switch page
-function switch_page(target) {
+window.switch_page = function (target) {
   if (target.id === btmMenu_previous) {
     return;
   }
@@ -70,10 +70,10 @@ function switch_page(target) {
     hide_page(btmMenu_previous.split("_")[1]);
   }
   btmMenu_previous = target.id;
-}
+};
 
 // show target page
-function show_page(target) {
+window.show_page = function (target) {
   switch (target) {
     case "sche":
       localStorage.setItem("current_hash", location.hash);
@@ -139,10 +139,10 @@ function show_page(target) {
     default:
       break;
   }
-}
+};
 
 // hide target page
-function hide_page(target) {
+window.hide_page = function (target) {
   switch (target) {
     case "sche":
       $("sche_page").classList.add("hidden");
@@ -169,7 +169,7 @@ function hide_page(target) {
     default:
       break;
   }
-}
+};
 
 // open setting menu
 $("open-menu").addEventListener("click", () => {
@@ -181,7 +181,7 @@ $("mask").addEventListener("click", () => {
   switchMenu(0);
 });
 
-function switchMenu(flag) {
+window.switchMenu = function (flag) {
   if (flag) {
     window.location.hash = "#menu";
     localStorage.setItem("current_hash", location.hash);
@@ -194,7 +194,7 @@ function switchMenu(flag) {
     $("menu").classList.add("hidden");
     $("body").classList.remove("overflow-hidden");
   }
-}
+};
 
 // switch to schedule page(show)
 $("open-sche").addEventListener("click", () => {
@@ -208,6 +208,7 @@ $("btmMenu_sche").addEventListener("click", (e) => {
 
 $("sche_btn_cancel").addEventListener("click", () => {
   show_page("sche");
+  clearScheduleAdd();
 });
 
 // switch to schedule page(edit)
@@ -216,6 +217,7 @@ $("sche_btn_add").addEventListener("click", () => {
   //   alert("停止或手動模式下才可修改排程");
   //   return;
   // }
+  clearScheduleAdd();
   $("sche_list").classList.add("hidden");
   $("sche_btn_group").classList.add("hidden");
   $("sche_editor").classList.remove("hidden");
@@ -224,7 +226,7 @@ $("sche_btn_add").addEventListener("click", () => {
 
 // update schedule page(show)
 // data-struct: [["W1",11,50,2,2,0,0,0,0,0,0],["W1",14,16,1,0,1,1,1,1,0,0]]
-function updateSchedulePage() {
+window.updateSchedulePage = function () {
   $("sche_list").innerHTML = "";
   let data = SYSDATA.Sched;
   // define DOM elements
@@ -249,10 +251,10 @@ function updateSchedulePage() {
     td.innerText = "X";
     td.className = "schedule-remove";
     td.onclick = (e) => {
-      if (SYSDATA.STMODE !== "停止" && SYSDATA.STMODE !== "手動") {
-        alert("停止或手動模式下才可修改排程");
-        return;
-      }
+      // if (SYSDATA.STMODE !== "停止" && SYSDATA.STMODE !== "手動") {
+      //   alert("停止或手動模式下才可修改排程");
+      //   return;
+      // }
       let result = confirm("確認是否刪除排程？");
       if (result) {
         let index = getChildElementIndex(
@@ -360,7 +362,7 @@ function updateSchedulePage() {
 
     document.getElementById("sche_list").append(div);
   }
-}
+};
 
 // switch to custom page
 $("open-custom").addEventListener("click", () => {
@@ -423,8 +425,23 @@ document.querySelectorAll('input[name="float-input"]').forEach((e) => {
 
 /*------------Command Action------------*/
 
+window.postCmd = function postCmd(str) {
+  if (str === "") return;
+  let jsonCmd = { SENDCMD: str };
+  console.log(jsonCmd);
+  if (!window.worker) {
+    console.log("websocket not ready...");
+    return;
+  }
+  try {
+    window.worker.postMessage(jsonCmd);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 // clear all running interval
-function createClearAllInterval() {
+window.createClearAllInterval = function () {
   const noop = () => {};
   let firstId = setInterval(noop, 0);
 
@@ -435,14 +452,14 @@ function createClearAllInterval() {
       clearInterval(firstId);
     }
   };
-}
+};
 
 var clearAllInterval = createClearAllInterval();
 
 /** Schedule */
 
 // create control option of time
-function createControlOption(maxTime) {
+window.createControlOption = function (maxTime) {
   for (let i = 0; i < SYSDATA.Stations; i++) {
     $(`sche_add_area_${i + 1}`).innerHTML = "";
     for (let j = 0; j < maxTime + 1; j++) {
@@ -451,14 +468,14 @@ function createControlOption(maxTime) {
       $(`sche_add_area_${i + 1}`).appendChild(op);
     }
   }
-}
+};
 
-function getOptionValue(id) {
+window.getOptionValue = function (id) {
   return $(id).options[$(id).selectedIndex].value;
-}
+};
 
 // add new schedule
-function addSchedule() {
+window.addSchedule = function () {
   let week = "";
   for (let i = 0; i < 7; i++) {
     if ($(`sche_add_w${i + 1}`).checked) {
@@ -499,14 +516,14 @@ function addSchedule() {
     postCmd(window.CORE_CMD.sche_save);
     alert("新增排程完成，若需要自動控制，請回到首頁將模式切換回自動。");
   }, 2000);
-}
+};
 
 $("sche_btn_confirm").addEventListener("click", () => {
   addSchedule();
 });
 
 // remove schedule
-function removeSchedule(index) {
+window.removeSchedule = function (index) {
   spin(1);
   postCmd(window.CORE_CMD.sche_remove(index));
   setTimeout(() => {
@@ -514,13 +531,19 @@ function removeSchedule(index) {
     updateSchedulePage();
     postCmd(window.CORE_CMD.sche_save);
   }, 2000);
-}
+};
 
 // update schedule
 $("sche_btn_update").addEventListener("click", () => {
-  postCmd(window.CORE_CMD.sche_show);
   $("sche_list").innerHTML = "";
+  SYSDATA.Sched = [];
+  postCmd(window.CORE_CMD.sche_show);
   spin(1);
+
+  setTimeout(() => {
+    postCmd(window.CUSTOM_CMD.system_setting);
+  }, 1000);
+
   setTimeout(() => {
     spin(0);
     if (SYSDATA.Sched.length === 0) {
@@ -528,11 +551,11 @@ $("sche_btn_update").addEventListener("click", () => {
       return;
     }
     updateSchedulePage();
-  }, 1500);
+  }, 2000);
 });
 
 // clear schedule edit
-function clearScheduleAdd() {
+window.clearScheduleAdd = function () {
   for (let i = 0; i < 7; i++) {
     $(`sche_add_w${i + 1}`).checked = false;
   }
@@ -540,10 +563,10 @@ function clearScheduleAdd() {
   for (let j = 0; j < SYSDATA.Stations; j++) {
     $(`sche_add_area_${j + 1}`).selectedIndex = 0;
   }
-}
+};
 
 // set num of editable area
-function updateScheduleArea() {
+window.updateScheduleArea = function () {
   for (let i = 0; i < 8; i++) {
     if (i < parseInt(SYSDATA.Stations)) {
       $(`area_title_${i + 1}`).classList.remove("hidden");
@@ -553,7 +576,7 @@ function updateScheduleArea() {
       $(`area_input_${i + 1}`).classList.add("hidden");
     }
   }
-}
+};
 
 /** Network */
 
@@ -564,7 +587,7 @@ $("network_btn_scan").addEventListener("click", () => {
 });
 var scanHandler;
 // 搜尋並顯示結果
-function scanWifi() {
+window.scanWifi = function () {
   var timeout = 0;
   var res = "";
   var wr = $("wifi-result");
@@ -605,16 +628,16 @@ function scanWifi() {
       wf.disabled = false;
     }
   }, 1000);
-}
+};
 
 // connect selected wifi
-function inputWifiPWD(e) {
+window.inputWifiPWD = function (e) {
   let pwd = prompt(`SSID: ${e},Wifi密碼: `);
   if (pwd === null) {
     return;
   }
   postCmd(window.CORE_CMD.wifi_connect(e, pwd));
-}
+};
 
 // reconnect the last connected wifi
 $("network_btn_reconnect").addEventListener("click", () => {
@@ -713,9 +736,9 @@ $("system_reload").addEventListener("click", () => {
 });
 
 // update system page
-function updateSystemPage() {
+window.updateSystemPage = function () {
   $("system_device").innerText = SYSDATA.device;
-}
+};
 
 /** Terminal */
 
@@ -766,21 +789,21 @@ $("terminal_log").addEventListener("click", () => {
 });
 
 /** System setting */
-function callSystemSetting(cmd) {
+window.callSystemSetting = function (cmd) {
   spin(1);
   postCmd(cmd);
   setTimeout(() => {
     postCmd(window.CUSTOM_CMD.system_setting);
     spin(0);
   }, 1000);
-}
+};
 
 // 顯示等待動畫
-function spin(flag) {
+window.spin = function (flag) {
   flag
     ? $("spin").classList.remove("hidden")
     : $("spin").classList.add("hidden");
-}
+};
 
 // 顯示等待動畫(秒數)
 window.spinWithTime = function (s) {
@@ -790,10 +813,10 @@ window.spinWithTime = function (s) {
   }, s * 1000);
 };
 
-function getChildElementIndex(node) {
+window.getChildElementIndex = function (node) {
   console.log(node);
   return Array.prototype.indexOf.call(node.parentElement.children, node);
-}
+};
 
 // 清除緩存並重新整理
 window.reloadWeb = () => {
@@ -801,7 +824,8 @@ window.reloadWeb = () => {
   window.location.reload();
 };
 
-window.addEventListener("hashchange", () => {
+window.addEventListener("hashchange", (e) => {
+  e.preventDefault();
   console.log("hashchange: " + location.hash);
   switch (location.hash) {
     case "#home":
@@ -817,8 +841,14 @@ window.addEventListener("hashchange", () => {
     case "#sche":
       switch_page($("btmMenu_sche"));
       $("sche_list").innerHTML = "";
+      SYSDATA.Sched = [];
       postCmd(window.CORE_CMD.sche_show);
       spin(1);
+
+      setTimeout(() => {
+        postCmd(window.CUSTOM_CMD.system_setting);
+      }, 1000);
+
       setTimeout(() => {
         spin(0);
         if (SYSDATA.Sched.length === 0) {
@@ -826,7 +856,7 @@ window.addEventListener("hashchange", () => {
           return;
         }
         updateSchedulePage();
-      }, 1500);
+      }, 2000);
       createControlOption(30);
       btmMenu_previous = "btmMenu_sche";
       hide_page("home");

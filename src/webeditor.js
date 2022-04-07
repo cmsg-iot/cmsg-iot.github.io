@@ -753,7 +753,7 @@ window.onload = function () {
 };
 
 // 網頁匯出
-$("export_web").addEventListener("click", () => {
+$("export_web").addEventListener("click", async () => {
   let name = prompt("請輸入檔案名稱：");
   if (name === null) {
     return;
@@ -830,23 +830,30 @@ $("export_web").addEventListener("click", () => {
   html_body.appendChild(clone_buildCheck);
 
   // 建立初始載入檔案與暫存程式(掛在index.html下), fileName: index.html
-  let clone_index = $("index_load").innerHTML;
+  let clone_index = $("dev_load").cloneNode(true);
   let script = document.createElement("script");
   script.textContent = clone_index;
   clone_html.appendChild(script);
-  props.codeArray.push({
-    name: "index",
-    code: `<html>${clone_html.innerHTML}</html>`,
-    ext: "html",
+  let clone_load_script = $("dev_load").cloneNode(true);
+  let load_name = clone_load_script.src.split(window.location.origin)[1];
+  await fetch(
+    `${window.location.protocol}//${window.location.host}/${load_name}`
+  ).then((res) => {
+    res.text().then((data) => {
+      props.codeArray.push({
+        name: "index",
+        code: `<html>${clone_html.innerHTML}<script>${data}</script></html>`,
+        ext: "html",
+      });
+    });
   });
 
   // 建立原始頁面包含自定義CSS程式, fileName: style.css
   let clone_css = $("build_style").cloneNode(true);
   let css_name = clone_css.href.split(window.location.origin)[1];
-  console.log(
+  await fetch(
     `${window.location.protocol}//${window.location.host}/${css_name}`
-  );
-  fetch(`${window.location.protocol}//${window.location.host}/${css_name}`)
+  )
     .then((res) => {
       res.text().then((data) => {
         props.codeArray.push({
@@ -854,46 +861,66 @@ $("export_web").addEventListener("click", () => {
           code: `${data}\n${window.web_file["tx_css"]}`,
           ext: "css",
         });
-
-        // 建立資料處理程式(原始index.js與自定義data format程式,處理ws資料), fileName: index.js
-        let clone_src = $("index_src").innerHTML;
-        props.codeArray.push({
-          name: "index",
-          code: `${clone_src}\n${window.web_file["tx_data"]}`,
-          ext: "js",
-        });
-
-        // 建立介面與按鈕觸發事件程式(原始app.js與自定義custom command 程式), fileName: app.js
-        let clone_app = $("index_app").innerHTML;
-        props.codeArray.push({
-          name: "app",
-          code: `${clone_app}\n${window.web_file["tx_app"]}`,
-          ext: "js",
-        });
-
-        // 建立處理與ws通訊的worker程式, fileName: worker.js
-        let clone_worker = $("index_worker").innerHTML;
-        props.codeArray.push({
-          name: "worker",
-          code: `${clone_worker}`,
-          ext: "js",
-        });
-
-        // 建立將網頁轉換為app的描述檔, fileName: manifest.json
-        let clone_manifest = $("index_manifest").innerHTML;
-        props.codeArray.push({
-          name: "manifest",
-          code: `${clone_manifest}`,
-          ext: "json",
-        });
-
-        // 將處理完後的物件傳入 jsZip 中進行壓縮並匯出;
-        jsZip(props);
       });
     })
     .catch((err) => {
       console.error(err);
     });
+
+  // 建立資料處理程式(原始index.js與自定義data format程式,處理ws資料), fileName: index.js
+  let clone_src = $("dev_index").cloneNode(true);
+  let src_name = clone_src.src.split(window.location.origin)[1];
+  await fetch(
+    `${window.location.protocol}//${window.location.host}/${src_name}`
+  ).then((res) => {
+    res.text().then((data) => {
+      props.codeArray.push({
+        name: "index",
+        code: `${data}\n${window.web_file["tx_data"]}`,
+        ext: "js",
+      });
+    });
+  });
+
+  // 建立介面與按鈕觸發事件程式(原始app.js與自定義custom command 程式), fileName: app.js
+  let clone_app = $("dev_app").cloneNode(true);
+  let app_name = clone_app.src.split(window.location.origin)[1];
+  await fetch(
+    `${window.location.protocol}//${window.location.host}/${app_name}`
+  ).then((res) => {
+    res.text().then((data) => {
+      props.codeArray.push({
+        name: "app",
+        code: `${data}\n${window.web_file["tx_app"]}`,
+        ext: "js",
+      });
+    });
+  });
+
+  // 建立處理與ws通訊的worker程式, fileName: worker.js
+  let clone_worker = $("dev_worker").cloneNode(true);
+  let worker_name = clone_worker.src.split(window.location.origin)[1];
+  await fetch(
+    `${window.location.protocol}//${window.location.host}/${worker_name}`
+  ).then((res) => {
+    res.text().then((data) => {
+      props.codeArray.push({
+        name: "worker",
+        code: `${data}`,
+        ext: "js",
+      });
+
+      // 建立將網頁轉換為app的描述檔, fileName: manifest.json
+      let clone_manifest = $("index_manifest").innerHTML;
+      props.codeArray.push({
+        name: "manifest",
+        code: `${clone_manifest}`,
+        ext: "json",
+      });
+      // 將處理完後的物件傳入 jsZip 中進行壓縮並匯出;
+      jsZip(props);
+    });
+  });
 });
 
 // 網頁匯入 - HTML

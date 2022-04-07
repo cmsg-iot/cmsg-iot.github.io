@@ -110,21 +110,24 @@ window.getFileWithImport = (name, type) => {
 };
 
 // 建立緩存
-function createCache(cacheList) {
+window.createCache = function (cacheList) {
   setTimeout(() => getFileWithImport(cacheList.style, "css"), 500);
   setTimeout(() => getFileWithImport(cacheList.ui, "html"), 1000);
   setTimeout(() => getFileWithImport(cacheList.src, "js"), 1500);
   setTimeout(() => getFileWithImport(cacheList.worker, "worker"), 2000);
   setTimeout(() => getFileWithImport(cacheList.app, "js"), 2500);
   setTimeout(() => getFileWithImport(cacheList.manifest, "manifest"), 3000);
-  setTimeout(() => connect(), 4000);
-  setTimeout(() => sourceLoading("origin-done"), 3500);
-}
+  setTimeout(() => connect(), 3500);
+  setTimeout(() => sourceLoading("origin-done"), 4000);
+  setTimeout(() => {
+    console.log("clear spin");
+    document.getElementById("spin").classList.add("hidden");
+  }, 4500);
+};
 
 // 使用緩存
-function useCachedData() {
+window.useCachedData = function () {
   addHTML(code_html);
-  spin(0);
   addScript(code_src);
   addStyle(code_style);
   addWorker(code_worker);
@@ -145,62 +148,65 @@ function useCachedData() {
   }, 300);
   setTimeout(connect, 1000);
 
-  setTimeout(() => sourceLoading("cache"), 1000);
-}
+  setTimeout(() => sourceLoading("cache"), 2000);
+  setTimeout(() => {
+    console.log("clear spin");
+    document.getElementById("spin").classList.add("hidden");
+  }, 1500);
+};
 
 // 重新建立緩存
-function refreshData() {
+window.refreshData = function () {
   localStorage.clear();
   localStorage.setItem("local_cache_name", cacheName);
   createCache(cacheList);
-}
+};
 
 // 加入html
-function addHTML(data) {
+window.addHTML = function (data) {
   document.getElementById("ui_html").innerHTML += data;
-}
+};
 
 // 加入js
-function addScript(data) {
+window.addScript = function (data) {
   let script = document.createElement("script");
   script.type = "text/javascript";
-  script.async = true;
   script.textContent = data;
   document.getElementsByTagName("head")[0].appendChild(script);
-}
+};
 
 // 加入css
-function addStyle(data) {
+window.addStyle = function (data) {
   let style = document.createElement("style");
   style.id = "style";
   style.textContent = data;
   document.head.append(style);
-}
+};
 
 // 加入worker程式
-function addWorker(data) {
+window.addWorker = function (data) {
   let script = document.createElement("script");
   script.id = "worker";
   script.type = "javascript/worker";
   script.textContent = data;
   document.getElementsByTagName("head")[0].appendChild(script);
-}
+};
 
 // 加入manifest定義檔
-function addManifest(data) {
+window.addManifest = function (data) {
   let manifest = data.replace(/(\r\n|\n|\r| )/gm, "");
   manifest = "data:application/manifest+json," + manifest;
   document
-    .querySelector("#manifest-placeholder")
+    .getElementById("manifest-placeholder")
     .setAttribute("href", manifest);
-}
+};
 
 // 加入favicon
-function addIcon(data) {
+window.addIcon = function (data) {
   let manifest = JSON.parse(data.replace(/(\r\n|\n|\r| )/gm, ""));
   let ico = manifest.icons[0].src;
   document.querySelector("#icon").setAttribute("href", ico);
-}
+};
 
 // 檢查瀏覽器是否支援localStorage，無則向server要求網頁檔案
 if (document.getElementById("build_check").innerText === "dev") {
@@ -236,10 +242,4 @@ function loading() {
     }, 1500);
     console.log("load success");
   }
-}
-
-function spin(flag) {
-  flag
-    ? document.getElementById("spin").classList.remove("hidden")
-    : document.getElementById("spin").classList.add("hidden");
 }
