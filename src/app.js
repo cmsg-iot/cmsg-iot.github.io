@@ -1,6 +1,6 @@
 window.btmMenu_previous = "btmMenu_sche";
 
-const CORE_CMD = {
+window.CORE_CMD = {
   wifi_scan: "@ap scan",
   wifi_connect: (ssid, pwd) => {
     return `@ap connect [${ssid}]:[${pwd}]`;
@@ -30,7 +30,7 @@ const CORE_CMD = {
   ws_ping: "@rssi?",
 };
 
-const CUSTOM_CMD = {
+window.CUSTOM_CMD = {
   wifi_set_addr: (addr) => {
     return `set recv Addr ${addr}`;
   },
@@ -212,10 +212,10 @@ $("sche_btn_cancel").addEventListener("click", () => {
 
 // switch to schedule page(edit)
 $("sche_btn_add").addEventListener("click", () => {
-  if (SYSDATA.STMODE !== "停止" && SYSDATA.STMODE !== "手動") {
-    alert("停止或手動模式下才可修改排程");
-    return;
-  }
+  // if (SYSDATA.STMODE !== "停止" && SYSDATA.STMODE !== "手動") {
+  //   alert("停止或手動模式下才可修改排程");
+  //   return;
+  // }
   $("sche_list").classList.add("hidden");
   $("sche_btn_group").classList.add("hidden");
   $("sche_editor").classList.remove("hidden");
