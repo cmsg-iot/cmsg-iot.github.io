@@ -3,42 +3,38 @@ import ace from "./lib/ace-builds/src-noconflict/ace";
 import ext from "./lib/ace-builds/src-noconflict/ext-language_tools";
 import bt from "./lib/ace-builds/src-noconflict/ext-beautify";
 
-ace.config.set("basePath", "lib/ace-builds/src-noconflict");
+// 設定 ace 資源目標
 ace.config.set("basePath", "lib/ace-builds/src-noconflict");
 ace.config.set("modePath", "lib/ace-builds/src-noconflict");
 ace.config.set("themePath", "lib/ace-builds/src-noconflict");
 ace.config.set("workerPath", "lib/ace-builds/src-noconflict");
 
+// 引入 ace 額外 lib
 ace.require(ext);
 ace.require(bt);
+
+// 整理程式碼
 window.beautify = ace.require("ace/ext/beautify");
-window.editor_html = ace.edit("tx_ui_html");
-window.editor_css = ace.edit("tx_ui_css");
+
+// 建立 ace editor
+window.editor_html = ace.edit("tx_html");
+window.editor_css = ace.edit("tx_css");
 window.editor_data = ace.edit("tx_data");
 window.editor_app = ace.edit("tx_app");
-window.editor_html_full = ace.edit("tx_ui_html_full");
-window.editor_css_full = ace.edit("tx_ui_css_full");
-window.editor_data_full = ace.edit("tx_data_full");
-window.editor_app_full = ace.edit("tx_app_full");
 
+// 設定 ace editor 的主題
 editor_html.setTheme("ace/theme/tomorrow_night");
 editor_css.setTheme("ace/theme/tomorrow_night");
 editor_data.setTheme("ace/theme/tomorrow_night");
 editor_app.setTheme("ace/theme/tomorrow_night");
-editor_html_full.setTheme("ace/theme/tomorrow_night");
-editor_css_full.setTheme("ace/theme/tomorrow_night");
-editor_data_full.setTheme("ace/theme/tomorrow_night");
-editor_app_full.setTheme("ace/theme/tomorrow_night");
 
+// 設定 ace editor 中使用的程式
 editor_html.session.setMode("ace/mode/html");
 editor_css.session.setMode("ace/mode/css");
 editor_data.session.setMode("ace/mode/javascript");
 editor_app.session.setMode("ace/mode/javascript");
-editor_html_full.session.setMode("ace/mode/html");
-editor_css_full.session.setMode("ace/mode/css");
-editor_data_full.session.setMode("ace/mode/javascript");
-editor_app_full.session.setMode("ace/mode/javascript");
 
+// 設定 code completion, snippets, live completion
 editor_html.setOptions({
   enableBasicAutocompletion: true,
   enableSnippets: true,
@@ -63,37 +59,14 @@ editor_app.setOptions({
   enableLiveAutocompletion: true,
 });
 
-editor_html_full.setOptions({
-  enableBasicAutocompletion: true,
-  enableSnippets: true,
-  enableLiveAutocompletion: true,
-});
-
-editor_css_full.setOptions({
-  enableBasicAutocompletion: true,
-  enableSnippets: true,
-  enableLiveAutocompletion: true,
-});
-
-editor_data_full.setOptions({
-  enableBasicAutocompletion: true,
-  enableSnippets: true,
-  enableLiveAutocompletion: true,
-});
-
-editor_app_full.setOptions({
-  enableBasicAutocompletion: true,
-  enableSnippets: true,
-  enableLiveAutocompletion: true,
-});
-
-//Make the DIV element draggagle:
+// 定義 $ 以 id 取得 DOM element
 window.$ = function (id) {
   return document.getElementById(id);
 };
 
 /* DragElement reference https://www.w3schools.com/howto/howto_js_draggable.asp */
 
+// 使目標 div 物件能被拖拉
 dragElement($("webeditor"));
 
 // 網頁編輯器拖拉功能
@@ -141,7 +114,7 @@ function dragElement(elmnt) {
   }
 }
 
-// clear all running interval
+// 清除所有執行中的 interval
 function createClearAllInterval() {
   const noop = () => {};
   let firstId = setInterval(noop, 0);
@@ -212,6 +185,7 @@ $("webeditor_ui_btn").addEventListener("click", () => {
   $("webeditor_cmd").classList.add("hidden");
   $("webeditor_config").classList.add("hidden");
   $("webeditor_file").classList.add("hidden");
+  importData(window.web_file);
 });
 
 // 切換 DATA 編輯
@@ -221,6 +195,7 @@ $("webeditor_data_btn").addEventListener("click", () => {
   $("webeditor_cmd").classList.add("hidden");
   $("webeditor_config").classList.add("hidden");
   $("webeditor_file").classList.add("hidden");
+  importData(window.web_file);
 });
 
 // 切換 CMD 編輯
@@ -230,6 +205,7 @@ $("webeditor_cmd_btn").addEventListener("click", () => {
   $("webeditor_cmd").classList.remove("hidden");
   $("webeditor_config").classList.add("hidden");
   $("webeditor_file").classList.add("hidden");
+  importData(window.web_file);
 });
 
 // 切換 Config 編輯
@@ -258,8 +234,8 @@ window.env = "dev";
 
 // 定義初始內容資料
 const start_data = {
-  tx_ui_html: "",
-  tx_ui_css: "",
+  tx_html: "",
+  tx_css: "",
   tx_data:
     "/*data will be e.data from websocket*/\nfunction dataFormatEntryPoint(data) {\n    \n}",
   tx_ui_app:
@@ -274,8 +250,8 @@ const start_data = {
 
 // 定義初始化用資料
 let web_file_data = {
-  tx_ui_html: "",
-  tx_ui_css: "",
+  tx_html: "",
+  tx_css: "",
 
   tx_data:
     "/*data will be e.data from websocket*/\nfunction dataFormatEntryPoint(data) {\n    \n}",
@@ -308,58 +284,84 @@ function beautifyEditor(editor) {
 }
 
 window.switch_fullscreen = false;
+window.class_temp = undefined;
 
 // 切換全螢幕
-function switchFullScreen(id) {
+function switchFullScreen(tag, editor) {
+  let container = `editor_container_${tag}`;
+  let block = `editor_block_${tag}`;
+  let tx_editor = `tx_${tag}`;
+  let btn_full = `full_${tag}`;
+  let el = $(block);
   if (window.switch_fullscreen) {
-    $(id).classList.add("hidden");
+    // exit full screen
+    window.switch_fullscreen = false;
+    $(tx_editor).className = window.class_temp;
+    $(container).appendChild(el);
+    $(btn_full).innerText = "全螢幕";
+    $("overlay_container").classList.add("hidden");
+
+    // resize editor
+    editor.resize();
   } else {
-    $(id).classList.remove("hidden");
+    // full screen
+    window.switch_fullscreen = true;
+    window.class_temp = $(tx_editor).className;
+    $(tx_editor).classList.remove("editor-style");
+    $(tx_editor).classList.add("editor-style-full");
+    $(btn_full).innerText = "結束全螢幕";
+    $("overlay_container").appendChild(el);
+    $("overlay_container").classList.remove("hidden");
+
+    // resize editor
+    editor.resize();
   }
 }
 
-// 初始化 HTML區塊
-editor_html.setValue(start_data.tx_ui_html);
+// 初始化 HTML 區塊
+editor_html.setValue(start_data.tx_html);
 
-// 同步HTML區塊中程式至localstorage與畫面
-$("tx_ui_html").addEventListener("click", (e) => {
+// 同步 HTML 區塊中程式至 localstorage 與畫面
+$("tx_html").addEventListener("click", (e) => {
   clearAllInterval();
   setInterval(() => {
     $("main_ui").innerHTML = editor_html.getValue();
-    window.web_file["tx_ui_html"] = editor_html.getValue();
+    window.web_file["tx_html"] = editor_html.getValue();
     syncDataLocalStorage();
   }, 100);
 });
 
-// 整理 HTML區塊
+// 整理 HTML 區塊
 $("beautify_html").addEventListener("click", (e) => {
   beautifyEditor(editor_html);
 });
 
-// 整理 HTML區塊(fullscreen)
-$("beautify_html_full").addEventListener("click", (e) => {
-  beautifyEditor(editor_html_full);
+// HTML 切換全螢幕
+$("full_html").addEventListener("click", (e) => {
+  switchFullScreen("html", editor_html);
 });
 
-// HTML 全螢幕
-$("full_html").addEventListener("click", () => {
-  switchFullScreen();
-});
+// 初始化 CSS 區塊
+editor_css.setValue(start_data.tx_css);
 
-// HTML 結束全螢幕
-$("full_exit_html").addEventListener("click", () => {});
-
-// 初始化 CSS區塊
-editor_css.setValue(start_data.tx_ui_css);
-
-// 同步CSS區塊中程式至localstorage與畫面
-$("tx_ui_css").addEventListener("click", (e) => {
+// 同步 CSS 區塊中程式至 localstorage 與畫面
+$("tx_css").addEventListener("click", (e) => {
   clearAllInterval();
   setInterval(() => {
     $("ui_css").textContent = editor_css.getValue();
-    window.web_file["tx_ui_css"] = editor_css.getValue();
+    window.web_file["tx_css"] = editor_css.getValue();
     syncDataLocalStorage();
   }, 100);
+});
+
+// 整理 CSS 區塊
+$("beautify_css").addEventListener("click", (e) => {
+  beautifyEditor(editor_css);
+});
+
+// CSS 切換全螢幕
+$("full_css").addEventListener("click", (e) => {
+  switchFullScreen("css", editor_css);
 });
 
 /*-------------------------------------------------*/
@@ -369,7 +371,7 @@ $("tx_ui_css").addEventListener("click", (e) => {
 // 初始化 資料處理區塊
 editor_app.setValue(start_data.tx_data);
 
-// 同步區塊中程式至localstorage
+// 同步區塊中程式至 localstorage
 $("tx_data").addEventListener("click", (e) => {
   clearAllInterval();
   setInterval(() => {
@@ -378,7 +380,7 @@ $("tx_data").addEventListener("click", (e) => {
   }, 100);
 });
 
-// 嵌入 DATA 程式編輯區塊內容至script中
+// 嵌入 DATA 程式編輯區塊內容至 script 中
 $("script_data_run").addEventListener("click", () => {
   clearAllInterval();
   if ($("script_data")) {
@@ -441,14 +443,24 @@ $("script_data_removeWS").addEventListener("click", () => {
   }
 });
 
+// 整理 DATA 區塊
+$("beautify_data").addEventListener("click", (e) => {
+  beautifyEditor(editor_data);
+});
+
+// DATA 切換全螢幕
+$("full_data").addEventListener("click", (e) => {
+  switchFullScreen("data", editor_data);
+});
+
 /*----------------------------------------------------*/
 /*---------------Custom Command 編輯區塊---------------*/
 /*---------------------------------------------------*/
 
-// 初始化 自定義按鈕UI區塊
+// 初始化 自定義按鈕 UI 區塊
 $("tx_ui_app").value = start_data.tx_ui_app;
 
-// 同步區塊中程式至localstorage與畫面
+// 同步區塊中程式至 localstorage 與畫面
 $("tx_ui_app").addEventListener("input", (e) => {
   window.web_file["tx_ui_app"] = e.target.value;
   parseCmdBtn();
@@ -458,7 +470,7 @@ $("tx_ui_app").addEventListener("input", (e) => {
 // 初始化 自定義按鈕程式區塊
 editor_app.value = start_data.tx_app;
 
-// 同步區塊中程式至localstorage
+// 同步區塊中程式至 localstorage
 $("tx_app").addEventListener("click", (e) => {
   clearAllInterval();
   setInterval(() => {
@@ -467,7 +479,7 @@ $("tx_app").addEventListener("click", (e) => {
   }, 100);
 });
 
-// 嵌入 Custom Command 程式編輯區塊內容至script中
+// 嵌入 Custom Command 程式編輯區塊內容至 script 中
 $("script_app_run").addEventListener("click", () => {
   clearAllInterval();
   $("custom_list").innerHTML = "";
@@ -535,6 +547,16 @@ window.parseCmdBtn = function () {
   });
 };
 
+// 整理 APP 區塊
+$("beautify_app").addEventListener("click", (e) => {
+  beautifyEditor(editor_app);
+});
+
+// APP 切換全螢幕
+$("full_app").addEventListener("click", (e) => {
+  switchFullScreen("app", editor_app);
+});
+
 /*-----------------------------------------------*/
 /*---------------網頁編輯器設定與檔案---------------*/
 /*----------------------------------------------*/
@@ -567,8 +589,7 @@ function syncDataLocalStorage() {
 // 初始化網頁
 function initialData() {
   window.web_file = web_file_data;
-  // $("tx_ui_html").value = start_data.tx_ui_html;
-  editor_html.setValue(start_data.tx_ui_html);
+  editor_html.setValue(window.web_file["tx_html"]);
   $("main_ui").innerHTML = "";
 
   let style = document.createElement("style");
@@ -576,49 +597,42 @@ function initialData() {
 
   if (!$("ui_css")) document.getElementsByTagName("head")[0].appendChild(style);
 
-  // $("tx_ui_css").value = start_data.tx_ui_css;
-  editor_css.setValue(start_data.tx_ui_css);
+  editor_css.setValue(window.web_file["tx_css"]);
   if (!$("ui_css")) $("ui_css").textContent = "";
 
-  $("tx_ui_app").value = start_data.tx_ui_app;
+  $("tx_ui_app").value = window.web_file["tx_ui_app"];
   parseCmdBtn();
 
-  // $("tx_data").value = start_data.tx_data;
-  editor_data.setValue(start_data.tx_data);
+  editor_data.setValue(window.web_file["tx_data"]);
   if ($("script_data")) $("script_data").remove();
-  // $("tx_app").value = start_data.tx_app;
-  editor_app.setValue(start_data.tx_app);
+  editor_app.setValue(window.web_file["tx_app"]);
   if ($("script_app")) $("script_app").remove();
 
-  $("option_title").value = start_data.option_title;
-  $("title").innerText = start_data.option_title;
-  $("bottom_title").innerText = start_data.option_title;
+  $("option_title").value = window.web_file["option_title"];
+  $("title").innerText = window.web_file["option_title"];
+  $("bottom_title").innerText = window.web_file["option_title"];
 
-  $("option_version").value = start_data.option_version;
-  $("version").innerText = start_data.option_version;
+  $("option_version").value = window.web_file["option_version"];
+  $("version").innerText = window.web_file["option_version"];
 
-  setHomeColor(start_data.option_home_color);
-  setHomeBackground(start_data.option_home_background);
+  setHomeColor(window.web_file["option_home_color"]);
+  setHomeBackground(window.web_file["option_home_background"]);
 }
 
 // 插入資料
 function importData(data) {
   window.web_file = data;
-  // $("tx_ui_html").value = data["tx_ui_html"];
-  editor_html.setValue(data["tx_ui_html"]);
-  $("main_ui").innerHTML = data["tx_ui_html"];
+  editor_html.setValue(data["tx_html"]);
+  $("main_ui").innerHTML = data["tx_html"];
 
-  // $("tx_ui_css").value = data["tx_ui_css"];
-  editor_css.setValue(data["tx_ui_css"]);
-  $("ui_css").textContent = data["tx_ui_css"];
+  editor_css.setValue(data["tx_css"]);
+  $("ui_css").textContent = data["tx_css"];
 
   $("tx_ui_app").value = data["tx_ui_app"];
   parseCmdBtn();
 
-  // $("tx_data").value = data["tx_data"];
   editor_data.setValue(data["tx_data"]);
   if ($("script_data")) $("script_data").textContent = "";
-  // $("tx_app").value = data["tx_app"];
   editor_app.setValue(data["tx_app"]);
   if ($("script_app")) $("script_app").textContent = "";
 
@@ -753,39 +767,45 @@ window.onload = function () {
 // 網頁匯出
 $("export_web").addEventListener("click", () => {
   let name = prompt("請輸入檔案名稱：");
+  // 定義傳入壓縮檔案中的物件結構
   // codeArray = [{name:'', code:'', ext:''},{name:'', code:'', ext:''},...]
   let props = {
     outputFileName: name,
     codeArray: [],
   };
 
-  // 建立原始html的clone, 對此document操作不影響原始html, fileName: index.html
+  // clone原始html, 對此document操作不影響原始html, fileName: index.html
   let clone_html = $("html").cloneNode(true);
+  let html_head = clone_html.getElementsByTagName("head")[0];
+  let html_body = clone_html.getElementsByTagName("body")[0];
+
+  // clone要匯出的head內容
+  let source_meta = $("source_meta").cloneNode(true);
+  let source_manifest = $("manifest-placeholder").cloneNode(true);
+  let source_icon = $("icon").cloneNode(true);
+  let source_title = $("title").cloneNode(true);
+  let source_style = $("source_style").cloneNode(true);
+
+  // 清空head內容後再加入先前clone的元素
+  html_head.innerHTML = "";
+  html_head.appendChild(source_meta);
+  html_head.appendChild(source_manifest);
+  html_head.appendChild(source_icon);
+  html_head.appendChild(source_title);
+  html_head.appendChild(source_style);
+
   let clone_load = $("loading").cloneNode(true);
   let clone_ui = $("ui_html").cloneNode(true);
   let clone_version = $("version").cloneNode(true);
   let clone_buildCheck = $("build_check").cloneNode(true);
   clone_ui.innerHTML = "";
-  let html_head = clone_html.getElementsByTagName("head")[0];
-  let html_body = clone_html.getElementsByTagName("body")[0];
-  let head_link = html_head.getElementsByTagName("link");
-  let head_style = html_head.getElementsByTagName("style");
-  let head_script = html_head.getElementsByTagName("script");
 
-  // 移除嵌入的css id:build_style
-  html_head.removeChild(head_link[2]);
-  // 移除嵌入的css id:ui_css
-  html_head.removeChild(head_style[1]);
-  // 移除嵌入的js
-  if (head_script[0]) html_head.removeChild(head_script[0]);
-
-  // 清空body內容
+  // 清空body內容再加入先前clone的元素
   html_body.innerHTML = "";
-  // 加入暫存的內容
   html_body.appendChild(clone_load);
   html_body.appendChild(clone_ui);
   html_body.appendChild(clone_version);
-  clone_buildCheck.innerText = "build";
+  clone_buildCheck.innerText = "build"; // 將 build check 中的文字改變成 build 讓前端程式判斷處理
   html_body.appendChild(clone_buildCheck);
 
   // 建立初始載入檔案與暫存程式(掛在index.html下), fileName: index.html
@@ -812,10 +832,9 @@ $("export_web").addEventListener("click", () => {
   fetch(`${window.location.protocol}//${window.location.host}/${css_name}`)
     .then((res) => {
       res.text().then((data) => {
-        console.log(data);
         props.codeArray.push({
           name: "style",
-          code: `${data}\n${window.web_file["tx_ui_css"]}`,
+          code: `${data}\n${window.web_file["tx_css"]}`,
           ext: "css",
         });
 
@@ -851,6 +870,7 @@ $("export_web").addEventListener("click", () => {
           ext: "json",
         });
 
+        // 將處理完後的物件傳入 jsZip 中進行壓縮並匯出;
         jsZip(props);
       });
     })
@@ -868,8 +888,8 @@ $("import_html").addEventListener("change", () => {
   reader.onload = function (evt) {
     str = evt.target.result;
     console.log(`import: ${f.name}`);
-    window.web_file["tx_ui_html"] = str;
-    // $("tx_ui_html").value = str;
+    window.web_file["tx_html"] = str;
+    // $("tx_html").value = str;
     editor_html.setValue(str);
     $("main_ui").innerHTML = str;
     syncDataLocalStorage();
@@ -886,8 +906,8 @@ $("import_css").addEventListener("change", () => {
   reader.onload = function (evt) {
     str = evt.target.result;
     console.log(`import: ${f.name}`);
-    window.web_file["tx_ui_css"] = str;
-    $("tx_ui_css").value = str;
+    window.web_file["tx_css"] = str;
+    $("tx_css").value = str;
     $("ui_css").textContent = str;
     syncDataLocalStorage();
     $("import_css").value = "";
