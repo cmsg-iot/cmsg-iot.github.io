@@ -67,7 +67,15 @@
 }
 
 .editor-style {
-  @apply w-11/12 m-auto mt-2 mb-2 shadow-lg text-lg rounded-md;
+  width: 91.6%;
+  margin: auto;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  font-size: 1.125rem;
+  line-height: 1.25rem;
+  border-radius: 0.375rem;
   max-width: 1000px;
 }
 
@@ -75,7 +83,7 @@
   width: 100vw !important;
   height: 100vh !important;
   font-size: 1.125rem !important;
-  line-height: 1.75rem !important;
+  line-height: 1.25rem !important;
 }
 
 .btn-import {

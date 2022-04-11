@@ -10,9 +10,10 @@
     "clean": "rm dist/bundle.js",
     "start": "rimraf -rf ./dist/*.* ./.cache && parcel src/index.html",
     "build-prod": "rimraf -rf ./dist/*.* ./.cache && NODE_ENV=production parcel build --public-url / src/index.html",
-    "build-aws":"rimraf -rf ./dist/*.* ./.cache && NODE_ENV=production parcel build --public-url /editor src/index.html",
+    "build-aws":"rimraf -rf ./dist/*.* ./.cache && NODE_ENV=production parcel build --public-url /editor src/index.html && npm run upload-aws",
     "build-dev": "rimraf -rf ./dist ./.cache && parcel build --public-url /dist src/index.html",
-    "build:css": "NODE_ENV=production tailwindcss -i ./src/style.css -o ./dist/style.css --minify"
+    "build:css": "NODE_ENV=production tailwindcss -i ./src/style.css -o ./dist/style.css --minify",
+    "upload-aws": "sudo ssh -i ~/Documents/lightsail/LightsailDefaultKey-ap-northeast-2.pem ubuntu@console.sgiot.com.tw 'rm -rf /home/ubuntu/beexant-webeditor/*' && sudo scp -i ~/Documents/lightsail/LightsailDefaultKey-ap-northeast-2.pem dist/*.html dist/*.js dist/*.css ubuntu@console.sgiot.com.tw:/home/ubuntu/beexant-webeditor"
   },
   "devDependencies": {
     "@babel/core": "^7.16.0",
