@@ -684,13 +684,13 @@ function fileNew() {
   var len = opt.length - 2;
   var name = prompt("請輸入名稱:", "未命名");
   if (name) {
-    initialData();
     console.log(start_data);
     name = len < 10 ? `0${len}:${name}` : `${len}:${name}`;
     opt.add(new Option(name, name), opt[opt.length - 2]);
     localStorage.setItem(`file_save_${name}`, JSON.stringify(start_data));
     $("file_select").selectedIndex = opt.length - 3;
     localStorage.setItem("file_name", name);
+    initialData();
   } else {
     $("file_select").selectedIndex = file_selectIndex;
   }
@@ -933,7 +933,6 @@ $("import_html").addEventListener("change", () => {
     str = evt.target.result;
     console.log(`import: ${f.name}`);
     window.web_file["tx_html"] = str;
-    // $("tx_html").value = str;
     editor_html.setValue(str);
     $("main_ui").innerHTML = str;
     syncDataLocalStorage();
