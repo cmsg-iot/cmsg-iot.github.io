@@ -752,6 +752,103 @@ window.onload = function () {
   fileInit();
 };
 
+// 選單選擇檔案
+$("file_select").addEventListener("change", (e) => {
+  let s = e.target;
+  if (s.options.selectedIndex) {
+    fileSelect(s.options.selectedIndex);
+  }
+});
+
+// 透明度設定
+$("webeditor_opacity").addEventListener("change", (e) => {
+  $("webeditor").style.opacity = e.target.value / 100;
+});
+
+// 網頁標頭設定
+$("option_title").addEventListener("input", (e) => {
+  let title = e.target.value;
+  $("title").innerText = title;
+  $("bottom_title").innerText = title;
+  window.web_file["option_title"] = title;
+  syncDataLocalStorage();
+});
+
+// 網頁版本設定
+$("option_version").addEventListener("input", (e) => {
+  let version = e.target.value;
+  $("version").innerText = version;
+  window.web_file["option_version"] = version;
+  syncDataLocalStorage();
+});
+
+// 主頁文字顏色設定
+$("option_home_color").addEventListener("input", (e) => {
+  setHomeColor(e.target.value);
+  syncDataLocalStorage();
+});
+
+// 主頁背景顏色設定
+$("option_home_background").addEventListener("input", (e) => {
+  setHomeBackground(e.target.value);
+  syncDataLocalStorage();
+});
+
+// 功能開關 - 排程設定
+$("option_schedule").addEventListener("change", (e) => {
+  if (e.target.checked) {
+    $("open-sche").classList.remove("hidden");
+    $("btmMenu_sche").parentElement.classList.remove("hidden");
+    return;
+  }
+  $("open-sche").classList.add("hidden");
+  $("btmMenu_sche").parentElement.classList.add("hidden");
+});
+
+// 功能開關 - 網路設定
+$("option_network").addEventListener("change", (e) => {
+  if (e.target.checked) {
+    $("open-network").classList.remove("hidden");
+    $("btmMenu_network").parentElement.classList.remove("hidden");
+    return;
+  }
+  $("open-network").classList.add("hidden");
+  $("btmMenu_network").parentElement.classList.add("hidden");
+});
+
+// 功能開關 - 自定義設定
+$("option_custom").addEventListener("change", (e) => {
+  if (e.target.checked) {
+    $("open-custom").classList.remove("hidden");
+    $("btmMenu_custom").parentElement.classList.remove("hidden");
+    return;
+  }
+  $("open-custom").classList.add("hidden");
+  $("btmMenu_custom").parentElement.classList.add("hidden");
+});
+
+// 功能開關 - 系統設定
+$("option_system").addEventListener("change", (e) => {
+  if (e.target.checked) {
+    $("open-system").classList.remove("hidden");
+    $("btmMenu_system").parentElement.classList.remove("hidden");
+    return;
+  }
+  $("open-system").classList.add("hidden");
+  $("btmMenu_system").parentElement.classList.add("hidden");
+});
+
+// 功能開關 - 終端機
+$("option_terminal").addEventListener("change", (e) => {
+  if (e.target.checked) {
+    $("open-terminal").classList.remove("hidden");
+    $("btmMenu_terminal").parentElement.classList.remove("hidden");
+    return;
+  }
+  $("open-terminal").classList.add("hidden");
+  $("btmMenu_terminal").parentElement.classList.add("hidden");
+});
+
 // 網頁匯出
 $("export_web").addEventListener("click", async () => {
   let name = prompt("請輸入檔案名稱：");
@@ -831,21 +928,11 @@ $("export_web").addEventListener("click", async () => {
 
   // 建立初始載入檔案與暫存程式(掛在index.html下), fileName: index.html
   let clone_index = $("dev_load").cloneNode(true);
-  let script = document.createElement("script");
-  script.textContent = clone_index;
-  clone_html.appendChild(script);
-  let clone_load_script = $("dev_load").cloneNode(true);
-  let load_name = clone_load_script.src.split(window.location.origin)[1];
-  await fetch(
-    `${window.location.protocol}//${window.location.host}/${load_name}`
-  ).then((res) => {
-    res.text().then((data) => {
-      props.codeArray.push({
-        name: "index",
-        code: `<html>${clone_html.innerHTML}<script>${data}</script></html>`,
-        ext: "html",
-      });
-    });
+  clone_html.appendChild(clone_index);
+  props.codeArray.push({
+    name: "index",
+    code: `<html>${clone_html.innerHTML}</html>`,
+    ext: "html",
   });
 
   // 建立原始頁面包含自定義CSS程式, fileName: style.css
@@ -1069,101 +1156,4 @@ $("import_file").addEventListener("change", () => {
     return;
   }
   fileImport();
-});
-
-// 選單選擇檔案
-$("file_select").addEventListener("change", (e) => {
-  let s = e.target;
-  if (s.options.selectedIndex) {
-    fileSelect(s.options.selectedIndex);
-  }
-});
-
-// 透明度設定
-$("webeditor_opacity").addEventListener("change", (e) => {
-  $("webeditor").style.opacity = e.target.value / 100;
-});
-
-// 網頁標頭設定
-$("option_title").addEventListener("input", (e) => {
-  let title = e.target.value;
-  $("title").innerText = title;
-  $("bottom_title").innerText = title;
-  window.web_file["option_title"] = title;
-  syncDataLocalStorage();
-});
-
-// 網頁版本設定
-$("option_version").addEventListener("input", (e) => {
-  let version = e.target.value;
-  $("version").innerText = version;
-  window.web_file["option_version"] = version;
-  syncDataLocalStorage();
-});
-
-// 主頁文字顏色設定
-$("option_home_color").addEventListener("input", (e) => {
-  setHomeColor(e.target.value);
-  syncDataLocalStorage();
-});
-
-// 主頁背景顏色設定
-$("option_home_background").addEventListener("input", (e) => {
-  setHomeBackground(e.target.value);
-  syncDataLocalStorage();
-});
-
-// 功能開關 - 排程設定
-$("option_schedule").addEventListener("change", (e) => {
-  if (e.target.checked) {
-    $("open-sche").classList.remove("hidden");
-    $("btmMenu_sche").parentElement.classList.remove("hidden");
-    return;
-  }
-  $("open-sche").classList.add("hidden");
-  $("btmMenu_sche").parentElement.classList.add("hidden");
-});
-
-// 功能開關 - 網路設定
-$("option_network").addEventListener("change", (e) => {
-  if (e.target.checked) {
-    $("open-network").classList.remove("hidden");
-    $("btmMenu_network").parentElement.classList.remove("hidden");
-    return;
-  }
-  $("open-network").classList.add("hidden");
-  $("btmMenu_network").parentElement.classList.add("hidden");
-});
-
-// 功能開關 - 自定義設定
-$("option_custom").addEventListener("change", (e) => {
-  if (e.target.checked) {
-    $("open-custom").classList.remove("hidden");
-    $("btmMenu_custom").parentElement.classList.remove("hidden");
-    return;
-  }
-  $("open-custom").classList.add("hidden");
-  $("btmMenu_custom").parentElement.classList.add("hidden");
-});
-
-// 功能開關 - 系統設定
-$("option_system").addEventListener("change", (e) => {
-  if (e.target.checked) {
-    $("open-system").classList.remove("hidden");
-    $("btmMenu_system").parentElement.classList.remove("hidden");
-    return;
-  }
-  $("open-system").classList.add("hidden");
-  $("btmMenu_system").parentElement.classList.add("hidden");
-});
-
-// 功能開關 - 終端機
-$("option_terminal").addEventListener("change", (e) => {
-  if (e.target.checked) {
-    $("open-terminal").classList.remove("hidden");
-    $("btmMenu_terminal").parentElement.classList.remove("hidden");
-    return;
-  }
-  $("open-terminal").classList.add("hidden");
-  $("btmMenu_terminal").parentElement.classList.add("hidden");
 });

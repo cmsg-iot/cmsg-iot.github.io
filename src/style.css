@@ -143,11 +143,11 @@ input[type="checkbox"]:checked + span {
 }
 
 .btn-md {
-  @apply w-32 h-12 m-4;
+  @apply w-32 h-12 m-3;
 }
 
 .btn-lg {
-  @apply w-48 h-12 m-4;
+  @apply w-48 h-12 m-3;
 }
 
 .btn-setting {
