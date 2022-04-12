@@ -47,7 +47,7 @@ window.connect = function () {
       return;
     }
     if (typeof window.worker === "undefined") {
-      window.worker = new Worker(worker_url);
+      window.worker = new Worker(window.worker_url);
       console.log(window.worker);
       window.worker.onmessage = wkMsg;
     }
@@ -89,11 +89,6 @@ window.getFileWithImport = (name, type) => {
             break;
           case "worker":
             addWorker(data);
-            setTimeout(() => {
-              let blob = new Blob([data], { type: "text/javascript" });
-              worker_url = window.URL.createObjectURL(blob);
-              console.log(worker_url);
-            }, 300);
             break;
           case "manifest":
             addManifest(data);
@@ -110,19 +105,29 @@ window.getFileWithImport = (name, type) => {
 };
 
 // 建立緩存
-window.createCache = function (cacheList) {
-  setTimeout(() => getFileWithImport(cacheList.style, "css"), 500);
-  setTimeout(() => getFileWithImport(cacheList.ui, "html"), 1000);
-  setTimeout(() => getFileWithImport(cacheList.src, "js"), 1500);
-  setTimeout(() => getFileWithImport(cacheList.worker, "worker"), 2000);
-  setTimeout(() => getFileWithImport(cacheList.app, "js"), 2500);
-  setTimeout(() => getFileWithImport(cacheList.manifest, "manifest"), 3000);
-  setTimeout(() => connect(), 3500);
-  setTimeout(() => sourceLoading("origin-done"), 4000);
-  setTimeout(() => {
-    console.log("clear spin");
-    document.getElementById("spin").classList.add("hidden");
-  }, 4500);
+window.createCache = async function (cacheList) {
+  const delay = (s) => {
+    return new Promise((resolve) => {
+      setTimeout(resolve, s);
+    });
+  };
+  getFileWithImport(cacheList.style, "css");
+  await delay(500);
+  getFileWithImport(cacheList.ui, "html");
+  await delay(500);
+  getFileWithImport(cacheList.src, "js");
+  await delay(500);
+  getFileWithImport(cacheList.worker, "worker");
+  await delay(500);
+  getFileWithImport(cacheList.app, "js");
+  await delay(500);
+  getFileWithImport(cacheList.manifest, "manifest");
+  await delay(500);
+  connect();
+  await delay(300);
+  sourceLoading("origin-done");
+  console.log("clear spin");
+  document.getElementById("spin").classList.add("hidden");
 };
 
 // 使用緩存
@@ -143,8 +148,8 @@ window.useCachedData = function () {
     let blob = new Blob([document.getElementById("worker").textContent], {
       type: "text/javascript",
     });
-    worker_url = window.URL.createObjectURL(blob);
-    console.log(worker_url);
+    window.worker_url = window.URL.createObjectURL(blob);
+    console.log(window.worker_url);
   }, 300);
   setTimeout(connect, 1000);
 
@@ -190,6 +195,9 @@ window.addWorker = function (data) {
   script.type = "javascript/worker";
   script.textContent = data;
   document.getElementsByTagName("head")[0].appendChild(script);
+  let blob = new Blob([data], { type: "text/javascript" });
+  window.worker_url = window.URL.createObjectURL(blob);
+  console.log(window.worker_url);
 };
 
 // 加入manifest定義檔
@@ -235,11 +243,11 @@ else if (
 document.onreadystatechange = loading;
 
 // 完成Loading
-function loading() {
+window.loading = function () {
   if (document.readyState == "complete") {
     setTimeout(() => {
       document.getElementById("loading").style.display = "none";
     }, 1500);
     console.log("load success");
   }
-}
+};
