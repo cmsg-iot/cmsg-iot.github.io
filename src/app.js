@@ -683,6 +683,28 @@ $("system_set_device").addEventListener("click", () => {
   postCmd(window.CORE_CMD.device_set_name(name));
 });
 
+// set system time
+$("system_set_time").addEventListener("click", () => {
+  let time = new Date(Date.now());
+  let y = time.getFullYear();
+  let m =
+    time.getMonth() + 1 < 10 ? `0${time.getMonth() + 1}` : time.getMonth() + 1;
+  let d = time.getDate() < 10 ? `0${time.getDate()}` : time.getDate();
+  let hr = time.getHours() < 10 ? `0${time.getHours()}` : time.getHours();
+  let min =
+    time.getMinutes() < 10 ? `0${time.getMinutes()}` : time.getMinutes();
+  let week = time.getDay();
+  let now = `${y}-${m}-${d}T${hr}:${min} ${week}`;
+  let flag = confirm(`確定要更新系統時間？ ${now}`);
+  if (flag) {
+    spin(1);
+    postCmd(`set time ${now}`);
+    setTimeout(() => {
+      spin(0);
+    }, 500);
+  }
+});
+
 // set SSID
 $("system_set_ssid").addEventListener("click", () => {
   let ssid = prompt("請輸入SSID:");
