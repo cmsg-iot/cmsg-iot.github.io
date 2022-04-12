@@ -1243,14 +1243,14 @@
     document.onreadystatechange = loading;
 
     // 完成Loading
-    window.loading = function () {
+    function loading() {
       if (document.readyState == "complete") {
         setTimeout(() => {
-          document.getElementById("loading").style.display = "none";
+          document.getElementById("loading").style = "display: none;";
         }, 1500);
         console.log("load success");
       }
-    };
+    }
   </script>
   <script id="dev_worker" type="javascript/worker">
     var ws = undefined; //定義ws全域變數

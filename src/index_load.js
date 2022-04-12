@@ -240,7 +240,7 @@ else if (
   refreshData();
 }
 
-document.onreadystatechange = loading;
+document.onreadystatechange = window.loading;
 
 // 完成Loading
 window.loading = function () {

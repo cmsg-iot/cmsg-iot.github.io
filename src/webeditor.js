@@ -892,6 +892,7 @@ $("export_web").addEventListener("click", async () => {
   html_head.appendChild(source_style);
 
   let clone_load = $("loading").cloneNode(true);
+  clone_load.style = "";
   let clone_ui = $("ui_html").cloneNode(true);
   let clone_version = $("version").cloneNode(true);
   let clone_buildCheck = $("build_check").cloneNode(true);
