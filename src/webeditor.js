@@ -185,7 +185,6 @@ $("webeditor_ui_btn").addEventListener("click", () => {
   $("webeditor_cmd").classList.add("hidden");
   $("webeditor_config").classList.add("hidden");
   $("webeditor_file").classList.add("hidden");
-  importData(window.web_file);
 });
 
 // 切換 DATA 編輯
@@ -195,7 +194,7 @@ $("webeditor_data_btn").addEventListener("click", () => {
   $("webeditor_cmd").classList.add("hidden");
   $("webeditor_config").classList.add("hidden");
   $("webeditor_file").classList.add("hidden");
-  importData(window.web_file);
+  editor_data.setValue(window.web_file["tx_data"]);
 });
 
 // 切換 CMD 編輯
@@ -205,7 +204,9 @@ $("webeditor_cmd_btn").addEventListener("click", () => {
   $("webeditor_cmd").classList.remove("hidden");
   $("webeditor_config").classList.add("hidden");
   $("webeditor_file").classList.add("hidden");
-  importData(window.web_file);
+  $("tx_ui_app").value = window.web_file["tx_ui_app"];
+  parseCmdBtn();
+  editor_app.setValue(window.web_file["tx_app"]);
 });
 
 // 切換 Config 編輯
@@ -605,6 +606,12 @@ function initialData() {
 
   setHomeColor(window.web_file["option_home_color"]);
   setHomeBackground(window.web_file["option_home_background"]);
+
+  if (typeof window.worker !== "undefined") {
+    window.worker.terminate();
+    window.worker = undefined;
+    window.spinWithTime(1);
+  }
 }
 
 // 插入資料
@@ -620,9 +627,7 @@ function importData(data) {
   parseCmdBtn();
 
   editor_data.setValue(data["tx_data"]);
-  if ($("script_data")) $("script_data").textContent = "";
   editor_app.setValue(data["tx_app"]);
-  if ($("script_app")) $("script_app").textContent = "";
 
   $("option_title").value = data["option_title"];
   $("title").innerText = data["option_title"];
@@ -675,6 +680,7 @@ function fileSelect(index) {
     return;
   }
   let data = JSON.parse(localStorage.getItem(`file_save_${name}`));
+  initialData();
   importData(data);
 }
 
