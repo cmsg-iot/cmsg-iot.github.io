@@ -1151,18 +1151,10 @@
         addScript(code_app);
       }, 500);
 
-      // 建立worker
-      setTimeout(() => {
-        let blob = new Blob([document.getElementById("worker").textContent], {
-          type: "text/javascript",
-        });
-        window.worker_url = window.URL.createObjectURL(blob);
-        console.log(window.worker_url);
-      }, 300);
       setTimeout(connect, 1000);
 
-      setTimeout(() => sourceLoading("cache"), 2000);
       setTimeout(() => {
+        sourceLoading("cache");
         console.log("clear spin");
         document.getElementById("spin").classList.add("hidden");
       }, 1500);
