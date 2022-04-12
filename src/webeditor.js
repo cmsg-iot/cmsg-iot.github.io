@@ -412,9 +412,11 @@ $("script_data_ws").addEventListener("click", () => {
       window.worker.terminate();
     }
     window.worker = undefined;
-    let url = $("dev_worker").src.split(window.location.origin)[1];
+    let blob = new Blob([$("dev_worker").innerText], {
+      type: "text/javascript",
+    });
+    let url = window.URL.createObjectURL(blob);
     window.worker = new Worker(url);
-    console.log(window.worker);
     window.worker.onmessage = wkMsg;
     let cmd = { URL: `http://${IP}` };
     window.worker.postMessage(cmd);
@@ -941,6 +943,22 @@ $("export_web").addEventListener("click", async () => {
     ext: "html",
   });
 
+  // 建立處理與ws通訊的worker程式, fileName: worker.js
+  let clone_worker = $("dev_worker").innerText;
+  props.codeArray.push({
+    name: "worker",
+    code: `${clone_worker}`,
+    ext: "js",
+  });
+
+  // 建立將網頁轉換為app的描述檔, fileName: manifest.json
+  let clone_manifest = $("index_manifest").innerHTML;
+  props.codeArray.push({
+    name: "manifest",
+    code: `${clone_manifest}`,
+    ext: "json",
+  });
+
   // 建立原始頁面包含自定義CSS程式, fileName: style.css
   let clone_css = $("build_style").cloneNode(true);
   let css_name = clone_css.href.split(window.location.origin)[1];
@@ -987,29 +1005,7 @@ $("export_web").addEventListener("click", async () => {
         code: `${data}\n${window.web_file["tx_app"]}`,
         ext: "js",
       });
-    });
-  });
 
-  // 建立處理與ws通訊的worker程式, fileName: worker.js
-  let clone_worker = $("dev_worker").cloneNode(true);
-  let worker_name = clone_worker.src.split(window.location.origin)[1];
-  await fetch(
-    `${window.location.protocol}//${window.location.host}/${worker_name}`
-  ).then((res) => {
-    res.text().then((data) => {
-      props.codeArray.push({
-        name: "worker",
-        code: `${data}`,
-        ext: "js",
-      });
-
-      // 建立將網頁轉換為app的描述檔, fileName: manifest.json
-      let clone_manifest = $("index_manifest").innerHTML;
-      props.codeArray.push({
-        name: "manifest",
-        code: `${clone_manifest}`,
-        ext: "json",
-      });
       // 將處理完後的物件傳入 jsZip 中進行壓縮並匯出;
       jsZip(props);
     });
