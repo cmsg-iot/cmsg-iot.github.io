@@ -810,16 +810,6 @@ $("terminal_log").addEventListener("click", () => {
   }
 });
 
-/** System setting */
-window.callSystemSetting = function (cmd) {
-  spin(1);
-  postCmd(cmd);
-  setTimeout(() => {
-    postCmd(window.CUSTOM_CMD.system_setting);
-    spin(0);
-  }, 1000);
-};
-
 // 顯示等待動畫
 window.spin = function (flag) {
   flag
