@@ -859,7 +859,7 @@ $("option_terminal").addEventListener("change", (e) => {
 
 // 網頁匯出
 $("export_web").addEventListener("click", async () => {
-  let name = prompt("請輸入檔案名稱：");
+  let name = prompt("請輸入檔案名稱：", window.web_file["option_title"]);
   if (name === null) {
     return;
   }
