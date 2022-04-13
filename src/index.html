@@ -669,7 +669,7 @@
           &#8210;
         </div>
       </div>
-      <div id="webeditor_container">
+      <div id="webeditor_container" style="height: 90vh">
         <div>
           <select
             id="file_select"
@@ -912,7 +912,7 @@
               網頁匯出
             </div>
             <div>
-              <div>
+              <div class="hidden">
                 <label>
                   <input type="checkbox" name="" id="option_zip" checked />
                   <span class="transition-colors m-2">壓縮檔案?</span>
@@ -925,11 +925,11 @@
               </div>
             </div>
             <div
-              class="text-center text-lg w-36 bg-warning text-dark rounded-md m-auto mt-2 mb-2"
+              class="text-center text-lg w-36 bg-warning text-dark rounded-md m-auto mt-2 mb-2 hidden"
             >
               網頁匯入
             </div>
-            <div class="flex flex-wrap justify-center">
+            <div class="flex flex-wrap justify-center hidden">
               <div class="btn-import">
                 <label for="import_html">
                   HTML 匯入
