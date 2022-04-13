@@ -1040,7 +1040,7 @@ $("import_css").addEventListener("change", () => {
     str = evt.target.result;
     console.log(`import: ${f.name}`);
     window.web_file["tx_css"] = str;
-    $("tx_css").value = str;
+    editor_css.setValue(str);
     $("ui_css").textContent = str;
     syncDataLocalStorage();
     $("import_css").value = "";
@@ -1057,7 +1057,7 @@ $("import_data").addEventListener("change", () => {
     str = evt.target.result;
     console.log(`import: ${f.name}`);
     window.web_file["tx_data"] = str;
-    $("tx_data").value = str;
+    editor_data.setValue(str);
     syncDataLocalStorage();
     $("import_data").value = "";
   };
@@ -1073,7 +1073,7 @@ $("import_cmd").addEventListener("change", () => {
     str = evt.target.result;
     console.log(`import: ${f.name}`);
     window.web_file["tx_app"] = str;
-    $("tx_app").value = str;
+    editor_app.setValue(str);
     syncDataLocalStorage();
     $("import_cmd").value = "";
   };
