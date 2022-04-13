@@ -178,6 +178,12 @@ $("webeditor_scale").addEventListener("click", () => {
   $("webeditor").style.height = "";
 });
 
+// 隱藏網頁編輯器
+$("webeditor_hidden").addEventListener("click", () => {
+  alert("隱藏編輯器，雙擊畫面後可再顯示");
+  $("webeditor").classList.add("hidden");
+});
+
 // 切換 UI 編輯
 $("webeditor_ui_btn").addEventListener("click", () => {
   $("webeditor_ui").classList.remove("hidden");
@@ -1160,3 +1166,12 @@ $("import_file").addEventListener("change", () => {
   }
   fileImport();
 });
+
+/*-----------------------------------------------*/
+/*-----------------編輯器熱鍵功能------------------*/
+/*----------------------------------------------*/
+
+// 恢復隱藏的編輯器視窗
+document.ondblclick = function (e) {
+  $("webeditor").classList.remove("hidden");
+};
