@@ -191,6 +191,8 @@ $("webeditor_ui_btn").addEventListener("click", () => {
   $("webeditor_cmd").classList.add("hidden");
   $("webeditor_config").classList.add("hidden");
   $("webeditor_file").classList.add("hidden");
+  editor_html.setValue(window.web_file["tx_html"]);
+  editor_css.setValue(window.web_file["tx_css"]);
 });
 
 // 切換 DATA 編輯
