@@ -242,7 +242,7 @@ $("webeditor_file_btn").addEventListener("click", () => {
 window.env = "dev";
 
 // 定義初始內容資料
-const start_data = {
+const start_data = Object.freeze({
   tx_html: "",
   tx_css: "",
   tx_data:
@@ -255,33 +255,54 @@ const start_data = {
   option_home_color: "#ffffff",
   option_home_background: "#3f3f3f",
   option_version: "0.0.1",
-};
-
-// 定義初始化用資料
-let web_file_data = {
-  tx_html: "",
-  tx_css: "",
-
-  tx_data:
-    "/*data will be e.data from websocket*/\nfunction dataFormatEntryPoint(data) {\n    \n}",
-  tx_ui_app:
-    "# 群組標題一\ntitle: 命令改變框中內容 , val: 預設顯示內容, val_id: val_1, btn_id: btn_1\ntitle: 僅框中內容改變 , val: 等待改變..., val_id: val_2\n\n# 群組標題二\ntitle: 僅觸發按鈕事件 , val: 點擊設定 , btn_id: btn_2",
-  tx_app:
-    '/*Create events with id*/\n$("btn_1").addEventListener("click",()=>{\n    alert("可觸發按鈕事件，按鈕中框的值綁定id能夠改變數值");\n    $("val_1").innerText = "觸發按鈕改變內容";\n});\n\n$("btn_2").addEventListener("click",()=>{\n    let v = prompt("可發送命令或數值改變, 輸入值改變第二個按鈕:");\n    $("val_2").innerText = v;\n});',
-  option_title: "BEExANT MCU Web",
-  option_home_color: "#ffffff",
-  option_home_background: "#3f3f3f",
-  option_version: "0.0.1",
-};
-
-// 全域變數暫存編輯內容
-window.web_file = web_file_data;
+  options_flag: {
+    title: true,
+    footer: true,
+    systemStatus: true,
+    config: true,
+    schedule: true,
+    custom: true,
+    network: true,
+    system: true,
+    terminal: true,
+  },
+});
 
 // 檔案選擇編號
 var file_selectIndex = 0;
 
 // 儲存檔案陣列
 var file_arr = [];
+
+window.web_file = {};
+
+function initialGlobalWebFile() {
+  let web_file = {};
+  web_file["tx_html"] = start_data.tx_html;
+  web_file["tx_css"] = start_data.tx_css;
+  web_file["tx_data"] = start_data.tx_data;
+  web_file["tx_ui_app"] = start_data.tx_ui_app;
+  web_file["tx_app"] = start_data.tx_app;
+  web_file["option_title"] = start_data.option_title;
+  web_file["option_home_color"] = start_data.option_home_color;
+  web_file["option_home_background"] = start_data.option_home_background;
+  web_file["option_version"] = start_data.option_version;
+  web_file["options_flag"] = {
+    title: start_data.options_flag.title,
+    footer: start_data.options_flag.footer,
+    systemStatus: start_data.options_flag.systemStatus,
+    config: start_data.options_flag.config,
+    schedule: start_data.options_flag.schedule,
+    custom: start_data.options_flag.custom,
+    network: start_data.options_flag.network,
+    system: start_data.options_flag.system,
+    terminal: start_data.options_flag.terminal,
+  };
+
+  window.web_file = web_file;
+}
+
+initialGlobalWebFile();
 
 /*----------------------------------------*/
 /*---------------UI 編輯區塊---------------*/
@@ -565,15 +586,38 @@ function setHomeColor(color) {
   window.web_file["option_home_color"] = color;
   $("system_status_1").style.color = color;
   $("system_status_2").style.color = color;
+  $("version").style.color = color;
   $("bottom_title").style.color = color;
   $("option_home_color").value = color;
 }
+
 // 更新主頁背景顏色
 function setHomeBackground(color) {
   window.web_file["option_home_background"] = color;
   $("container").style.backgroundColor = color;
   $("footer").style.backgroundColor = color;
   $("option_home_background").value = color;
+}
+
+// 更新選項顯示
+function setOptions(flags) {
+  for (const key in flags) {
+    if (Object.hasOwnProperty.call(flags, key)) {
+      const flag = flags[key];
+      // 選項為真
+      if (flag) {
+        if ($(`option_${key}_flag`).checked === false) {
+          $(`option_${key}_flag`).click();
+        }
+      }
+      // 選項為假
+      else {
+        if ($(`option_${key}_flag`).checked === true) {
+          $(`option_${key}_flag`).click();
+        }
+      }
+    }
+  }
 }
 
 // 同步更新區塊內資料至localstorage
@@ -587,8 +631,8 @@ function syncDataLocalStorage() {
 
 // 初始化網頁
 function initialData() {
-  window.web_file = web_file_data;
-  editor_html.setValue(window.web_file["tx_html"]);
+  initialGlobalWebFile();
+  editor_html.setValue(start_data["tx_html"]);
   $("main_ui").innerHTML = "";
 
   let style = document.createElement("style");
@@ -596,26 +640,28 @@ function initialData() {
 
   if (!$("ui_css")) document.getElementsByTagName("head")[0].appendChild(style);
 
-  editor_css.setValue(window.web_file["tx_css"]);
+  editor_css.setValue(start_data["tx_css"]);
   if (!$("ui_css")) $("ui_css").textContent = "";
 
-  $("tx_ui_app").value = window.web_file["tx_ui_app"];
+  $("tx_ui_app").value = start_data["tx_ui_app"];
   parseCmdBtn();
 
-  editor_data.setValue(window.web_file["tx_data"]);
+  editor_data.setValue(start_data["tx_data"]);
   if ($("script_data")) $("script_data").remove();
-  editor_app.setValue(window.web_file["tx_app"]);
+  editor_app.setValue(start_data["tx_app"]);
   if ($("script_app")) $("script_app").remove();
 
-  $("option_title").value = window.web_file["option_title"];
-  $("title").innerText = window.web_file["option_title"];
-  $("bottom_title").innerText = window.web_file["option_title"];
+  $("option_title").value = start_data["option_title"];
+  $("title").innerText = start_data["option_title"];
+  $("bottom_title").innerText = start_data["option_title"];
 
-  $("option_version").value = window.web_file["option_version"];
-  $("version").innerText = window.web_file["option_version"];
+  $("option_version").value = start_data["option_version"];
+  $("version").innerText = start_data["option_version"];
 
-  setHomeColor(window.web_file["option_home_color"]);
-  setHomeBackground(window.web_file["option_home_background"]);
+  setHomeColor(start_data["option_home_color"]);
+  setHomeBackground(start_data["option_home_background"]);
+
+  setOptions(start_data["options_flag"]);
 
   if (typeof window.worker !== "undefined") {
     window.worker.terminate();
@@ -626,7 +672,8 @@ function initialData() {
 
 // 插入資料
 function importData(data) {
-  window.web_file = data;
+  initialGlobalWebFile();
+  window.web_file = { ...window.web_file, ...data };
   editor_html.setValue(data["tx_html"]);
   $("main_ui").innerHTML = data["tx_html"];
 
@@ -648,6 +695,8 @@ function importData(data) {
 
   setHomeColor(data["option_home_color"]);
   setHomeBackground(data["option_home_background"]);
+
+  setOptions(window.web_file["options_flag"]);
 }
 
 // 檔案管理 - 重新排序選單
@@ -700,7 +749,6 @@ function fileNew() {
   var len = opt.length - 2;
   var name = prompt("請輸入名稱:", "未命名");
   if (name) {
-    console.log(start_data);
     name = len < 10 ? `0${len}:${name}` : `${len}:${name}`;
     opt.add(new Option(name, name), opt[opt.length - 2]);
     localStorage.setItem(`file_save_${name}`, JSON.stringify(start_data));
@@ -781,6 +829,39 @@ $("webeditor_opacity").addEventListener("change", (e) => {
   $("webeditor").style.opacity = e.target.value / 100;
 });
 
+// 網頁頁腳顯示？
+$("option_footer_flag").addEventListener("change", (e) => {
+  if (e.target.checked) {
+    $("footer").classList.remove("hidden");
+  } else {
+    $("footer").classList.add("hidden");
+  }
+  web_file["options_flag"]["footer"] = e.target.checked;
+  syncDataLocalStorage();
+});
+
+// 網頁標頭顯示？
+$("option_title_flag").addEventListener("change", (e) => {
+  if (e.target.checked) {
+    $("bottom_title").classList.remove("hidden");
+  } else {
+    $("bottom_title").classList.add("hidden");
+  }
+  web_file["options_flag"]["title"] = e.target.checked;
+  syncDataLocalStorage();
+});
+
+// 系統資訊顯示？
+$("option_systemStatus_flag").addEventListener("change", (e) => {
+  if (e.target.checked) {
+    $("system_status_area").classList.remove("hidden");
+  } else {
+    $("system_status_area").classList.add("hidden");
+  }
+  web_file["options_flag"]["systemStatus"] = e.target.checked;
+  syncDataLocalStorage();
+});
+
 // 網頁標頭設定
 $("option_title").addEventListener("input", (e) => {
   let title = e.target.value;
@@ -810,8 +891,19 @@ $("option_home_background").addEventListener("input", (e) => {
   syncDataLocalStorage();
 });
 
+// 功能開關 - 設定頁功能顯示？
+$("option_config_flag").addEventListener("change", (e) => {
+  if (e.target.checked) {
+    $("open-menu").parentElement.classList.remove("hidden");
+  } else {
+    $("open-menu").parentElement.classList.add("hidden");
+  }
+  web_file["options_flag"]["config"] = e.target.checked;
+  syncDataLocalStorage();
+});
+
 // 功能開關 - 排程設定
-$("option_schedule").addEventListener("change", (e) => {
+$("option_schedule_flag").addEventListener("change", (e) => {
   if (e.target.checked) {
     $("open-sche").classList.remove("hidden");
     $("btmMenu_sche").parentElement.classList.remove("hidden");
@@ -819,10 +911,13 @@ $("option_schedule").addEventListener("change", (e) => {
   }
   $("open-sche").classList.add("hidden");
   $("btmMenu_sche").parentElement.classList.add("hidden");
+
+  web_file["options_flag"]["schedule"] = e.target.checked;
+  syncDataLocalStorage();
 });
 
 // 功能開關 - 網路設定
-$("option_network").addEventListener("change", (e) => {
+$("option_network_flag").addEventListener("change", (e) => {
   if (e.target.checked) {
     $("open-network").classList.remove("hidden");
     $("btmMenu_network").parentElement.classList.remove("hidden");
@@ -830,10 +925,13 @@ $("option_network").addEventListener("change", (e) => {
   }
   $("open-network").classList.add("hidden");
   $("btmMenu_network").parentElement.classList.add("hidden");
+
+  web_file["options_flag"]["network"] = e.target.checked;
+  syncDataLocalStorage();
 });
 
 // 功能開關 - 自定義設定
-$("option_custom").addEventListener("change", (e) => {
+$("option_custom_flag").addEventListener("change", (e) => {
   if (e.target.checked) {
     $("open-custom").classList.remove("hidden");
     $("btmMenu_custom").parentElement.classList.remove("hidden");
@@ -841,10 +939,13 @@ $("option_custom").addEventListener("change", (e) => {
   }
   $("open-custom").classList.add("hidden");
   $("btmMenu_custom").parentElement.classList.add("hidden");
+
+  web_file["options_flag"]["custom"] = e.target.checked;
+  syncDataLocalStorage();
 });
 
 // 功能開關 - 系統設定
-$("option_system").addEventListener("change", (e) => {
+$("option_system_flag").addEventListener("change", (e) => {
   if (e.target.checked) {
     $("open-system").classList.remove("hidden");
     $("btmMenu_system").parentElement.classList.remove("hidden");
@@ -852,10 +953,13 @@ $("option_system").addEventListener("change", (e) => {
   }
   $("open-system").classList.add("hidden");
   $("btmMenu_system").parentElement.classList.add("hidden");
+
+  web_file["options_flag"]["system"] = e.target.checked;
+  syncDataLocalStorage();
 });
 
 // 功能開關 - 終端機
-$("option_terminal").addEventListener("change", (e) => {
+$("option_terminal_flag").addEventListener("change", (e) => {
   if (e.target.checked) {
     $("open-terminal").classList.remove("hidden");
     $("btmMenu_terminal").parentElement.classList.remove("hidden");
@@ -863,6 +967,9 @@ $("option_terminal").addEventListener("change", (e) => {
   }
   $("open-terminal").classList.add("hidden");
   $("btmMenu_terminal").parentElement.classList.add("hidden");
+
+  web_file["options_flag"]["terminal"] = e.target.checked;
+  syncDataLocalStorage();
 });
 
 // 網頁匯出

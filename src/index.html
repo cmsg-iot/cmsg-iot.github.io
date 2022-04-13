@@ -54,7 +54,7 @@
         <!-- MainPage -->
         <div style="padding-top: 30px">
           <!-- SystemStatus -->
-          <div>
+          <div id="system_status_area">
             <div
               class="text-shadow-md w-screen max-w-3xl h-24 m-auto flex justify-center items-center"
             >
@@ -690,7 +690,7 @@
         <div>
           <select
             id="file_select"
-            class="bg-yellow-200 rounded-lg w-64 h-12 mt-2 border-none"
+            class="bg-yellow-200 rounded-lg w-64 h-12 mt-2 border-none shadow-md"
           ></select>
         </div>
         <div class="flex justify-center">
@@ -820,7 +820,10 @@
           </div>
         </div>
         <div id="webeditor_config" class="hidden">
-          <div class="inline-block justify-center">
+          <div
+            class="inline-block justify-center overflow-y-auto overscroll-y-auto"
+            style="height: 70vh"
+          >
             <div
               class="text-center text-xl w-64 bg-white text-dark rounded-md m-auto mt-2 mb-2"
             >
@@ -850,6 +853,28 @@
               >
                 參數設定
               </div>
+              <label>
+                <input
+                  type="checkbox"
+                  name=""
+                  id="option_footer_flag"
+                  checked
+                />
+                <span class="transition-colors m-2">顯示頁腳？</span>
+              </label>
+              <label>
+                <input type="checkbox" name="" id="option_title_flag" checked />
+                <span class="transition-colors m-2">顯示標題？</span>
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  name=""
+                  id="option_systemStatus_flag"
+                  checked
+                />
+                <span class="transition-colors m-2">顯示系統資訊？</span>
+              </label>
               <div>
                 <label for="option_title">
                   網頁標題
@@ -893,23 +918,59 @@
               </div>
               <div>
                 <label>
-                  <input type="checkbox" name="" id="option_schedule" checked />
+                  <input
+                    type="checkbox"
+                    name=""
+                    id="option_config_flag"
+                    checked
+                  />
+                  <span class="transition-colors m-2 p-3">設定頁功能？</span>
+                </label>
+              </div>
+              <div>
+                <label>
+                  <input
+                    type="checkbox"
+                    name=""
+                    id="option_schedule_flag"
+                    checked
+                  />
                   <span class="transition-colors m-2">排程設定</span>
                 </label>
                 <label>
-                  <input type="checkbox" name="" id="option_custom" checked />
+                  <input
+                    type="checkbox"
+                    name=""
+                    id="option_custom_flag"
+                    checked
+                  />
                   <span class="transition-colors m-2">自訂義設定</span>
                 </label>
                 <label>
-                  <input type="checkbox" name="" id="option_network" checked />
+                  <input
+                    type="checkbox"
+                    name=""
+                    id="option_network_flag"
+                    checked
+                  />
                   <span class="transition-colors m-2">網路設定</span>
                 </label>
                 <label>
-                  <input type="checkbox" name="" id="option_system" checked />
+                  <input
+                    type="checkbox"
+                    name=""
+                    id="option_system_flag"
+                    checked
+                  />
                   <span class="transition-colors m-2">系統設定</span>
                 </label>
                 <label>
-                  <input type="checkbox" name="" id="option_terminal" checked />
+                  <input
+                    type="checkbox"
+                    name=""
+                    id="option_terminal_flag"
+                    checked
+                  />
                   <span class="transition-colors m-2">終端機</span>
                 </label>
               </div>
