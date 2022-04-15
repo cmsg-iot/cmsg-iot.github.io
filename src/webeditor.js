@@ -503,6 +503,8 @@ editor_app.on("change", (e) => {
 $("script_app_run").addEventListener("click", () => {
   clearAllInterval();
   $("custom_list").innerHTML = "";
+  $("main_ui").innerHTML = "";
+  $("main_ui").innerHTML = editor_html.getValue();
   window.parseCmdBtn();
   if ($("script_app")) {
     $("script_app").remove();
@@ -739,6 +741,7 @@ function fileSelect(index) {
     return;
   }
   let data = JSON.parse(localStorage.getItem(`file_save_${name}`));
+  clearAllInterval();
   initialData();
   importData(data);
 }
@@ -788,7 +791,7 @@ function fileInit() {
   select.innerHTML = "";
   option.selected = true;
   option.disabled = "選擇存檔";
-  option.label = "選擇存檔";
+  option.innerText = "選擇存檔";
   opt.add(option);
   file_arr = [];
   for (const key in localStorage) {
@@ -804,10 +807,10 @@ function fileInit() {
     opt.add(new Option(element, element), opt[opt.length]);
   }
   option = document.createElement("option");
-  option.label = "新增存檔";
+  option.innerText = "新增存檔";
   opt.add(option);
   option = document.createElement("option");
-  option.label = "刪除存檔";
+  option.innerText = "刪除存檔";
   opt.add(option);
 }
 
@@ -1261,9 +1264,9 @@ function fileImport() {
       }
     }
     console.log(window.web_file);
+    $("import_file").value = "";
+    window.location.reload();
   };
-  $("import_file").value = "";
-  window.location.reload();
 }
 
 // 檔案上傳成功時呼叫匯入程式
