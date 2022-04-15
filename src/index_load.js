@@ -15,6 +15,11 @@ let cacheList = {
   manifest: "manifest.json",
 };
 
+// 新增的lib檔案
+if (window.libList === undefined) {
+  window.libList = [];
+}
+
 window.worker = undefined;
 
 // worker 程式來源
@@ -104,6 +109,43 @@ window.getFileWithImport = (name, type) => {
     });
 };
 
+// 取得lib分割檔，重組並設定緩存與載入
+window.getLibFilesWithImport = async () => {
+  const delay = (s) => {
+    return new Promise((resolve) => setTimeout(resolve, s));
+  };
+  let libList = window.libList;
+
+  for (let k = 0; k < libList.length; k++) {
+    let file = libList[k];
+    let fileData = "";
+    for (let i = 0; i < file.num; i++) {
+      await fetch(
+        `${window.location.protocol}//${window.location.host}/lib/${file.name}/${i}_${file.name}`
+      ).then((res) => {
+        res.text().then((data) => {
+          fileData += data;
+        });
+      });
+      sourceLoading(`cached ${file.name}`);
+      await delay(500);
+    }
+
+    console.log(fileData);
+
+    // 設定緩存
+    localStorage.setItem(`${cacheName}_lib_${file.name}`, fileData);
+
+    await delay(1000);
+
+    if (file.ext === "js") {
+      addScript(fileData);
+    } else if (file.ext === "css") {
+      addStyle(fileData);
+    }
+  }
+};
+
 // 建立緩存
 window.createCache = async function (cacheList) {
   const delay = (s) => {
@@ -111,6 +153,10 @@ window.createCache = async function (cacheList) {
       setTimeout(resolve, s);
     });
   };
+  if (window.libList.length !== 0) {
+    await getLibFilesWithImport();
+  }
+
   getFileWithImport(cacheList.style, "css");
   await delay(500);
   getFileWithImport(cacheList.ui, "html");
@@ -132,6 +178,18 @@ window.createCache = async function (cacheList) {
 
 // 使用緩存
 window.useCachedData = function () {
+  if (window.libList.length !== 0) {
+    let libList = window.libList;
+    for (let i = 0; i < libList.length; i++) {
+      let file = libList[i];
+      if (file.ext === "js") {
+        addScript(localStorage.getItem(`${cacheName}_lib_${file.name}`));
+      } else if (file.ext === "css") {
+        addStyle(localStorage.getItem(`${cacheName}_lib_${file.name}`));
+      }
+    }
+  }
+
   addHTML(code_html);
   addScript(code_src);
   addStyle(code_style);
@@ -143,18 +201,10 @@ window.useCachedData = function () {
     addScript(code_app);
   }, 500);
 
-  // 建立worker
-  setTimeout(() => {
-    let blob = new Blob([document.getElementById("worker").textContent], {
-      type: "text/javascript",
-    });
-    window.worker_url = window.URL.createObjectURL(blob);
-    console.log(window.worker_url);
-  }, 300);
   setTimeout(connect, 1000);
 
-  setTimeout(() => sourceLoading("cache"), 2000);
   setTimeout(() => {
+    sourceLoading("cache");
     console.log("clear spin");
     document.getElementById("spin").classList.add("hidden");
   }, 1500);
@@ -183,7 +233,7 @@ window.addScript = function (data) {
 // 加入css
 window.addStyle = function (data) {
   let style = document.createElement("style");
-  style.id = "style";
+  // style.id = "style";
   style.textContent = data;
   document.head.append(style);
 };
@@ -216,6 +266,22 @@ window.addIcon = function (data) {
   document.querySelector("#icon").setAttribute("href", ico);
 };
 
+// 檢查lib是否完整載入
+window.checkLibLoad = function () {
+  let libList = window.libList;
+  if (libList.length > 0) {
+    for (let i = 0; i < libList.length; i++) {
+      let file = libList[i];
+      if (localStorage.getItem(`${cacheName}_lib_${file.name}`) === null) {
+        return false;
+      }
+    }
+    return true;
+  } else {
+    return true;
+  }
+};
+
 // 檢查瀏覽器是否支援localStorage，無則向server要求網頁檔案
 if (document.getElementById("build_check").innerText === "dev") {
   console.log("local developing...");
@@ -231,7 +297,8 @@ else if (
   code_src &&
   code_style &&
   code_worker &&
-  code_manifest
+  code_manifest &&
+  window.checkLibLoad()
 ) {
   console.log(`Find Cache: ${cacheName}, use cache file.`);
   useCachedData();
@@ -240,14 +307,14 @@ else if (
   refreshData();
 }
 
-document.onreadystatechange = window.loading;
+document.onreadystatechange = loading;
 
 // 完成Loading
-window.loading = function () {
+function loading() {
   if (document.readyState == "complete") {
     setTimeout(() => {
-      document.getElementById("loading").style.display = "none";
+      document.getElementById("loading").style = "display: none;";
     }, 1500);
     console.log("load success");
   }
-};
+}

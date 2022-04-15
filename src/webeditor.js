@@ -266,6 +266,7 @@ const start_data = Object.freeze({
     system: true,
     terminal: true,
   },
+  libs: {},
 });
 
 // 檔案選擇編號
@@ -298,7 +299,7 @@ function initialGlobalWebFile() {
     system: start_data.options_flag.system,
     terminal: start_data.options_flag.terminal,
   };
-
+  web_file["libs"] = {};
   window.web_file = web_file;
 }
 
@@ -624,11 +625,12 @@ function setOptions(flags) {
 
 // 同步更新區塊內資料至localstorage
 function syncDataLocalStorage() {
-  if (localStorage.getItem("file_name") !== "")
+  if (localStorage.getItem("file_name") !== "") {
     localStorage.setItem(
       `file_save_${localStorage.getItem("file_name")}`,
       JSON.stringify(window.web_file)
     );
+  }
 }
 
 // 初始化網頁
@@ -975,15 +977,59 @@ $("option_terminal_flag").addEventListener("change", (e) => {
   syncDataLocalStorage();
 });
 
+// 套件匯入
+$("import_lib").addEventListener("change", () => {
+  let files = $("import_lib").files;
+  let libs = {};
+  let libName = prompt("請輸入套件名稱");
+
+  // libName 不可包含特殊符號
+  if (!libName) {
+    $("import_lib").value = "";
+    return;
+  }
+
+  if (Object.keys(window.web_file["libs"]).includes(libName)) {
+    window.web_file["libs"][libName] = {};
+  }
+
+  let ext = files[0].name.split(".")[files[0].name.split(".").length - 1];
+  for (const key in files) {
+    if (Object.hasOwnProperty.call(files, key)) {
+      const file = files[key];
+      let reader = new FileReader();
+      reader.readAsText(file, "UTF-8");
+      reader.onload = function (evt) {
+        libs[`${file.name.split("_")[0]}_${libName}.${ext}`] =
+          evt.target.result;
+      };
+    }
+  }
+  console.log(libs);
+  window.spinWithTime(1);
+  window.web_file["libs"][libName] = libs;
+  $("import_lib").value = "";
+
+  setTimeout(() => {
+    syncDataLocalStorage();
+  }, 1000);
+});
+
 // 網頁匯出
 $("export_web").addEventListener("click", async () => {
+  const delay = (s) => {
+    return new Promise((resolve) => {
+      setTimeout(resolve, s);
+    });
+  };
   let name = prompt("請輸入檔案名稱：", window.web_file["option_title"]);
   if (name === null) {
     return;
   }
-  window.spinWithTime(1);
+
+  window.spin(1);
   // 定義傳入壓縮檔案中的物件結構
-  // codeArray = [{name:'', code:'', ext:''},{name:'', code:'', ext:''},...]
+  // codeArray = [{name:'', code:''},{name:'', code:''},...]
   let props = {
     outputFileName: name,
     codeArray: [],
@@ -1039,9 +1085,8 @@ $("export_web").addEventListener("click", async () => {
 
   // 建立UI介面的html, fileName: ui.html
   props.codeArray.push({
-    name: "ui",
+    name: "ui.html",
     code: `${clone_ui.innerHTML}`,
-    ext: "html",
   });
 
   // 清空body內容再加入先前clone的元素
@@ -1053,29 +1098,44 @@ $("export_web").addEventListener("click", async () => {
   clone_buildCheck.innerText = "build"; // 將 build check 中的文字改變成 build 讓前端程式判斷處理
   html_body.appendChild(clone_buildCheck);
 
-  // 建立初始載入檔案與暫存程式(掛在index.html下), fileName: index.html
+  // 建立初始載入檔案與暫存程式(掛在index.html下),若有匯入套件則加入套件載入描述, fileName: index.html
   let clone_index = $("dev_load").cloneNode(true);
+  let libInfo = [];
+  let lib = window.web_file["libs"];
+
+  for (const key in lib) {
+    if (Object.hasOwnProperty.call(lib, key)) {
+      const element = lib[key];
+      let num = Object.keys(element).length;
+      let ext =
+        Object.keys(element)[0].split(".")[
+          Object.keys(element)[0].split(".").length - 1
+        ];
+      libInfo.push({ name: key, num: num, ext: ext });
+    }
+  }
+  console.log(libInfo);
+
+  clone_index.innerText =
+    `window.libList=${JSON.stringify(libInfo)};` + clone_index.innerText;
   clone_html.appendChild(clone_index);
   props.codeArray.push({
-    name: "index",
+    name: "index.html",
     code: `<html>${clone_html.innerHTML}</html>`,
-    ext: "html",
   });
 
   // 建立處理與ws通訊的worker程式, fileName: worker.js
   let clone_worker = $("dev_worker").innerText;
   props.codeArray.push({
-    name: "worker",
+    name: "worker.js",
     code: `${clone_worker}`,
-    ext: "js",
   });
 
   // 建立將網頁轉換為app的描述檔, fileName: manifest.json
   let clone_manifest = $("index_manifest").innerHTML;
   props.codeArray.push({
-    name: "manifest",
+    name: "manifest.json",
     code: `${clone_manifest}`,
-    ext: "json",
   });
 
   // 建立原始頁面包含自定義CSS程式, fileName: style.css
@@ -1087,9 +1147,8 @@ $("export_web").addEventListener("click", async () => {
     .then((res) => {
       res.text().then((data) => {
         props.codeArray.push({
-          name: "style",
+          name: "style.css",
           code: `${data}\n${window.web_file["tx_css"]}`,
-          ext: "css",
         });
       });
     })
@@ -1105,9 +1164,8 @@ $("export_web").addEventListener("click", async () => {
   ).then((res) => {
     res.text().then((data) => {
       props.codeArray.push({
-        name: "index",
+        name: "index.js",
         code: `${data}\n${window.web_file["tx_data"]}`,
-        ext: "js",
       });
     });
   });
@@ -1120,15 +1178,39 @@ $("export_web").addEventListener("click", async () => {
   ).then((res) => {
     res.text().then((data) => {
       props.codeArray.push({
-        name: "app",
+        name: "app.js",
         code: `${data}\n${window.web_file["tx_app"]}`,
-        ext: "js",
       });
-
-      // 將處理完後的物件傳入 jsZip 中進行壓縮並匯出;
-      jsZip(props);
     });
   });
+
+  await delay(500);
+
+  let libs = window.web_file["libs"];
+
+  if (Object.keys(libs).length !== 0) {
+    for (const key in libs) {
+      if (Object.hasOwnProperty.call(libs, key)) {
+        let lib = libs[key];
+        for (const key2 in lib) {
+          if (Object.hasOwnProperty.call(lib, key2)) {
+            const element = lib[key2];
+            props.codeArray.push({
+              name: `lib/${key}/${key2}`,
+              code: element,
+            });
+          }
+        }
+      }
+    }
+
+    await delay(500);
+  }
+
+  // 將處理完後的物件傳入 jsZip 中進行壓縮並匯出;
+  jsZip(props);
+
+  window.spin(0);
 });
 
 // 網頁匯入 - HTML

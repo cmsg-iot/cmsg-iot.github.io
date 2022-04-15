@@ -4,7 +4,7 @@ import pako from "pako";
 
 var zip = new JSZip();
 
-// codeArray = [{name:'', code:'', ext:''},{name:'', code:'', ext:''},...]
+// codeArray = [{name:'', code:''},{name:'', code:''},...]
 const jsZip = (props) => {
   let outputFileName = props.outputFileName;
   let codeArray = props.codeArray;
@@ -19,7 +19,7 @@ const jsZip = (props) => {
   // add each splited code to zip file
   codeArray.forEach((element, i) => {
     let file = pako.gzip(element.code);
-    zip.file(`${element.name}.${element.ext}.gz`, file);
+    zip.file(`${element.name}.gz`, file);
   });
 
   // generate zip file
