@@ -402,11 +402,44 @@ editor_data.on("change", (e) => {
   syncDataLocalStorage();
 });
 
-// 嵌入 DATA 程式編輯區塊內容至 script 中
+// 嵌入 DATA 程式編輯區塊內容至 script 中，若有套件存在則先載入套件
 $("script_data_run").addEventListener("click", () => {
   clearAllInterval();
   if ($("script_data")) {
     $("script_data").remove();
+  }
+  let libs = window.web_file.libs;
+  let libs_len = Object.keys(libs).length;
+
+  if (libs_len) {
+    // get each lib
+    for (const key_lib in libs) {
+      if (Object.hasOwnProperty.call(libs, key_lib)) {
+        if ($(`lib_${key_lib}`)) $(`lib_${key_lib}`).remove();
+        const lib = libs[key_lib];
+        let lib_len = Object.keys(lib).length;
+        let lib_ext = Object.keys(lib)[0].split(".")[1];
+        let textContent = "";
+
+        // get textContent of the lib
+        for (let i = 0; i < lib_len; i++) {
+          const element = lib[`${i}_${key_lib}.${lib_ext}`];
+          textContent += element;
+        }
+
+        if (lib_ext === "js") {
+          let script = document.createElement("script");
+          script.id = `lib_${key_lib}`;
+          script.textContent = textContent;
+          document.getElementsByTagName("head")[0].appendChild(script);
+        } else if (lib_ext === "css") {
+          let style = document.createElement("style");
+          style.id = `lib_${key_lib}`;
+          style.textContent = textContent;
+          document.head.append(style);
+        }
+      }
+    }
   }
   let script = document.createElement("script");
   script.id = "script_data";
@@ -1000,8 +1033,12 @@ $("import_lib").addEventListener("change", () => {
       let reader = new FileReader();
       reader.readAsText(file, "UTF-8");
       reader.onload = function (evt) {
-        libs[`${file.name.split("_")[0]}_${libName}.${ext}`] =
-          evt.target.result;
+        if (file.name.includes("_")) {
+          libs[`${file.name.split("_")[0]}_${libName}.${ext}`] =
+            evt.target.result;
+        } else {
+          libs[`0_${libName}.${ext}`] = evt.target.result;
+        }
       };
     }
   }
