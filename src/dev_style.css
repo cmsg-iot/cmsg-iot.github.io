@@ -140,5 +140,6 @@
     top: 0px !important;
     left: 0px !important;
     width: 100vw !important;
+    height: 100vh;
   }
 }

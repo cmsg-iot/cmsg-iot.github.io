@@ -19,7 +19,7 @@
     <link id="dev_style" rel="stylesheet" href="./dev_style.css" />
     <title id="title">BEExANT Web Editor</title>
     <style id="source_style">
-      #loading {
+      .loading-style {
         text-align: center;
         background-color: #333333;
         position: fixed;
@@ -30,23 +30,97 @@
         overflow: hidden;
         z-index: 99;
         transition: 1s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
       }
-
-      #loading div {
-        font-size: 40px;
-        color: white;
+      .loading-block {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 3rem;
+        margin-left: 1rem;
+      }
+      .loading-file {
+        color: #80e8cc;
+        font-size: 20px;
+      }
+      .ld-spin {
+        display: inline-block;
         position: relative;
-        top: 35%;
-        left: 0%;
-        text-align: center;
+        width: 80px;
+        height: 80px;
+        margin-top: 0.5rem;
+      }
+      .ld-spin div {
+        position: absolute;
+        top: 33px;
+        width: 13px;
+        height: 13px;
+        border-radius: 50%;
+        background: #fff;
+        animation-timing-function: cubic-bezier(0, 1, 1, 0);
+      }
+      .ld-spin div:nth-child(1) {
+        left: 8px;
+        animation: ld-spin1 0.6s infinite;
+      }
+      .ld-spin div:nth-child(2) {
+        left: 8px;
+        animation: ld-spin2 0.6s infinite;
+      }
+      .ld-spin div:nth-child(3) {
+        left: 32px;
+        animation: ld-spin2 0.6s infinite;
+      }
+      .ld-spin div:nth-child(4) {
+        left: 56px;
+        animation: ld-spin3 0.6s infinite;
+      }
+      @keyframes ld-spin1 {
+        0% {
+          transform: scale(0);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      @keyframes ld-spin3 {
+        0% {
+          transform: scale(1);
+        }
+        100% {
+          transform: scale(0);
+        }
+      }
+      @keyframes ld-spin2 {
+        0% {
+          transform: translate(0, 0);
+        }
+        100% {
+          transform: translate(24px, 0);
+        }
       }
     </style>
   </head>
 
   <body id="body">
     <!-- Loading畫面 -->
-    <div id="loading">
+    <!-- <div id="loading" >
       <div>Loading...</div>
+    </div> -->
+    <div id="loading" class="loading-style" style="display: none">
+      <div class="loading-block">
+        <div style="font-size: 36px; color: #fff">Loading</div>
+        <div class="ld-spin">
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+      </div>
+      <div id="load_file" class="loading-file"></div>
     </div>
     <!-- 主頁面UI -->
     <div id="ui_html">
@@ -1172,10 +1246,14 @@
     window.sourceLoading = (source) => {
       if (document.getElementById("version")) {
         document.getElementById("version").innerText = `${cacheName}-${source}`;
+        document.getElementById(
+          "load_file"
+        ).innerHTML = `File Load:<br>${source}`;
         console.log(`Load ${source} source.`);
       }
     };
 
+    window.failedFetch = false;
     // 取得檔案並設定緩存與載入
     window.getFileWithImport = (name, type) => {
       sourceLoading(`cached ${name}`);
@@ -1209,6 +1287,7 @@
         })
         .catch((err) => {
           console.error(err);
+          window.failedFetch = true;
         });
     };
 
@@ -1226,15 +1305,18 @@
           await fetch(
             `${window.location.protocol}//${window.location.host}/lib/${file.name}/${i}_${file.name}.${file.ext}`
           ).then((res) => {
-            res.text().then((data) => {
-              fileData += data;
-            });
+            res
+              .text()
+              .then((data) => {
+                fileData += data;
+              })
+              .catch((err) => {
+                window.failedFetch = true;
+              });
           });
           sourceLoading(`cached ${file.name}.${file.ext}`);
           await delay(500);
         }
-
-        console.log(fileData);
 
         // 設定緩存
         localStorage.setItem(
@@ -1254,36 +1336,94 @@
 
     // 建立緩存
     window.createCache = async function (cacheList) {
+      let cached = 0;
+      document.getElementById("loading").style = "display: flex;";
       const delay = (s) => {
         return new Promise((resolve) => {
           setTimeout(resolve, s);
         });
       };
       if (window.libList.length !== 0) {
-        await getLibFilesWithImport();
+        if (!checkLibLoad()) {
+          await getLibFilesWithImport();
+        } else {
+          for (const key in localStorage) {
+            if (Object.hasOwnProperty.call(localStorage, key)) {
+              if (key.includes("_lib_")) {
+                let ext = key.split(".")[key.split(".").length - 1];
+                if (ext === "js") {
+                  addScript(localStorage.getItem(key));
+                } else if (ext === "css") {
+                  addStyle(localStorage.getItem(key));
+                }
+              }
+            }
+          }
+        }
       }
 
-      getFileWithImport(cacheList.style, "css");
-      await delay(500);
-      getFileWithImport(cacheList.ui, "html");
-      await delay(500);
-      getFileWithImport(cacheList.src, "js");
-      await delay(500);
-      getFileWithImport(cacheList.worker, "worker");
-      await delay(500);
-      getFileWithImport(cacheList.app, "js");
-      await delay(500);
-      getFileWithImport(cacheList.manifest, "manifest");
-      await delay(500);
+      if (!localStorage.getItem(`${cacheName}_style.css`)) {
+        getFileWithImport(cacheList.style, "css");
+        await delay(500);
+      } else {
+        addStyle(code_style);
+      }
+
+      if (!localStorage.getItem(`${cacheName}_ui.html`)) {
+        getFileWithImport(cacheList.ui, "html");
+        await delay(500);
+      } else {
+        addHTML(code_html);
+      }
+
+      if (!localStorage.getItem(`${cacheName}_index.js`)) {
+        getFileWithImport(cacheList.src, "js");
+        await delay(500);
+      } else {
+        addScript(code_src);
+      }
+
+      if (!localStorage.getItem(`${cacheName}_worker.js`)) {
+        getFileWithImport(cacheList.worker, "worker");
+        await delay(500);
+      } else {
+        addWorker(code_worker);
+      }
+
+      if (!localStorage.getItem(`${cacheName}_app.js`)) {
+        getFileWithImport(cacheList.app, "js");
+        await delay(500);
+      } else {
+        addScript(code_app);
+      }
+
+      if (!localStorage.getItem(`${cacheName}_manifest.json`)) {
+        getFileWithImport(cacheList.manifest, "manifest");
+        await delay(500);
+      } else {
+        addManifest(code_manifest);
+      }
+
+      if (failedFetch) {
+        console.log("Load not completed, reload file...");
+        window.failedFetch = false;
+        window.createCache(cacheList);
+        return;
+        // alert("資源未獲取完整，將重新整理...");
+        // window.location.reload();
+      }
+
       connect();
       await delay(300);
       sourceLoading("origin-done");
       console.log("clear spin");
+      document.getElementById("loading").style = "display: none;";
       document.getElementById("spin").classList.add("hidden");
     };
 
     // 使用緩存
     window.useCachedData = function () {
+      document.getElementById("loading").style = "display: flex;";
       if (window.libList.length !== 0) {
         let libList = window.libList;
         for (let i = 0; i < libList.length; i++) {
@@ -1317,12 +1457,13 @@
         sourceLoading("cache");
         console.log("clear spin");
         document.getElementById("spin").classList.add("hidden");
+        document.getElementById("loading").style = "display: none;";
       }, 1500);
     };
 
     // 重新建立緩存
     window.refreshData = function () {
-      localStorage.clear();
+      // localStorage.clear();
       localStorage.setItem("local_cache_name", cacheName);
       createCache(cacheList);
     };
@@ -1404,8 +1545,11 @@
       refreshData();
     }
     // 檢查檔案版本與用戶端版本是否一致
-    else if (
-      cacheName === local_cache_name &&
+    else if (cacheName !== local_cache_name) {
+      console.log(`Find new version, update...`);
+      localStorage.clear();
+      refreshData();
+    } else if (
       code_html &&
       code_app &&
       code_src &&
@@ -1417,11 +1561,11 @@
       console.log(`Find Cache: ${cacheName}, use cache file.`);
       useCachedData();
     } else {
-      console.log(`Can't find cache, fetch fresh data and create new one.`);
+      console.log(`Cache not completed, fetch fresh data and create new one.`);
       refreshData();
     }
 
-    document.onreadystatechange = loading;
+    // document.onreadystatechange = loading;
 
     // 完成Loading
     function loading() {

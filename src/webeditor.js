@@ -143,7 +143,7 @@ $("webeditor_expand").addEventListener("click", () => {
     window.webeditor_expand = false;
     $("webeditor_container").style.display = "none";
     $("webeditor_expand").innerHTML = "&#10010;";
-    $("webeditor").style.height = "";
+    $("webeditor").style.height = "0";
   } else {
     window.webeditor_expand = true;
     $("webeditor_container").style.display = "";
