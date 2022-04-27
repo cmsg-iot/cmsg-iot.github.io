@@ -1076,6 +1076,9 @@ $("export_web").addEventListener("click", async () => {
   let clone_html = $("html").cloneNode(true);
   let html_head = clone_html.getElementsByTagName("head")[0];
   let html_body = clone_html.getElementsByTagName("body")[0];
+  clone_html.innerHTML = "";
+  clone_html.childNodes[0].remove();
+  clone_html.childNodes[0].remove();
 
   // clone要匯出的head內容
   let source_meta = $("source_meta").cloneNode(true);
@@ -1134,6 +1137,8 @@ $("export_web").addEventListener("click", async () => {
   html_body.appendChild(clone_version);
   clone_buildCheck.innerText = "build"; // 將 build check 中的文字改變成 build 讓前端程式判斷處理
   html_body.appendChild(clone_buildCheck);
+  clone_html.appendChild(html_head);
+  clone_html.appendChild(html_body);
 
   // 建立初始載入檔案與暫存程式(掛在index.html下),若有匯入套件則加入套件載入描述, fileName: index.html
   let clone_index = $("dev_load").cloneNode(true);
