@@ -17,6 +17,10 @@
     />
     <link id="build_style" rel="stylesheet" href="./style.css" />
     <link id="dev_style" rel="stylesheet" href="./dev_style.css" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.sandbox.google.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0"
+    />
     <title id="title">BEExANT Web Editor</title>
     <style id="source_style">
       .loading-style {
@@ -751,13 +755,15 @@
           🙈
         </div>
         <div class="w-8/12 text-xl font-bold">BEExANT 網頁編輯器</div>
-        <div class="w-1/12"></div>
+        <div id="webeditor_info" class="w-1/12 flex items-center">
+          <span class="material-symbols-outlined"> info </span>
+        </div>
         <div
           title="最小化/展開編輯器"
           id="webeditor_expand"
-          class="w-1/12 font-bold text-lg cursor-pointer"
+          class="w-1/12 font-bold text-lg cursor-pointer flex items-center"
         >
-          &#8210;
+          <span class="material-symbols-outlined"> expand_less </span>
         </div>
       </div>
       <div id="webeditor_container" style="height: 90vh">
@@ -1054,7 +1060,7 @@
             <div
               class="text-center text-xl w-64 bg-white text-dark rounded-md m-auto mt-2 mb-2"
             >
-              檔案管理
+              本地檔案管理
             </div>
             <div
               class="text-center text-lg w-36 bg-warning text-dark rounded-md m-auto mt-2 mb-2"
@@ -1063,12 +1069,12 @@
             </div>
             <div class="flex justify-center flex-wrap items-center">
               <div class="btn-import">
-                <label for="import_lib">
+                <label for="btn_import_lib">
                   匯入
                   <input
                     type="file"
                     accept=".js,.css"
-                    id="import_lib"
+                    id="btn_import_lib"
                     multiple
                   />
                 </label>
@@ -1083,12 +1089,12 @@
             <div>
               <div class="hidden">
                 <label>
-                  <input type="checkbox" name="" id="option_zip" checked />
+                  <input type="checkbox" name="" id="btn_option_zip" checked />
                   <span class="transition-colors m-2">壓縮檔案?</span>
                 </label>
               </div>
               <div>
-                <button id="export_web" class="btn-basic btn-md success">
+                <button id="btn_export_web" class="btn-basic btn-md success">
                   匯出
                 </button>
               </div>
@@ -1100,27 +1106,27 @@
             </div>
             <div class="flex flex-wrap justify-center hidden">
               <div class="btn-import">
-                <label for="import_html">
+                <label for="btn_import_html">
                   HTML 匯入
-                  <input type="file" accept=".html" id="import_html" />
+                  <input type="file" accept=".html" id="btn_import_html" />
                 </label>
               </div>
               <div class="btn-import">
-                <label for="import_css">
+                <label for="btn_import_css">
                   CSS 匯入
-                  <input type="file" accept=".css" id="import_css" />
+                  <input type="file" accept=".css" id="btn_import_css" />
                 </label>
               </div>
               <div class="btn-import">
-                <label for="import_data">
+                <label for="btn_import_data">
                   DATA 匯入
-                  <input type="file" accept=".js" id="import_data" />
+                  <input type="file" accept=".js" id="btn_import_data" />
                 </label>
               </div>
               <div class="btn-import">
-                <label for="import_cmd">
+                <label for="btn_import_cmd">
                   CMD 匯入
-                  <input type="file" accept=".js" id="import_cmd" />
+                  <input type="file" accept=".js" id="btn_import_cmd" />
                 </label>
               </div>
             </div>
@@ -1132,15 +1138,43 @@
             <div class="flex justify-center flex-wrap items-center">
               <div>
                 <a id="export_file"></a>
-                <button id="export_file_btn" class="btn-basic btn-md success">
+                <button id="btn_export_file" class="btn-basic btn-md success">
                   匯出
                 </button>
               </div>
               <div class="btn-import">
-                <label for="import_file">
+                <label for="btn_import_file">
                   匯入
-                  <input type="file" accept=".json" id="import_file" />
+                  <input type="file" accept=".json" id="btn_import_file" />
                 </label>
+              </div>
+            </div>
+            <div
+              class="text-center text-xl w-64 bg-white text-dark rounded-md m-auto mt-2 mb-2"
+            >
+              雲端檔案管理(實驗性)
+            </div>
+            <div
+              class="text-center text-lg w-36 bg-warning text-dark rounded-md m-auto mt-2 mb-2"
+            >
+              檔案功能
+            </div>
+            <div class="flex justify-center flex-wrap items-center">
+              <div>
+                <button
+                  id="btn_cloud_file_list"
+                  class="btn-basic btn-lg success"
+                >
+                  雲端檔案清單
+                </button>
+              </div>
+              <div>
+                <button
+                  id="btn_cloud_upload_current"
+                  class="btn-basic btn-lg primary"
+                >
+                  上傳目前存檔
+                </button>
               </div>
             </div>
           </div>
