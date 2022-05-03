@@ -1346,6 +1346,8 @@
               })
               .catch((err) => {
                 window.failedFetch = true;
+                alert("資源未獲取完整，將重新整理...");
+                window.location.reload();
               });
           });
           sourceLoading(`cached ${file.name}.${file.ext}`);
@@ -1440,11 +1442,11 @@
 
       if (failedFetch) {
         console.log("Load not completed, reload file...");
-        window.failedFetch = false;
-        window.createCache(cacheList);
-        return;
-        // alert("資源未獲取完整，將重新整理...");
-        // window.location.reload();
+        // window.failedFetch = false;
+        // window.createCache(cacheList);
+        // return;
+        alert("資源未獲取完整，將重新整理...");
+        window.location.reload();
       }
 
       connect();
@@ -1557,11 +1559,10 @@
       if (libList.length > 0) {
         for (let i = 0; i < libList.length; i++) {
           let file = libList[i];
-          if (
-            localStorage.getItem(
-              `${cacheName}_lib_${file.name}.${file.ext}`
-            ) === null
-          ) {
+          let cache = localStorage.getItem(
+            `${cacheName}_lib_${file.name}.${file.ext}`
+          );
+          if (!cache || cache.length !== file.size) {
             return false;
           }
         }
