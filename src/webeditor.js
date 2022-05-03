@@ -274,6 +274,7 @@ const start_data = Object.freeze({
     terminal: true,
   },
   libs: {},
+  lib_size: {},
 });
 
 // 檔案選擇編號
@@ -307,6 +308,7 @@ function initialGlobalWebFile() {
     terminal: start_data.options_flag.terminal,
   };
   web_file["libs"] = {};
+  web_file["lib_size"] = {};
   window.web_file = web_file;
 }
 
@@ -1029,7 +1031,7 @@ $("file_select").addEventListener("change", (e) => {
 
 // 套件匯入
 $("btn_import_lib").addEventListener("change", () => {
-  let files = $("import_lib").files;
+  let files = $("btn_import_lib").files;
   let libs = {};
   let libName = prompt("請輸入套件名稱");
 
@@ -1044,12 +1046,14 @@ $("btn_import_lib").addEventListener("change", () => {
   }
 
   let ext = files[0].name.split(".")[files[0].name.split(".").length - 1];
+  let size = 0;
   for (const key in files) {
     if (Object.hasOwnProperty.call(files, key)) {
       const file = files[key];
       let reader = new FileReader();
       reader.readAsText(file, "UTF-8");
       reader.onload = function (evt) {
+        size += evt.target.result.length;
         if (file.name.includes("_")) {
           libs[`${file.name.split("_")[0]}_${libName}.${ext}`] =
             evt.target.result;
@@ -1059,10 +1063,13 @@ $("btn_import_lib").addEventListener("change", () => {
       };
     }
   }
-  console.log(libs);
-  window.spinWithTime(1);
-  window.web_file["libs"][libName] = libs;
-  $("btn_import_lib").value = "";
+  window.spinWithTime(2);
+  setTimeout(() => {
+    console.log(`libName: ${libName}, size: ${size}`);
+    window.web_file["libs"][libName] = libs;
+    window.web_file["lib_size"][libName] = size;
+    $("btn_import_lib").value = "";
+  }, 500);
 
   setTimeout(() => {
     syncDataLocalStorage();
@@ -1161,6 +1168,7 @@ $("btn_export_web").addEventListener("click", async () => {
   let clone_index = $("dev_load").cloneNode(true);
   let libInfo = [];
   let lib = window.web_file["libs"];
+  let size = window.web_file["lib_size"];
 
   for (const key in lib) {
     if (Object.hasOwnProperty.call(lib, key)) {
@@ -1170,7 +1178,7 @@ $("btn_export_web").addEventListener("click", async () => {
         Object.keys(element)[0].split(".")[
           Object.keys(element)[0].split(".").length - 1
         ];
-      libInfo.push({ name: key, num: num, ext: ext });
+      libInfo.push({ name: key, num: num, ext: ext, size: size[key] });
     }
   }
   console.log(libInfo);
@@ -1388,7 +1396,7 @@ function fileImport() {
     }
   }
   fileInit();
-  var f = $("import_file").files[0];
+  var f = $("btn_import_file").files[0];
   var json = {};
   var str;
   var reader = new FileReader();
@@ -1405,7 +1413,7 @@ function fileImport() {
       }
     }
     console.log(window.web_file);
-    $("import_file").value = "";
+    $("btn_import_file").value = "";
     window.location.reload();
   };
 }
@@ -1414,7 +1422,7 @@ function fileImport() {
 $("btn_import_file").addEventListener("change", () => {
   let check = confirm("匯入將覆蓋原有檔案");
   if (!check) {
-    $("import_file").value = "";
+    $("btn_import_file").value = "";
     return;
   }
   fileImport();
