@@ -125,3 +125,14 @@ window.spin = function (flag) {
     ? $("spin").classList.remove("hidden")
     : $("spin").classList.add("hidden");
 };
+
+// 顯示等待動畫-無背景
+window.spinOnlyIcon = function (flag) {
+  if (flag) {
+    $("spin").classList.remove("bg-black-5");
+    $("spin").classList.remove("hidden");
+  } else {
+    $("spin").classList.add("hidden");
+    $("spin").classList.add("bg-black-5");
+  }
+};
