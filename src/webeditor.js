@@ -2,6 +2,7 @@ import jsZip from "./jsZip";
 import ace from "./lib/ace-builds/src-noconflict/ace";
 import ext from "./lib/ace-builds/src-noconflict/ext-language_tools";
 import bt from "./lib/ace-builds/src-noconflict/ext-beautify";
+import { file } from "jszip";
 
 // 設定 ace 資源目標
 ace.config.set("basePath", "lib/ace-builds/src-noconflict");
@@ -142,13 +143,11 @@ $("webeditor_expand").addEventListener("click", () => {
   if (window.webeditor_expand) {
     window.webeditor_expand = false;
     $("webeditor_container").style.display = "none";
-    // $("webeditor_expand").innerHTML = "&#10010;";
     $("webeditor_expand").children[0].innerHTML = "expand_more";
     $("webeditor").style.height = "50px";
   } else {
     window.webeditor_expand = true;
     $("webeditor_container").style.display = "";
-    // $("webeditor_expand").innerHTML = "&#8210;";
     $("webeditor_expand").children[0].innerHTML = "expand_less";
     $("webeditor").style.height = "";
   }
@@ -176,7 +175,7 @@ $("webeditor_scale").addEventListener("click", () => {
 
   window.webeditor_expand = true;
   $("webeditor_container").style.display = "";
-  $("webeditor_expand").innerHTML = "&#8210;";
+  $("webeditor_expand").children[0].innerHTML = "expand_less";
   $("webeditor").style.height = "";
 });
 
@@ -240,6 +239,8 @@ $("webeditor_file_btn").addEventListener("click", () => {
   $("webeditor_cmd").classList.add("hidden");
   $("webeditor_config").classList.add("hidden");
   $("webeditor_file").classList.remove("hidden");
+
+  reloadUserInfo();
 });
 
 /*----------------------------------------*/
@@ -1405,14 +1406,12 @@ function fileImport() {
     str = evt.target.result;
     console.log(`import: ${f.name}`);
     json = JSON.parse(reader.result)["web_file"];
-    window.web_file = json;
     for (const key in json) {
       if (Object.hasOwnProperty.call(json, key)) {
         const element = json[key];
         localStorage.setItem(key, element);
       }
     }
-    console.log(window.web_file);
     $("btn_import_file").value = "";
     window.location.reload();
   };
@@ -1429,12 +1428,642 @@ $("btn_import_file").addEventListener("change", () => {
 });
 
 /*--------------雲端檔案管理---------------*/
-
+window.cloud_edit_mode_flag = false;
+let origin = window.location.origin + "/fileserver";
 // 雲端檔案清單
-$("btn_cloud_file_list").addEventListener("click", () => {});
+$("btn_cloud_file_list").addEventListener("click", () => {
+  isUserLogin().then((res) => {
+    if (res.status !== 200) {
+      cloudGoPage("login");
+    } else {
+      cloudGoPage("menu");
+    }
+  });
+});
 
 // 上傳目前存檔
-$("btn_cloud_upload_current").addEventListener("click", () => {});
+$("btn_cloud_upload_current").addEventListener("click", () => {
+  window.spin(1);
+  isUserLogin()
+    .then((res) => {
+      if (handleResponse(res)) {
+        getTags()
+          .then((tags) => {
+            return tags.json();
+          })
+          .then((data) => {
+            window.selected_tagId = data[0].id;
+            uploadCurrentFile("")
+              .then((res) => {
+                window.spin(0);
+                if (handleResponse(res)) {
+                  alert("已上傳當前暫存檔");
+                }
+              })
+              .catch((err) => {
+                window.spin(0);
+                console.log(err);
+              });
+          })
+          .catch((err) => {
+            window.spin(0);
+            console.log(err);
+          });
+      }
+    })
+    .catch((err) => {
+      window.spin(0);
+      console.log(err);
+    });
+});
+
+// 更新使用者資訊
+function reloadUserInfo() {
+  getUserInfo()
+    .then((res) => {
+      if (res.status !== 200) {
+        $("cloud_user_info_2").innerText = "未登入";
+        return;
+      } else {
+        return res.json();
+      }
+    })
+    .then((data) => {
+      if (data) {
+        $("cloud_user_info_2").innerText = `User: ${data.username}`;
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+}
+
+// 登入
+$("btn_cloud_login").addEventListener("click", () => {
+  let username = $("cloud_login_username").value;
+  let password = $("cloud_login_password").value;
+  if (!(username && password)) {
+    alert("請填寫使用者名稱及密碼！");
+    return;
+  }
+
+  window.spinOnlyIcon(1);
+  // 使用者登入
+  let body = { username: username, password: password };
+  fetch(origin + "/api/auth/signin", {
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    method: "POST",
+    body: JSON.stringify(body),
+  }).then((res) => {
+    console.log(res);
+    window.spinOnlyIcon(0);
+    if (res.status === 401) {
+      alert("密碼錯誤！");
+      $("cloud_login_password").value = "";
+      return;
+    } else if (res.status === 404) {
+      alert("不存在的使用者！");
+      $("cloud_login_username").value = "";
+      $("cloud_login_password").value = "";
+      return;
+    } else if (res.status === 200) {
+      localStorage.setItem("firstLogin", true);
+      window.location.reload();
+    }
+    $("cloud_login_username").value = "";
+    $("cloud_login_password").value = "";
+  });
+});
+
+if (localStorage.getItem("firstLogin") === "true") {
+  setTimeout(() => {
+    $("btn_cloud_file_list").click();
+  }, 100);
+  localStorage.setItem("firstLogin", "");
+}
+
+// 登出
+$("btn_cloud_logout").addEventListener("click", () => {
+  let res = confirm("確定登出?");
+  if (res) {
+    fetch(origin + "/api/auth/logout").then((res) => {
+      console.log(res);
+      cloudGoPage("login");
+    });
+  }
+});
+
+// 關閉Login頁面
+$("btn_close_login").addEventListener("click", () => {
+  cloudGoPage("home");
+});
+
+// 關閉Menu頁面
+$("btn_close_menu").addEventListener("click", () => {
+  cloudGoPage("home");
+});
+
+function handleResponse(res) {
+  console.log(res);
+  if (res.status === 403) {
+    window.spinOnlyIcon(0);
+    alert("使用者未登入！");
+    cloudGoPage("login");
+    return false;
+  } else if (res.status === 400) {
+    window.spinOnlyIcon(0);
+    alert(`錯誤代碼400\n訊息:${JSON.stringify(res.json())}`);
+    return false;
+  }
+  return true;
+}
+window.selected_tagId = "";
+window.selected_tagName = "";
+function handleSelectTag(id, name) {
+  window.selected_tagId = id;
+  window.selected_tagName = name;
+}
+
+function cloudGoPage(page) {
+  $("cloud_file_container").classList.add("hidden");
+  $("cloud_file_login").classList.add("hidden");
+  $("cloud_file_menu").classList.add("hidden");
+  switch (page) {
+    case "home":
+      break;
+    case "login":
+      $("cloud_file_container").classList.remove("hidden");
+      $("cloud_file_login").classList.remove("hidden");
+      break;
+    case "menu":
+      $("cloud_file_container").classList.remove("hidden");
+      $("cloud_file_menu").classList.remove("hidden");
+      $("cloud_tags_list").innerHTML = "";
+      $("cloud_files_list").innerHTML = "";
+      handleSelectTag("", "");
+      if (window.cloud_edit_mode_flag) {
+        switchEditMode();
+      }
+      window.spinOnlyIcon(1);
+      getUserInfo()
+        .then((res) => {
+          handleResponse(res);
+          return res.json();
+        })
+        .then((data) => {
+          console.log(data.username);
+          $("cloud_user_info").innerText = `User: ${data.username}`;
+        })
+        .catch((err) => {
+          console.log(err);
+          window.spinOnlyIcon(0);
+        });
+
+      getTags()
+        .then((res) => {
+          handleResponse(res);
+          return res.json();
+        })
+        .then((data) => {
+          window.spinOnlyIcon(0);
+          showTagList(data);
+        })
+        .catch((err) => {
+          console.log(err);
+          window.spinOnlyIcon(0);
+        });
+      break;
+    default:
+      break;
+  }
+}
+
+function isUserLogin() {
+  let api = "/api/user";
+  return fetch(origin + api);
+}
+
+function getUserInfo() {
+  return fetch(origin + "/api/user/info");
+}
+
+function getTags() {
+  $("cloud_tags_list").innerHTML = "";
+  return fetch(origin + "/api/file/tag");
+}
+
+function getFileList(tagId) {
+  $("cloud_files_list").innerHTML = "";
+  let body = { tagId: tagId };
+  return fetch(origin + "/api/file/list", {
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+function getFileAndImport(tagId, fileName) {
+  window.spinOnlyIcon(1);
+  let body = { tagId: tagId, fileName: fileName };
+  fetch(origin + "/api/file/data", {
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    method: "POST",
+    body: JSON.stringify(body),
+  })
+    .then((res) => {
+      handleResponse(res);
+      return res.json();
+    })
+    .then((data) => {
+      localStorage.clear();
+      let decode = new TextDecoder().decode(new Uint8Array(data.data.data));
+      let json = JSON.parse(decode)["web_file"];
+      for (const key in json) {
+        if (Object.hasOwnProperty.call(json, key)) {
+          const element = json[key];
+          localStorage.setItem(key, element);
+        }
+      }
+      window.location.reload();
+    })
+    .catch((err) => {
+      console.log(err);
+      window.spinOnlyIcon(0);
+    });
+}
+
+function removeTagAndFiles(tagId) {
+  let body = { tagId: tagId };
+  return fetch(origin + "/api/tag", {
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    method: "DELETE",
+    body: JSON.stringify(body),
+  });
+}
+
+function removeFilesByTag(tagId) {
+  let body = { tagId: tagId };
+  return fetch(origin + "/api/files", {
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    method: "DELETE",
+    body: JSON.stringify(body),
+  });
+}
+function removeFile(tagId, fileName) {
+  let body = { tagId: tagId, fileName: fileName };
+  return fetch(origin + "/api/file", {
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    method: "DELETE",
+    body: JSON.stringify(body),
+  });
+}
+
+function showTagList(tags) {
+  console.log(tags);
+  window.selected_tagId = "";
+  $("cloud_files_list").innerHTML = "";
+
+  for (let i = 0; i < tags.length; i++) {
+    let li = document.createElement("li");
+    let div = document.createElement("div");
+    li.id = tags[i].id;
+    div.innerText = tags[i].tag;
+    li.onclick = function () {
+      window.selected_tagId = tags[i].id;
+      handleSelectTag(tags[i].id, tags[i].tag);
+      highlightSeletedTag();
+      window.spinOnlyIcon(1);
+      getFileList(tags[i].id)
+        .then((res) => {
+          handleResponse(res);
+          return res.json();
+        })
+        .then((data) => {
+          window.spinOnlyIcon(0);
+          showFileList(data);
+        })
+        .catch((err) => {
+          window.spinOnlyIcon(0);
+          console.log(err);
+        });
+    };
+    li.appendChild(div);
+    $("cloud_tags_list").appendChild(li);
+  }
+}
+
+function highlightSeletedTag() {
+  for (let i = 0; i < $("cloud_tags_list").children.length; i++) {
+    if (window.selected_tagId === $("cloud_tags_list").children[i].id) {
+      $("cloud_tags_list").children[i].classList.add("tag-highlight");
+    } else {
+      $("cloud_tags_list").children[i].classList.remove("tag-highlight");
+    }
+  }
+}
+
+function showFileList(files) {
+  console.log(files);
+
+  for (let i = 0; i < files.length; i++) {
+    let li = document.createElement("li");
+    let div = document.createElement("div");
+    li.title = files[i].createdAt;
+    li.className = "fadeIn";
+    div.innerText = files[i].fileName;
+    li.onclick = function () {
+      let res = confirm(
+        `覆蓋檔案後無法恢復，\n確定載入 ${files[i].fileName} ? `
+      );
+      if (res) {
+        getFileAndImport(window.selected_tagId, files[i].fileName);
+      }
+    };
+    li.appendChild(div);
+    $("cloud_files_list").appendChild(li);
+  }
+  if (window.cloud_edit_mode_flag) {
+    createFileDelete();
+  }
+}
+
+function switchEditMode() {
+  if (!window.cloud_edit_mode_flag) {
+    // enable edit
+    $("cloud_edit_mode").classList.add("edit-mode-enable");
+    window.cloud_edit_mode_flag = true;
+    $("cloud_tag_add").classList.remove("hidden");
+    $("cloud_file_upload").classList.remove("hidden");
+    createTagDelete();
+    createFileDelete();
+  } else {
+    // disable edit
+    $("cloud_edit_mode").classList.remove("edit-mode-enable");
+    window.cloud_edit_mode_flag = false;
+
+    $("cloud_tag_add").classList.add("hidden");
+    $("cloud_file_upload").classList.add("hidden");
+
+    for (let i = 0; i < $("cloud_tags_list").children.length; i++) {
+      $("cloud_tags_list").children[i].classList.remove("delete-icon");
+      $("cloud_tags_list").children[i].children[1].remove();
+      $("cloud_tags_list").children[i].children[0].style.width = "100%";
+    }
+
+    for (let i = 0; i < $("cloud_files_list").children.length; i++) {
+      $("cloud_files_list").children[i].classList.remove("delete-icon");
+      $("cloud_files_list").children[i].children[1].remove();
+      $("cloud_files_list").children[i].children[0].style.width = "100%";
+    }
+  }
+}
+
+function createTagDelete() {
+  for (let i = 0; i < $("cloud_tags_list").children.length; i++) {
+    let div = document.createElement("div");
+    let span = document.createElement("span");
+    span.innerText = "delete";
+    span.className = "material-symbols-outlined";
+    $("cloud_tags_list").children[i].children[0].style.width = "75%";
+    div.className = "cloud-tag-delete fadeIn";
+
+    // 第一個 tag:temp 插入清除所有file的功能
+    if (!i) {
+      span.innerText = "clear_all";
+      div.appendChild(span);
+      div.onclick = function (e) {
+        e.stopPropagation();
+        let result = confirm("清除所有暫存檔?");
+        if (result) {
+          removeFilesByTag($("cloud_tags_list").children[i].id)
+            .then((res) => {
+              handleResponse(res);
+              return res.json();
+            })
+            .then((data) => {
+              console.log(data);
+              getTags()
+                .then((res) => {
+                  handleResponse(res);
+                  return res.json();
+                })
+                .then((data) => {
+                  showTagList(data);
+                  createTagDelete();
+                });
+            });
+        }
+      };
+      $("cloud_tags_list").children[i].classList.add("delete-icon");
+      $("cloud_tags_list").children[i].appendChild(div);
+      continue;
+    }
+
+    div.appendChild(span);
+
+    div.onclick = function (e) {
+      e.stopPropagation();
+      let result = confirm(
+        `刪除標籤將會同時刪除標籤底下的檔案，\n確定刪除標籤: ${
+          $("cloud_tags_list").children[i].children[0].innerText
+        } ?`
+      );
+      if (result) {
+        removeTagAndFiles($("cloud_tags_list").children[i].id)
+          .then((res) => {
+            handleResponse(res);
+            return res.json();
+          })
+          .then((data) => {
+            console.log(data);
+            getTags()
+              .then((res) => {
+                handleResponse(res);
+                return res.json();
+              })
+              .then((data) => {
+                showTagList(data);
+                createTagDelete();
+              });
+          });
+      }
+    };
+    $("cloud_tags_list").children[i].classList.add("delete-icon");
+    $("cloud_tags_list").children[i].appendChild(div);
+  }
+}
+
+function createFileDelete() {
+  for (let i = 0; i < $("cloud_files_list").children.length; i++) {
+    let div = document.createElement("div");
+    let span = document.createElement("span");
+    span.innerText = "delete";
+    span.className = "material-symbols-outlined";
+    $("cloud_files_list").children[i].children[0].style.width = "75%";
+    div.className = "cloud-file-delete fadeIn";
+    div.appendChild(span);
+    div.onclick = function (e) {
+      e.stopPropagation();
+      let result = confirm(
+        `刪除檔案將無法恢復，\n確定刪除檔案: ${
+          $("cloud_files_list").children[i].children[0].innerText
+        } ?`
+      );
+      if (result) {
+        removeFile(
+          window.selected_tagId,
+          $("cloud_files_list").children[i].children[0].innerText
+        )
+          .then((res) => {
+            handleResponse(res);
+            return res.json();
+          })
+          .then((data) => {
+            console.log(data);
+            getFileList(window.selected_tagId)
+              .then((res) => {
+                handleResponse(res);
+                return res.json();
+              })
+              .then((data) => {
+                showFileList(data);
+              });
+          });
+      }
+    };
+    $("cloud_files_list").children[i].classList.add("delete-icon");
+    $("cloud_files_list").children[i].appendChild(div);
+  }
+}
+
+$("cloud_edit_mode").addEventListener("click", () => {
+  switchEditMode();
+});
+
+function createNewTag(name) {
+  let body = { tag: name };
+  return fetch(origin + "/api/file/tag", {
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+function uploadCurrentFile(fileName) {
+  const obj = {};
+  obj["web_file"] = {};
+  let sourceObj = { ...localStorage };
+  for (const key in sourceObj) {
+    if (Object.hasOwnProperty.call(sourceObj, key)) {
+      const element = sourceObj[key];
+      if (key.includes("file_save")) {
+        obj["web_file"][key] = element;
+      }
+    }
+  }
+
+  let cur_time = new Date();
+  let Y = cur_time.getFullYear();
+  let M =
+    cur_time.getMonth() + 1 > 10
+      ? cur_time.getMonth() + 1
+      : `0${cur_time.getMonth() + 1}`;
+  let d =
+    cur_time.getDate() > 10 ? cur_time.getDate() : `0${cur_time.getDate()}`;
+  let h =
+    cur_time.getHours() > 10 ? cur_time.getHours() : `0${cur_time.getHours()}`;
+  let m =
+    cur_time.getMinutes() > 10
+      ? cur_time.getMinutes()
+      : `0${cur_time.getMinutes()}`;
+  let s =
+    cur_time.getSeconds() > 10
+      ? cur_time.getSeconds()
+      : `0${cur_time.getSeconds()}`;
+  let fn = `${Y}/${M}/${d}T${h}:${m}:${s} ${fileName}`.replace(
+    /^\s+|\s+$/g,
+    ""
+  );
+  let body = {
+    tagId: window.selected_tagId,
+    fileName: fn,
+    fileData: JSON.stringify(obj, null, 2),
+  };
+  return fetch(origin + "/api/file", {
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+$("cloud_tag_add").addEventListener("click", () => {
+  let name = prompt("新增標籤名稱?");
+  if (name) {
+    handleSelectTag("", "");
+    createNewTag(name)
+      .then((res) => {
+        handleResponse(res);
+        return res.json();
+      })
+      .then((data) => {
+        console.log(data);
+        $("cloud_files_list").innerHTML = "";
+        getTags()
+          .then((res) => {
+            handleResponse(res);
+            return res.json();
+          })
+          .then((data) => {
+            showTagList(data);
+            createTagDelete();
+          });
+      });
+  }
+});
+
+$("cloud_file_upload").addEventListener("click", () => {
+  if (window.selected_tagId === "") {
+    alert("請選擇標籤！");
+    return;
+  }
+  let fileName = prompt(`目前標籤:${window.selected_tagName}\n上傳檔案名稱?`);
+  if (!fileName) {
+    return;
+  }
+  uploadCurrentFile(fileName)
+    .then((res) => {
+      if (handleResponse(res)) {
+        $(window.selected_tagId).click();
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
 
 /*-----------------------------------------------*/
 /*-----------------編輯器熱鍵功能------------------*/

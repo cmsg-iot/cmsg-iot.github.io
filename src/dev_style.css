@@ -33,7 +33,7 @@
   position: absolute;
   top: 0;
   right: 0;
-  z-index: 1;
+  z-index: 40;
   width: 35vw;
   height: auto;
   border-radius: 15px;
@@ -126,6 +126,74 @@
   margin-right: 2px;
 }
 
+.cloud-tags-style li{
+  @apply bg-blue-100 hover:bg-blue-200 active:bg-blue-300 cursor-pointer 
+}
+
+.cloud-tags-style li div:nth-child(1){
+  @apply break-all pt-2 pb-2;
+  word-spacing: 9999px;
+}
+
+.cloud-tag-delete{
+  width: 25%;
+  padding-top: 0.6rem;
+  padding-bottom: 0.6rem;
+  background-color: #FF5F55;
+  color: #fff;
+  @apply hover:bg-red-400 active:bg-red-500
+}
+
+.cloud-files-style li:nth-child(odd){
+  @apply  bg-green-50 hover:bg-green-200 active:bg-green-300 cursor-pointer
+}
+
+.cloud-files-style li:nth-child(even){
+  @apply  bg-green-100 hover:bg-green-200 active:bg-green-300 cursor-pointer
+}
+
+.cloud-files-style li div:nth-child(1){
+  @apply break-all pt-2 pb-2;
+  word-spacing: 9999px;
+}
+
+.cloud-file-delete{
+  width: 25%;
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+  background-color: #FF5F55;
+  color: #fff;
+  @apply hover:bg-red-400 active:bg-red-500
+}
+
+.tag-highlight{
+  color: #fff;
+  background-color: rgb(96,165,250) !important;
+  border: 2px solid #fff;
+  text-shadow: 0px 5px 5px #33333333;
+}
+
+.edit-mode-enable{
+@apply bg-danger text-white
+}
+
+
+.delete-icon{
+  @apply flex items-center justify-evenly
+}
+.delete-icon div{
+  @apply flex items-center justify-evenly
+}
+
+@keyframes fadeIn {
+  0%    { opacity: 0; }
+  100%  { opacity: 1; }
+}
+
+.fadeIn {
+  animation: fadeIn 0.35s ease;
+}
+
 @layer utilities {
   .h-screen-30 {
     height: 30vh;
@@ -141,5 +209,11 @@
     left: 0px !important;
     width: 100vw !important;
     height: 100vh;
+  }
+  #webeditor_data{
+    height: 70vh;
+  }
+  #webeditor_cmd{
+    height: 70vh;
   }
 }
