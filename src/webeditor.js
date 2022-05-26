@@ -424,7 +424,6 @@ $("script_data_run").addEventListener("click", () => {
   $("script_data").textContent = "";
   $("script_data").textContent = editor_data.getValue();
 
-  refreshLib();
   window.spinWithTime(1);
 });
 
@@ -528,7 +527,6 @@ $("script_app_run").addEventListener("click", () => {
   $("script_app").textContent = "";
   $("script_app").textContent = editor_app.getValue();
 
-  refreshLib();
   window.spinWithTime(1);
 });
 
@@ -882,8 +880,16 @@ function refreshLib() {
     $("head").children[24].remove();
   }
 
-  let libs = window.web_file.libs;
-  let libs_len = Object.keys(libs).length;
+  if (localStorage.getItem("file_global_libs")) {
+    let glib = JSON.parse(localStorage.getItem("file_global_libs"));
+    injectLib(glib.libs, Object.keys(glib.libs).length);
+  }
+  injectLib(window.web_file.libs, Object.keys(window.web_file.libs).length);
+}
+
+function injectLib(lib, len) {
+  let libs = lib;
+  let libs_len = len;
   if (libs_len) {
     // get each lib
     for (const key_lib in libs) {
@@ -1046,6 +1052,7 @@ $("file_select").addEventListener("change", (e) => {
 
 // 套件匯入
 $("btn_import_lib").addEventListener("change", () => {
+  let isGlobal = confirm("是否為共用套件？");
   let files = $("btn_import_lib").files;
   let libs = {};
   let libName = prompt("請輸入套件名稱");
@@ -1081,8 +1088,21 @@ $("btn_import_lib").addEventListener("change", () => {
   window.spinWithTime(2);
   setTimeout(() => {
     console.log(`libName: ${libName}, size: ${size}`);
-    window.web_file["libs"][libName] = libs;
-    window.web_file["lib_size"][libName] = size;
+    if (isGlobal) {
+      let origin = localStorage.getItem("file_global_libs");
+      if (origin) {
+        origin = JSON.parse(origin);
+      } else {
+        origin = { libs: {}, lib_size: {} };
+      }
+      origin["libs"][libName] = libs;
+      origin["lib_size"][libName] = size;
+      localStorage.setItem("file_global_libs", JSON.stringify(origin));
+    } else {
+      window.web_file["libs"][libName] = libs;
+      window.web_file["lib_size"][libName] = size;
+    }
+
     $("btn_import_lib").value = "";
   }, 500);
 
@@ -1185,6 +1205,12 @@ $("btn_export_web").addEventListener("click", async () => {
   let lib = window.web_file["libs"];
   let size = window.web_file["lib_size"];
 
+  if (localStorage.getItem("file_global_libs")) {
+    let glib = JSON.parse(localStorage.getItem("file_global_libs"));
+    lib = glib.libs;
+    size = glib.lib_size;
+  }
+
   for (const key in lib) {
     if (Object.hasOwnProperty.call(lib, key)) {
       const element = lib[key];
@@ -1269,6 +1295,10 @@ $("btn_export_web").addEventListener("click", async () => {
   await delay(500);
 
   let libs = window.web_file["libs"];
+  if (localStorage.getItem("file_global_libs")) {
+    let glib = JSON.parse(localStorage.getItem("file_global_libs"));
+    libs = glib.libs;
+  }
 
   if (Object.keys(libs).length !== 0) {
     for (const key in libs) {
@@ -1369,7 +1399,7 @@ function fileExport() {
   for (const key in sourceObj) {
     if (Object.hasOwnProperty.call(sourceObj, key)) {
       const element = sourceObj[key];
-      if (key.includes("file_save")) {
+      if (key.includes("file_")) {
         obj["web_file"][key] = element;
       }
     }
