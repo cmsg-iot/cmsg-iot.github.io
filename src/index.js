@@ -6,7 +6,7 @@ window.res_wifi = "";
 window.terminal_scroll = true;
 window.terminal_log = true;
 window.SYSDATA = {
-  device: "",
+  device: "-",
   wifi: "",
   RSSI: "",
   LT: 0,

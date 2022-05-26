@@ -2,7 +2,6 @@ import jsZip from "./jsZip";
 import ace from "./lib/ace-builds/src-noconflict/ace";
 import ext from "./lib/ace-builds/src-noconflict/ext-language_tools";
 import bt from "./lib/ace-builds/src-noconflict/ext-beautify";
-import { file } from "jszip";
 
 // 設定 ace 資源目標
 ace.config.set("basePath", "lib/ace-builds/src-noconflict");
