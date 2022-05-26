@@ -411,44 +411,11 @@ editor_data.on("change", (e) => {
   syncDataLocalStorage();
 });
 
-// 嵌入 DATA 程式編輯區塊內容至 script 中，若有套件存在則先載入套件
+// 嵌入 DATA 程式編輯區塊內容至 script 中
 $("script_data_run").addEventListener("click", () => {
   clearAllInterval();
   if ($("script_data")) {
     $("script_data").remove();
-  }
-  let libs = window.web_file.libs;
-  let libs_len = Object.keys(libs).length;
-
-  if (libs_len) {
-    // get each lib
-    for (const key_lib in libs) {
-      if (Object.hasOwnProperty.call(libs, key_lib)) {
-        if ($(`lib_${key_lib}`)) $(`lib_${key_lib}`).remove();
-        const lib = libs[key_lib];
-        let lib_len = Object.keys(lib).length;
-        let lib_ext = Object.keys(lib)[0].split(".")[1];
-        let textContent = "";
-
-        // get textContent of the lib
-        for (let i = 0; i < lib_len; i++) {
-          const element = lib[`${i}_${key_lib}.${lib_ext}`];
-          textContent += element;
-        }
-
-        if (lib_ext === "js") {
-          let script = document.createElement("script");
-          script.id = `lib_${key_lib}`;
-          script.textContent = textContent;
-          document.getElementsByTagName("head")[0].appendChild(script);
-        } else if (lib_ext === "css") {
-          let style = document.createElement("style");
-          style.id = `lib_${key_lib}`;
-          style.textContent = textContent;
-          document.head.append(style);
-        }
-      }
-    }
   }
   let script = document.createElement("script");
   script.id = "script_data";
@@ -456,6 +423,8 @@ $("script_data_run").addEventListener("click", () => {
 
   $("script_data").textContent = "";
   $("script_data").textContent = editor_data.getValue();
+
+  refreshLib();
   window.spinWithTime(1);
 });
 
@@ -559,6 +528,7 @@ $("script_app_run").addEventListener("click", () => {
   $("script_app").textContent = "";
   $("script_app").textContent = editor_app.getValue();
 
+  refreshLib();
   window.spinWithTime(1);
 });
 
@@ -899,6 +869,51 @@ function importData(data) {
   setHomeBackground(data["option_home_background"]);
 
   setOptions(window.web_file["options_flag"]);
+
+  refreshLib();
+}
+
+// 套件重新整理
+function refreshLib() {
+  // remove previous lib
+  let old_lib = $("head").children.length - 24;
+
+  for (let i = 0; i < old_lib; i++) {
+    $("head").children[24].remove();
+  }
+
+  let libs = window.web_file.libs;
+  let libs_len = Object.keys(libs).length;
+  if (libs_len) {
+    // get each lib
+    for (const key_lib in libs) {
+      if (Object.hasOwnProperty.call(libs, key_lib)) {
+        if ($(`lib_${key_lib}`)) $(`lib_${key_lib}`).remove();
+        const lib = libs[key_lib];
+        let lib_len = Object.keys(lib).length;
+        let lib_ext = Object.keys(lib)[0].split(".")[1];
+        let textContent = "";
+
+        // get textContent of the lib
+        for (let i = 0; i < lib_len; i++) {
+          const element = lib[`${i}_${key_lib}.${lib_ext}`];
+          textContent += element;
+        }
+
+        if (lib_ext === "js") {
+          let script = document.createElement("script");
+          script.id = `lib_${key_lib}`;
+          script.textContent = textContent;
+          document.getElementsByTagName("head")[0].appendChild(script);
+        } else if (lib_ext === "css") {
+          let style = document.createElement("style");
+          style.id = `lib_${key_lib}`;
+          style.textContent = textContent;
+          document.head.append(style);
+        }
+      }
+    }
+  }
 }
 
 // 檔案管理 - 重新排序選單
@@ -1429,6 +1444,7 @@ $("btn_import_file").addEventListener("change", () => {
 /*--------------雲端檔案管理---------------*/
 window.cloud_edit_mode_flag = false;
 let origin = window.location.origin + "/fileserver";
+
 // 雲端檔案清單
 $("btn_cloud_file_list").addEventListener("click", () => {
   isUserLogin().then((res) => {
