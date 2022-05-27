@@ -875,9 +875,14 @@ function importData(data) {
 function refreshLib() {
   // remove previous lib
   let old_lib = $("head").children.length - 24;
+  let bd = $("body").children.length - 14;
 
   for (let i = 0; i < old_lib; i++) {
     $("head").children[24].remove();
+  }
+
+  for (let i = 0; i < bd; i++) {
+    $("body").children[14].remove();
   }
 
   if (localStorage.getItem("file_global_libs")) {
@@ -1104,6 +1109,7 @@ $("btn_import_lib").addEventListener("change", () => {
     }
 
     $("btn_import_lib").value = "";
+    refreshLib();
   }, 500);
 
   setTimeout(() => {
@@ -2022,7 +2028,7 @@ function uploadCurrentFile(fileName) {
   for (const key in sourceObj) {
     if (Object.hasOwnProperty.call(sourceObj, key)) {
       const element = sourceObj[key];
-      if (key.includes("file_save")) {
+      if (key.includes("file_")) {
         obj["web_file"][key] = element;
       }
     }
