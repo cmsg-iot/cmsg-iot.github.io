@@ -810,6 +810,14 @@ $("terminal_log").addEventListener("click", () => {
   }
 });
 
+// reload fresh data
+$("status_light").addEventListener("click", () => {
+  let result = confirm("確認強制重新整理?");
+  if (result) {
+    reloadWeb();
+  }
+});
+
 // 顯示等待動畫
 window.spin = function (flag) {
   flag
@@ -830,9 +838,11 @@ window.getChildElementIndex = function (node) {
   return Array.prototype.indexOf.call(node.parentElement.children, node);
 };
 
-// 清除緩存並重新整理
+// 重新整理，production中會清除localStorage
 window.reloadWeb = () => {
-  localStorage.clear();
+  if ($("build_check").innerText === "build") {
+    localStorage.clear();
+  }
   window.location.reload();
 };
 

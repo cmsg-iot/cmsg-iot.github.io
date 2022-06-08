@@ -5,6 +5,10 @@ window.paramCnt = 0;
 window.res_wifi = "";
 window.terminal_scroll = true;
 window.terminal_log = true;
+window.current_LT = 0;
+window.previous_LT = 0;
+window.lost = 0;
+window.flag_lost = false;
 window.SYSDATA = {
   device: "-",
   wifi: "",
@@ -59,8 +63,29 @@ window.wkMsg = function wkMsg(e) {
         ? showEEPROM(e.data)
         : 0;
     }
+
     if (window.dataFormatEntryPoint !== undefined) {
       window.dataFormatEntryPoint(e.data);
+    }
+
+    if (e.data.RSSI === "<---->") {
+      window.lost++;
+    } else if (e.data.RSSI) {
+      window.lost--;
+    }
+
+    if (window.lost > 1) {
+      window.lost = 1;
+      console.log("lost connection");
+      $("status_light").classList.remove("light-green");
+
+      if (!flag_lost) {
+        flag_lost = true;
+        alert("連接異常，請重新整理網頁、檢查Wifi或重啟設備。");
+      }
+    } else {
+      flag_lost = false;
+      $("status_light").classList.add("light-green");
     }
   } catch (error) {
     console.log(error);
@@ -83,6 +108,7 @@ function showSYS(data) {
   }
   $("LT").innerHTML = lt;
   SYSDATA["LT"] = lt;
+  window.current_LT = lt;
   if (len < 32) return;
   // get softwareserial baudrate
   ssbps = 0;
