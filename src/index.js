@@ -106,7 +106,8 @@ function showSYS(data) {
     lt <<= 8;
     lt += data[i];
   }
-  $("LT").innerHTML = lt;
+  insertText($("LT"), lt);
+  insertText($("LT2"), lt);
   SYSDATA["LT"] = lt;
   window.current_LT = lt;
   if (len < 32) return;
@@ -116,7 +117,7 @@ function showSYS(data) {
     ssbps <<= 8;
     ssbps += data[i];
   }
-  $("SSbps").innerHTML = ssbps;
+  insertText($("SSbps"), ssbps);
   SYSDATA["SSbps"] = ssbps;
 }
 
@@ -143,6 +144,13 @@ function showEEPROM(data) {
     str += "\n";
   }
   $("tx").value = str;
+}
+
+function insertText(id, value) {
+  if (!id) {
+    return;
+  }
+  id.innerText = value;
 }
 
 // 顯示等待動畫

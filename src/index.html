@@ -159,7 +159,7 @@
                     <td>&#8987; 啟動時間</td>
                   </tr>
                   <tr>
-                    <td class="text-lg h-14 w-32">-</td>
+                    <td id="LT2" class="text-lg h-14 w-32">-</td>
                   </tr>
                 </table>
               </div>
@@ -170,7 +170,7 @@
           <div id="main_ui"></div>
         </div>
 
-        <!-- Title & Setting -->
+        <!-- Footer(title) & Setting -->
         <div>
           <div id="footer" class="bg-dark w-full h-16 fixed bottom-0">
             <div class="flex h-full justify-center">
@@ -186,7 +186,9 @@
             </div>
           </div>
         </div>
-
+      </div>
+      <!-- SettingPage -->
+      <div id="page_setting">
         <!-- SettingMenu -->
         <div>
           <!-- Mask -->
@@ -477,202 +479,202 @@
             class="h-2/3 overflow-y-auto overscroll-y-auto"
           ></div>
         </div>
-      </div>
 
-      <!--NetworkPage -->
-      <div
-        id="network_page"
-        class="fixed top-0 w-screen h-screen hidden FadeIn z-20"
-      >
+        <!--NetworkPage -->
         <div
-          class="text-white text-shadow-md top-0 w-screen h-24 text-3xl font-bold text-center"
+          id="network_page"
+          class="fixed top-0 w-screen h-screen hidden FadeIn z-20"
         >
-          <span class="relative top-7">&#127760; 網路設定</span>
-        </div>
-        <!-- SettingList -->
-        <div class="h-5/6 pb-20 overflow-y-auto overscroll-y-auto">
-          <div class="settingBtn">
-            <table>
-              <td class="settingBtn-title">目前WiFi</td>
-              <td id="wifi" class="settingBtn-val">-</td>
-            </table>
-          </div>
-          <div class="settingBtn">
-            <table>
-              <td class="settingBtn-title">Socket IP</td>
-              <td id="socket" class="settingBtn-val">-</td>
-            </table>
-          </div>
-          <div class="h-10 text-center mt-4">
-            <span class="relative top-4 text-3xl text-white font-bold">
-              WiFI搜尋清單
-            </span>
-          </div>
-
-          <ul id="wifi-result" class="list"></ul>
-          <div class="w-full h-24 mt-10 mb-20">
-            <div class="text-center">
-              <button
-                id="network_btn_reconnect"
-                class="btn-basic btn-md warning"
-              >
-                重新連上
-              </button>
-              <button id="network_btn_scan" class="btn-basic btn-md primary">
-                搜尋
-              </button>
-              <button
-                id="network_btn_set_socket"
-                class="btn-basic btn-md success"
-              >
-                Socket設定
-              </button>
-              <button
-                id="network_btn_get_socket"
-                class="btn-basic btn-md default"
-              >
-                取得Socket
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- SystemPage -->
-      <div
-        id="system_page"
-        class="fixed top-0 w-screen h-screen hidden FadeIn z-20"
-      >
-        <div
-          class="text-white text-shadow-md top-0 w-screen h-24 text-3xl font-bold text-center"
-        >
-          <span class="relative top-7">&#128295; 系統設定</span>
-        </div>
-        <!-- SettingList -->
-        <div id="system_list" class="h-2/3 overflow-y-auto overscroll-y-auto">
-          <div id="system_set_device" class="settingBtn">
-            <table>
-              <td class="settingBtn-title">裝置名稱</td>
-              <td id="system_device" class="settingBtn-val">-</td>
-            </table>
-          </div>
-          <div id="system_set_time" class="settingBtn">
-            <table>
-              <td class="settingBtn-title">系統時間</td>
-              <td class="settingBtn-val">點擊設定</td>
-            </table>
-          </div>
-          <div id="system_set_ssid" class="settingBtn">
-            <table>
-              <td class="settingBtn-title">SSID 設定</td>
-              <td class="settingBtn-val">點擊設定</td>
-            </table>
-          </div>
-          <div id="system_set_bps" class="settingBtn">
-            <table>
-              <td class="settingBtn-title">UART 設定</td>
-              <td id="bps" class="settingBtn-val">-</td>
-            </table>
-          </div>
-          <div id="system_set_SSbps" class="settingBtn">
-            <table>
-              <td class="settingBtn-title">SS bps 設定</td>
-              <td id="SSbps" class="settingBtn-val">-</td>
-            </table>
-          </div>
-          <div id="system_reload" class="settingBtn mb-20">
-            <table>
-              <td class="settingBtn-title">重新整理</td>
-              <td class="settingBtn-val">點擊重整</td>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- TerminalPage -->
-      <div
-        id="terminal_page"
-        class="fixed top-0 w-screen h-screen hidden FadeIn z-20"
-      >
-        <div
-          class="text-white text-shadow-md top-0 w-screen h-24 text-3xl font-bold text-center"
-        >
-          <span class="relative top-7">&#128187; 終端機</span>
-        </div>
-        <div class="h-2/3 overflow-y-auto overscroll-y-auto">
           <div
-            class="w-11/12 flex justify-evenly text-white font-bold m-auto mt-8"
-            style="max-width: 1000px"
+            class="text-white text-shadow-md top-0 w-screen h-24 text-3xl font-bold text-center"
           >
-            <div class="flex justify-evenly w-44">
-              <div>訊號:</div>
-              <div id="RSSI">-</div>
-            </div>
-            <div class="flex justify-evenly w-44">
-              <div>啟動時間:</div>
-              <div id="LT">-</div>
-            </div>
+            <span class="relative top-7">&#127760; 網路設定</span>
           </div>
-          <div class="text-center h-1/2">
-            <textarea
-              name=""
-              id="tx"
-              cols="30"
-              rows="10"
-              class="bg-black text-terminal shadow-md px-4 py-2 w-11/12 max-w-3xl h-full rounded-xl m-auto border-4 border-gray-300 whitespace-pre"
-              disabled
-            ></textarea>
-          </div>
-          <input
-            class="appearance-none block w-11/12 max-w-xl bg-gray-200 text-gray-700 border border-gray-200 rounded-lg py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500 mt-10 m-auto"
-            id="cmd_input"
-            type="text"
-            name="float-input"
-            placeholder="輸入命令..."
-          />
-          <div class="w-full h-24 mt-4 mb-20">
-            <div class="text-center">
-              <button id="terminal_clear" class="btn-basic btn-md warning">
-                清除
-              </button>
-              <button id="terminal_send" class="btn-basic btn-md primary">
-                發送
-              </button>
-              <button id="terminal_scroll" class="btn-basic btn-md success">
-                捲動: ON
-              </button>
-              <button id="terminal_log" class="btn-basic btn-md success">
-                Log: ON
-              </button>
+          <!-- SettingList -->
+          <div class="h-5/6 pb-20 overflow-y-auto overscroll-y-auto">
+            <div class="settingBtn">
+              <table>
+                <td class="settingBtn-title">目前WiFi</td>
+                <td id="wifi" class="settingBtn-val">-</td>
+              </table>
+            </div>
+            <div class="settingBtn">
+              <table>
+                <td class="settingBtn-title">Socket IP</td>
+                <td id="socket" class="settingBtn-val">-</td>
+              </table>
+            </div>
+            <div class="h-10 text-center mt-4">
+              <span class="relative top-4 text-3xl text-white font-bold">
+                WiFI搜尋清單
+              </span>
+            </div>
+
+            <ul id="wifi-result" class="list"></ul>
+            <div class="w-full h-24 mt-10 mb-20">
+              <div class="text-center">
+                <button
+                  id="network_btn_reconnect"
+                  class="btn-basic btn-md warning"
+                >
+                  重新連上
+                </button>
+                <button id="network_btn_scan" class="btn-basic btn-md primary">
+                  搜尋
+                </button>
+                <button
+                  id="network_btn_set_socket"
+                  class="btn-basic btn-md success"
+                >
+                  Socket設定
+                </button>
+                <button
+                  id="network_btn_get_socket"
+                  class="btn-basic btn-md default"
+                >
+                  取得Socket
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- BottomMenu -->
-      <div id="menu_bottom" class="hidden">
-        <div class="w-screen flex justify-center m-auto fixed -bottom-8 z-20">
-          <div class="buttomMenu-btn">
-            <div id="btmMenu_sche">&#128197;</div>
+        <!-- SystemPage -->
+        <div
+          id="system_page"
+          class="fixed top-0 w-screen h-screen hidden FadeIn z-20"
+        >
+          <div
+            class="text-white text-shadow-md top-0 w-screen h-24 text-3xl font-bold text-center"
+          >
+            <span class="relative top-7">&#128295; 系統設定</span>
           </div>
-          <div id="btmMenu_custom_btn" class="buttomMenu-btn">
-            <div id="btmMenu_custom">&#128221;</div>
+          <!-- SettingList -->
+          <div id="system_list" class="h-2/3 overflow-y-auto overscroll-y-auto">
+            <div id="system_set_device" class="settingBtn">
+              <table>
+                <td class="settingBtn-title">裝置名稱</td>
+                <td id="system_device" class="settingBtn-val">-</td>
+              </table>
+            </div>
+            <div id="system_set_time" class="settingBtn">
+              <table>
+                <td class="settingBtn-title">系統時間</td>
+                <td class="settingBtn-val">點擊設定</td>
+              </table>
+            </div>
+            <div id="system_set_ssid" class="settingBtn">
+              <table>
+                <td class="settingBtn-title">SSID 設定</td>
+                <td class="settingBtn-val">點擊設定</td>
+              </table>
+            </div>
+            <div id="system_set_bps" class="settingBtn">
+              <table>
+                <td class="settingBtn-title">UART 設定</td>
+                <td id="bps" class="settingBtn-val">-</td>
+              </table>
+            </div>
+            <div id="system_set_SSbps" class="settingBtn">
+              <table>
+                <td class="settingBtn-title">SS bps 設定</td>
+                <td id="SSbps" class="settingBtn-val">-</td>
+              </table>
+            </div>
+            <div id="system_reload" class="settingBtn mb-20">
+              <table>
+                <td class="settingBtn-title">重新整理</td>
+                <td class="settingBtn-val">點擊重整</td>
+              </table>
+            </div>
           </div>
-          <div class="buttomMenu-btn">
-            <div id="btmMenu_network">&#127760;</div>
+        </div>
+
+        <!-- TerminalPage -->
+        <div
+          id="terminal_page"
+          class="fixed top-0 w-screen h-screen hidden FadeIn z-20"
+        >
+          <div
+            class="text-white text-shadow-md top-0 w-screen h-24 text-3xl font-bold text-center"
+          >
+            <span class="relative top-7">&#128187; 終端機</span>
           </div>
-          <div class="buttomMenu-btn">
-            <div id="btmMenu_system">&#128295;</div>
-          </div>
-          <div class="buttomMenu-btn">
-            <div id="btmMenu_terminal">&#128187;</div>
-          </div>
-          <div id="btmMenu_close" class="w-1/4 ml-2 transform -translate-y-4">
-            <button
-              class="bg-danger text-white text-3xl font-bold w-full h-4/5 rounded-t-xl hover:bg-red-500 active:bg-red-400"
+          <div class="h-2/3 overflow-y-auto overscroll-y-auto">
+            <div
+              class="w-11/12 flex justify-evenly text-white font-bold m-auto mt-8"
+              style="max-width: 1000px"
             >
-              &#9747;
-            </button>
+              <div class="flex justify-evenly w-44">
+                <div>訊號:</div>
+                <div id="RSSI">-</div>
+              </div>
+              <div class="flex justify-evenly w-44">
+                <div>啟動時間:</div>
+                <div id="LT">-</div>
+              </div>
+            </div>
+            <div class="text-center h-1/2">
+              <textarea
+                name=""
+                id="tx"
+                cols="30"
+                rows="10"
+                class="bg-black text-terminal shadow-md px-4 py-2 w-11/12 max-w-3xl h-full rounded-xl m-auto border-4 border-gray-300 whitespace-pre"
+                disabled
+              ></textarea>
+            </div>
+            <input
+              class="appearance-none block w-11/12 max-w-xl bg-gray-200 text-gray-700 border border-gray-200 rounded-lg py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500 mt-10 m-auto"
+              id="cmd_input"
+              type="text"
+              name="float-input"
+              placeholder="輸入命令..."
+            />
+            <div class="w-full h-24 mt-4 mb-20">
+              <div class="text-center">
+                <button id="terminal_clear" class="btn-basic btn-md warning">
+                  清除
+                </button>
+                <button id="terminal_send" class="btn-basic btn-md primary">
+                  發送
+                </button>
+                <button id="terminal_scroll" class="btn-basic btn-md success">
+                  捲動: ON
+                </button>
+                <button id="terminal_log" class="btn-basic btn-md success">
+                  Log: ON
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BottomMenu -->
+        <div id="menu_bottom" class="hidden">
+          <div class="w-screen flex justify-center m-auto fixed -bottom-8 z-20">
+            <div class="buttomMenu-btn">
+              <div id="btmMenu_sche">&#128197;</div>
+            </div>
+            <div id="btmMenu_custom_btn" class="buttomMenu-btn">
+              <div id="btmMenu_custom">&#128221;</div>
+            </div>
+            <div class="buttomMenu-btn">
+              <div id="btmMenu_network">&#127760;</div>
+            </div>
+            <div class="buttomMenu-btn">
+              <div id="btmMenu_system">&#128295;</div>
+            </div>
+            <div class="buttomMenu-btn">
+              <div id="btmMenu_terminal">&#128187;</div>
+            </div>
+            <div id="btmMenu_close" class="w-1/4 ml-2 transform -translate-y-4">
+              <button
+                class="bg-danger text-white text-3xl font-bold w-full h-4/5 rounded-t-xl hover:bg-red-500 active:bg-red-400"
+              >
+                &#9747;
+              </button>
+            </div>
           </div>
         </div>
       </div>

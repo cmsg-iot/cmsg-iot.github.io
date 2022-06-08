@@ -1188,6 +1188,11 @@ $("btn_export_web").addEventListener("click", async () => {
   clone_ui.querySelector("#terminal_page").classList.add("hidden");
   clone_ui.querySelector("#mask").classList.add("hidden");
 
+  // 清除設定頁程式
+  if (!web_file["options_flag"]["config"]) {
+    clone_ui.querySelector("#page_setting").innerHTML = "";
+  }
+
   // 建立UI介面的html, fileName: ui.html
   props.codeArray.push({
     name: "ui.html",

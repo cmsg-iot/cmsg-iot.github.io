@@ -376,7 +376,6 @@ window.updateSchedulePage = function () {
 bindEventIfIdExist($("open-custom"), "click", () => {
   window.location.hash = "#custom";
 });
-$("open-custom").addEventListener("click", () => {});
 bindEventIfIdExist($("btmMenu_custom"), "click", () => {
   if (btmMenu_previous === "btmMenu_custom") return;
   window.location.hash = "#custom";
