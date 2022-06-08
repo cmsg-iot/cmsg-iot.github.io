@@ -53,6 +53,14 @@ window.$ = function (id) {
   return document.getElementById(id);
 };
 
+// bind event if id exist
+window.bindEventIfIdExist = (id, type, func) => {
+  if (!id) {
+    return;
+  }
+  id.addEventListener(type, () => func());
+};
+
 /*------------Interface Action------------*/
 
 // bottom menu switch page
@@ -172,12 +180,12 @@ window.hide_page = function (target) {
 };
 
 // open setting menu
-$("open-menu").addEventListener("click", () => {
+bindEventIfIdExist($("open-menu"), "click", () => {
   switchMenu(1);
 });
 
 // close setting menu
-$("mask").addEventListener("click", () => {
+bindEventIfIdExist($("mask"), "click", () => {
   switchMenu(0);
 });
 
@@ -197,22 +205,22 @@ window.switchMenu = function (flag) {
 };
 
 // switch to schedule page(show)
-$("open-sche").addEventListener("click", () => {
+bindEventIfIdExist($("open-sche"), "click", () => {
   window.location.hash = "#sche";
 });
 
-$("btmMenu_sche").addEventListener("click", (e) => {
+bindEventIfIdExist($("btmMenu_sche"), "click", () => {
   if (btmMenu_previous === "btmMenu_sche") return;
   window.location.hash = "#sche";
 });
 
-$("sche_btn_cancel").addEventListener("click", () => {
+bindEventIfIdExist($("sche_btn_cancel"), "click", () => {
   show_page("sche");
   clearScheduleAdd();
 });
 
 // switch to schedule page(edit)
-$("sche_btn_add").addEventListener("click", () => {
+bindEventIfIdExist($("sche_btn_add"), "click", () => {
   // if (SYSDATA.STMODE !== "停止" && SYSDATA.STMODE !== "手動") {
   //   alert("停止或手動模式下才可修改排程");
   //   return;
@@ -365,10 +373,11 @@ window.updateSchedulePage = function () {
 };
 
 // switch to custom page
-$("open-custom").addEventListener("click", () => {
+bindEventIfIdExist($("open-custom"), "click", () => {
   window.location.hash = "#custom";
 });
-$("btmMenu_custom").addEventListener("click", (e) => {
+$("open-custom").addEventListener("click", () => {});
+bindEventIfIdExist($("btmMenu_custom"), "click", () => {
   if (btmMenu_previous === "btmMenu_custom") return;
   window.location.hash = "#custom";
 });
@@ -376,10 +385,11 @@ $("btmMenu_custom").addEventListener("click", (e) => {
 // update custom page
 
 // switch to network page
-$("open-network").addEventListener("click", () => {
+bindEventIfIdExist($("open-network"), "click", () => {
   window.location.hash = "#network";
 });
-$("btmMenu_network").addEventListener("click", (e) => {
+
+bindEventIfIdExist($("btmMenu_network"), "click", () => {
   if (btmMenu_previous === "btmMenu_network") return;
   window.location.hash = "#network";
 });
@@ -387,25 +397,25 @@ $("btmMenu_network").addEventListener("click", (e) => {
 // update wifi list
 
 // switch to system page
-$("open-system").addEventListener("click", () => {
+bindEventIfIdExist($("open-system"), "click", () => {
   window.location.hash = "#system";
 });
-$("btmMenu_system").addEventListener("click", (e) => {
+bindEventIfIdExist($("btmMenu_system"), "click", () => {
   if (btmMenu_previous === "btmMenu_system") return;
   window.location.hash = "#system";
 });
 
 // switch to terminal page
-$("open-terminal").addEventListener("click", () => {
+bindEventIfIdExist($("open-terminal"), "click", () => {
   window.location.hash = "#terminal";
 });
-$("btmMenu_terminal").addEventListener("click", (e) => {
+bindEventIfIdExist($("btmMenu_terminal"), "click", () => {
   if (btmMenu_previous === "btmMenu_terminal") return;
   window.location.hash = "#terminal";
 });
 
 // back to home page
-$("btmMenu_close").addEventListener("click", () => {
+bindEventIfIdExist($("btmMenu_close"), "click", () => {
   window.location.hash = "#home";
 });
 
@@ -517,8 +527,7 @@ window.addSchedule = function () {
     alert("新增排程完成，若需要自動控制，請回到首頁將模式切換回自動。");
   }, 2000);
 };
-
-$("sche_btn_confirm").addEventListener("click", () => {
+bindEventIfIdExist($("sche_btn_confirm"), "click", () => {
   addSchedule();
 });
 
@@ -534,7 +543,7 @@ window.removeSchedule = function (index) {
 };
 
 // update schedule
-$("sche_btn_update").addEventListener("click", () => {
+bindEventIfIdExist($("sche_btn_update"), "click", () => {
   $("sche_list").innerHTML = "";
   SYSDATA.Sched = [];
   postCmd(window.CORE_CMD.sche_show);
@@ -581,7 +590,7 @@ window.updateScheduleArea = function () {
 /** Network */
 
 // scan wifi
-$("network_btn_scan").addEventListener("click", () => {
+bindEventIfIdExist($("network_btn_scan"), "click", () => {
   scanWifi();
   spin(1);
 });
@@ -640,7 +649,7 @@ window.inputWifiPWD = function (e) {
 };
 
 // reconnect the last connected wifi
-$("network_btn_reconnect").addEventListener("click", () => {
+bindEventIfIdExist($("network_btn_reconnect"), "click", () => {
   postCmd(window.CORE_CMD.wifi_reconnect);
   spin(1);
   setTimeout(() => {
@@ -649,7 +658,7 @@ $("network_btn_reconnect").addEventListener("click", () => {
 });
 
 // set recv socket address
-$("network_btn_set_socket").addEventListener("click", () => {
+bindEventIfIdExist($("network_btn_set_socket"), "click", () => {
   let v = prompt("請輸入Socket Server位址：");
   if (!v) return;
   postCmd(window.CUSTOM_CMD.wifi_set_addr(v));
@@ -663,7 +672,7 @@ $("network_btn_set_socket").addEventListener("click", () => {
 });
 
 // get recv socket address
-$("network_btn_get_socket").addEventListener("click", () => {
+bindEventIfIdExist($("network_btn_get_socket"), "click", () => {
   postCmd(window.CUSTOM_CMD.wifi_get_addr);
   spin(1);
   setTimeout(() => {
@@ -674,7 +683,7 @@ $("network_btn_get_socket").addEventListener("click", () => {
 /** System */
 
 // set device name
-$("system_set_device").addEventListener("click", () => {
+bindEventIfIdExist($("system_set_device"), "click", () => {
   let name = prompt("請輸入裝置名稱:");
   if (!name) {
     alert("請輸入至少一個字");
@@ -684,7 +693,7 @@ $("system_set_device").addEventListener("click", () => {
 });
 
 // set system time
-$("system_set_time").addEventListener("click", () => {
+bindEventIfIdExist($("system_set_time"), "click", () => {
   let time = new Date(Date.now());
   let y = time.getFullYear();
   let m =
@@ -706,7 +715,7 @@ $("system_set_time").addEventListener("click", () => {
 });
 
 // set SSID
-$("system_set_ssid").addEventListener("click", () => {
+bindEventIfIdExist($("system_set_ssid"), "click", () => {
   let ssid = prompt("請輸入SSID:");
   if (!ssid) {
     alert("格式不符，請重試");
@@ -724,7 +733,7 @@ $("system_set_ssid").addEventListener("click", () => {
 });
 
 // set UART baud
-$("system_set_bps").addEventListener("click", () => {
+bindEventIfIdExist($("system_set_bps"), "click", () => {
   let baud = prompt("請輸入serial baud rate:");
   if (!baud) {
     return;
@@ -737,7 +746,7 @@ $("system_set_bps").addEventListener("click", () => {
 });
 
 // set SS bps
-$("system_set_SSbps").addEventListener("click", () => {
+bindEventIfIdExist($("system_set_SSbps"), "click", () => {
   let baud = prompt("請輸入soft serial baud rate:");
   if (!baud) {
     return;
@@ -750,7 +759,7 @@ $("system_set_SSbps").addEventListener("click", () => {
 });
 
 // reload fresh data
-$("system_reload").addEventListener("click", () => {
+bindEventIfIdExist($("system_reload"), "click", () => {
   let result = confirm("確認強制重新整理?");
   if (result) {
     reloadWeb();
@@ -765,7 +774,7 @@ window.updateSystemPage = function () {
 /** Terminal */
 
 // send command
-$("terminal_send").addEventListener("click", () => {
+bindEventIfIdExist($("terminal_send"), "click", () => {
   let cmd = $("cmd_input").value;
   if (cmd === "config") {
     $("btmMenu_custom_btn").classList.remove("hidden");
@@ -776,12 +785,12 @@ $("terminal_send").addEventListener("click", () => {
 });
 
 // clear log
-$("terminal_clear").addEventListener("click", () => {
+bindEventIfIdExist($("terminal_clear"), "click", () => {
   $("tx").value = "";
 });
 
 // auto scroll
-$("terminal_scroll").addEventListener("click", () => {
+bindEventIfIdExist($("terminal_scroll"), "click", () => {
   if (window.terminal_scroll) {
     window.terminal_scroll = false;
     $("terminal_scroll").innerText = "捲動: OFF";
@@ -796,7 +805,7 @@ $("terminal_scroll").addEventListener("click", () => {
 });
 
 // enable/disable log
-$("terminal_log").addEventListener("click", () => {
+bindEventIfIdExist($("terminal_log"), "click", () => {
   if (window.terminal_log) {
     window.terminal_log = false;
     $("terminal_log").innerText = "Log: OFF";
@@ -811,7 +820,7 @@ $("terminal_log").addEventListener("click", () => {
 });
 
 // reload fresh data
-$("status_light").addEventListener("click", () => {
+bindEventIfIdExist($("status_light"), "click", () => {
   let result = confirm("確認強制重新整理?");
   if (result) {
     reloadWeb();
