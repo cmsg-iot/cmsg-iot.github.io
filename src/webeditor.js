@@ -1189,7 +1189,10 @@ $("btn_export_web").addEventListener("click", async () => {
   clone_ui.querySelector("#mask").classList.add("hidden");
 
   // 清除設定頁程式
-  if (!web_file["options_flag"]["config"]) {
+  if (
+    !web_file["options_flag"]["config"] ||
+    !web_file["options_flag"]["footer"]
+  ) {
     clone_ui.querySelector("#page_setting").innerHTML = "";
   }
 
