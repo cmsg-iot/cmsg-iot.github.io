@@ -873,17 +873,7 @@ function importData(data) {
 
 // 套件重新整理
 function refreshLib() {
-  // remove previous lib
-  let old_lib = $("head").children.length - 24;
-  let bd = $("body").children.length - 14;
-
-  for (let i = 0; i < old_lib; i++) {
-    $("head").children[24].remove();
-  }
-
-  for (let i = 0; i < bd; i++) {
-    $("body").children[14].remove();
-  }
+  removeLib();
 
   if (localStorage.getItem("file_global_libs")) {
     let glib = JSON.parse(localStorage.getItem("file_global_libs"));
@@ -892,6 +882,7 @@ function refreshLib() {
   injectLib(window.web_file.libs, Object.keys(window.web_file.libs).length);
 }
 
+// 插入套件至網頁
 function injectLib(lib, len) {
   let libs = lib;
   let libs_len = len;
@@ -924,6 +915,21 @@ function injectLib(lib, len) {
         }
       }
     }
+  }
+}
+
+// 從網頁移除套件
+function removeLib() {
+  // remove previous lib
+  let old_lib = $("head").children.length - 24;
+  let bd = $("body").children.length - 14;
+
+  for (let i = 0; i < old_lib; i++) {
+    $("head").children[24].remove();
+  }
+
+  for (let i = 0; i < bd; i++) {
+    $("body").children[14].remove();
   }
 }
 
@@ -1115,6 +1121,25 @@ $("btn_import_lib").addEventListener("change", () => {
   setTimeout(() => {
     syncDataLocalStorage();
   }, 1000);
+});
+
+// 套件清除
+$("btn_clear_lib").addEventListener("click", () => {
+  let isGlobal = confirm("是否為共用套件？");
+  let result = confirm("確定清除套件?");
+  if (!result) return;
+
+  window.spinWithTime(1);
+  if (isGlobal) {
+    console.log("removed global lib");
+    localStorage.removeItem("file_global_libs");
+  } else {
+    console.log("removed current lib");
+    removeLib();
+    window.web_file["lib_size"] = {};
+    window.web_file["libs"] = {};
+    syncDataLocalStorage();
+  }
 });
 
 // 網頁匯出
