@@ -1500,6 +1500,9 @@ function fileImport() {
   };
 }
 
+// 連結匯入
+function fileImportByURL() {}
+
 // 檔案上傳成功時呼叫匯入程式
 $("btn_import_file").addEventListener("change", () => {
   let check = confirm("匯入將覆蓋原有檔案");
@@ -1508,6 +1511,38 @@ $("btn_import_file").addEventListener("change", () => {
     return;
   }
   fileImport();
+});
+
+// 檢查檔案連結是否有效後再匯入
+$("btn_import_file_link").addEventListener("click", () => {
+  let link = prompt("輸入有效檔案來源連結");
+  if (!link) return;
+
+  fetch(link).then((e) => {
+    if (!e.ok) {
+      alert("檔案連結無效！");
+      return;
+    }
+    e.text().then((data) => {
+      if (!data.includes("web_file")) {
+        alert("檔案格式錯誤！");
+        return;
+      }
+
+      let check = confirm("已取得檔案，匯入將覆蓋原有檔案");
+      if (!check) return;
+
+      let json = JSON.parse(data)["web_file"];
+      for (const key in json) {
+        if (Object.hasOwnProperty.call(json, key)) {
+          const element = json[key];
+          localStorage.setItem(key, element);
+        }
+      }
+
+      window.location.reload();
+    });
+  });
 });
 
 /*--------------雲端檔案管理---------------*/
