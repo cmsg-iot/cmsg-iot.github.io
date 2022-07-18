@@ -81,7 +81,8 @@ window.wkMsg = function wkMsg(e) {
 
       if (!flag_lost) {
         flag_lost = true;
-        alert("連接異常，請重新整理網頁、檢查Wifi或重啟設備。");
+        // alert("連接異常，請重新整理網頁、檢查Wifi或重啟設備。");
+        console.log("連接異常，請重新整理網頁、檢查Wifi或重啟設備。");
       }
     } else {
       flag_lost = false;

@@ -915,8 +915,8 @@ window.addEventListener("hashchange", (e) => {
       break;
 
     default:
-      window.location.hash = "#home";
-      console.log("not vaild hash, back to home.");
+      // window.location.hash = "#home";
+      console.log("not vaild hash.");
       break;
   }
 });
