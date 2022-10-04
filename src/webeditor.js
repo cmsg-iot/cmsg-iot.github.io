@@ -411,13 +411,26 @@ editor_data.on("change", (e) => {
   syncDataLocalStorage();
 });
 
-// 嵌入 DATA 程式編輯區塊內容至 script 中
+// 嵌入 DATA 與 CMD 程式編輯區塊內容至 script 中
 $("script_data_run").addEventListener("click", () => {
   clearAllInterval();
   if ($("script_data")) {
     $("script_data").remove();
   }
+
+  $("custom_list").innerHTML = "";
+  $("main_ui").innerHTML = "";
+  $("main_ui").innerHTML = editor_html.getValue();
+  window.parseCmdBtn();
+
   let script = document.createElement("script");
+  script.id = "script_app";
+  document.getElementsByTagName("html")[0].appendChild(script);
+
+  $("script_app").textContent = "";
+  $("script_app").textContent = editor_app.getValue();
+
+  script = document.createElement("script");
   script.id = "script_data";
   document.getElementsByTagName("html")[0].appendChild(script);
 
@@ -430,8 +443,12 @@ $("script_data_run").addEventListener("click", () => {
 // 停止並清除嵌入的程式碼
 $("script_data_reset").addEventListener("click", () => {
   clearAllInterval();
+  $("main_ui").innerHTML = editor_html.getValue();
   $("script_data").remove();
   window.dataFormatEntryPoint = undefined;
+  $("script_app").remove();
+  $("custom_list").innerHTML = "";
+  window.parseCmdBtn();
   window.spinWithTime(1);
 });
 
@@ -511,33 +528,33 @@ editor_app.on("change", (e) => {
 });
 
 // 嵌入 Custom Command 程式編輯區塊內容至 script 中
-$("script_app_run").addEventListener("click", () => {
-  clearAllInterval();
-  $("custom_list").innerHTML = "";
-  $("main_ui").innerHTML = "";
-  $("main_ui").innerHTML = editor_html.getValue();
-  window.parseCmdBtn();
-  if ($("script_app")) {
-    $("script_app").remove();
-  }
-  let script = document.createElement("script");
-  script.id = "script_app";
-  document.getElementsByTagName("html")[0].appendChild(script);
+// $("script_app_run").addEventListener("click", () => {
+//   clearAllInterval();
+//   $("custom_list").innerHTML = "";
+//   $("main_ui").innerHTML = "";
+//   $("main_ui").innerHTML = editor_html.getValue();
+//   window.parseCmdBtn();
+//   if ($("script_app")) {
+//     $("script_app").remove();
+//   }
+//   let script = document.createElement("script");
+//   script.id = "script_app";
+//   document.getElementsByTagName("html")[0].appendChild(script);
 
-  $("script_app").textContent = "";
-  $("script_app").textContent = editor_app.getValue();
+//   $("script_app").textContent = "";
+//   $("script_app").textContent = editor_app.getValue();
 
-  window.spinWithTime(1);
-});
+//   window.spinWithTime(1);
+// });
 
 // 停止並清除嵌入的程式碼
-$("script_app_reset").addEventListener("click", () => {
-  clearAllInterval();
-  $("script_app").remove();
-  $("custom_list").innerHTML = "";
-  window.parseCmdBtn();
-  window.spinWithTime(1);
-});
+// $("script_app_reset").addEventListener("click", () => {
+//   clearAllInterval();
+//   $("script_app").remove();
+//   $("custom_list").innerHTML = "";
+//   window.parseCmdBtn();
+//   window.spinWithTime(1);
+// });
 
 // 解析內容產生按鈕
 window.parseCmdBtn = function () {
