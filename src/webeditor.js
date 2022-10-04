@@ -928,9 +928,9 @@ function removeLib() {
     $("head").children[24].remove();
   }
 
-  for (let i = 0; i < bd; i++) {
-    $("body").children[14].remove();
-  }
+  // for (let i = 0; i < bd; i++) {
+  //   $("body").children[14].remove();
+  // }
 }
 
 // 檔案管理 - 重新排序選單
