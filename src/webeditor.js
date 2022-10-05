@@ -1564,7 +1564,13 @@ $("btn_import_file_link").addEventListener("click", () => {
 
 /*--------------雲端檔案管理---------------*/
 window.cloud_edit_mode_flag = false;
-let origin = window.location.origin + "/fileserver";
+window.domain = localStorage.getItem("cloud_login_domain") || window.origin;
+let path = "/fileserver";
+$("cloud_login_domain").value = localStorage.getItem("cloud_login_domain");
+$("cloud_login_domain").addEventListener("input", () => {
+  window.domain = $("cloud_login_domain").value;
+  localStorage.setItem("cloud_login_domain", window.domain);
+});
 
 // 雲端檔案清單
 $("btn_cloud_file_list").addEventListener("click", () => {
@@ -1646,7 +1652,7 @@ $("btn_cloud_login").addEventListener("click", () => {
   window.spinOnlyIcon(1);
   // 使用者登入
   let body = { username: username, password: password };
-  fetch(origin + "/api/auth/signin", {
+  fetch(window.domain + path + "/api/auth/signin", {
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
@@ -1685,7 +1691,7 @@ if (localStorage.getItem("firstLogin") === "true") {
 $("btn_cloud_logout").addEventListener("click", () => {
   let res = confirm("確定登出?");
   if (res) {
-    fetch(origin + "/api/auth/logout").then((res) => {
+    fetch(window.domain + path + "/api/auth/logout").then((res) => {
       console.log(res);
       cloudGoPage("login");
     });
@@ -1779,22 +1785,22 @@ function cloudGoPage(page) {
 
 function isUserLogin() {
   let api = "/api/user";
-  return fetch(origin + api);
+  return fetch(window.domain + path + api);
 }
 
 function getUserInfo() {
-  return fetch(origin + "/api/user/info");
+  return fetch(window.domain + path + "/api/user/info");
 }
 
 function getTags() {
   $("cloud_tags_list").innerHTML = "";
-  return fetch(origin + "/api/file/tag");
+  return fetch(window.domain + path + "/api/file/tag");
 }
 
 function getFileList(tagId) {
   $("cloud_files_list").innerHTML = "";
   let body = { tagId: tagId };
-  return fetch(origin + "/api/file/list", {
+  return fetch(window.domain + path + "/api/file/list", {
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
@@ -1807,7 +1813,7 @@ function getFileList(tagId) {
 function getFileAndImport(tagId, fileName) {
   window.spinOnlyIcon(1);
   let body = { tagId: tagId, fileName: fileName };
-  fetch(origin + "/api/file/data", {
+  fetch(window.domain + path + "/api/file/data", {
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
@@ -1839,7 +1845,7 @@ function getFileAndImport(tagId, fileName) {
 
 function removeTagAndFiles(tagId) {
   let body = { tagId: tagId };
-  return fetch(origin + "/api/tag", {
+  return fetch(window.domain + path + "/api/tag", {
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
@@ -1851,7 +1857,7 @@ function removeTagAndFiles(tagId) {
 
 function removeFilesByTag(tagId) {
   let body = { tagId: tagId };
-  return fetch(origin + "/api/files", {
+  return fetch(window.domain + path + "/api/files", {
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
@@ -1862,7 +1868,7 @@ function removeFilesByTag(tagId) {
 }
 function removeFile(tagId, fileName) {
   let body = { tagId: tagId, fileName: fileName };
-  return fetch(origin + "/api/file", {
+  return fetch(window.domain + path + "/api/file", {
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
@@ -2096,7 +2102,7 @@ $("cloud_edit_mode").addEventListener("click", () => {
 
 function createNewTag(name) {
   let body = { tag: name };
-  return fetch(origin + "/api/file/tag", {
+  return fetch(window.domain + path + "/api/file/tag", {
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
@@ -2146,7 +2152,7 @@ function uploadCurrentFile(fileName) {
     fileName: fn,
     fileData: JSON.stringify(obj, null, 2),
   };
-  return fetch(origin + "/api/file", {
+  return fetch(window.domain + path + "/api/file", {
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
