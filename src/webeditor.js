@@ -1564,7 +1564,7 @@ $("btn_import_file_link").addEventListener("click", () => {
 
 /*--------------雲端檔案管理---------------*/
 window.cloud_edit_mode_flag = false;
-window.domain = localStorage.getItem("cloud_login_domain") || window.origin;
+window.domain = localStorage.getItem("cloud_login_domain") || window.host;
 let protocol = window.location.protocol + "//";
 let path = "/fileserver";
 $("cloud_login_domain").value = localStorage.getItem("cloud_login_domain");
